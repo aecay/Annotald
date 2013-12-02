@@ -360,8 +360,8 @@ function currentText(root) {
     var text = "",
         nv;
     for (var i = 0; i < nodes.length; i++) {
-        nv = nodes[i].childNodes[0].nodeValue;
-        if (!isEmpty(nv)) {
+        if (!isEmptyNode(nodes[i])) {
+            nv = nodes[i].childNodes[0].nodeValue;
             text += nv;
         }
     }

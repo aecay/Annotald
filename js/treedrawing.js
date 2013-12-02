@@ -673,7 +673,7 @@ function addMetadataDialog() {
 
 function splitWord() {
     if (!startnode || endnode) return;
-    if (!isLeafNode($(startnode)) || isEmpty(wnodeString($(startnode)))) return;
+    if (!isLeafNode($(startnode)) || isEmptyNode(startnode)) return;
     undoBeginTransaction();
     touchTree($(startnode));
     var wordSplit = wnodeString($(startnode)).split("-");
@@ -1952,7 +1952,7 @@ function makeNode(label) {
 function pruneNode() {
     if (startnode && !endnode) {
         var deltext = $(startnode).children().first().text();
-        if (isLeafNode(startnode) && isEmpty(deltext)) {
+        if (isLeafNode(startnode) && isEmptyNode(startnode)) {
             // it is ok to delete leaf if it is empty/trace
             if (isRootNode($(startnode))) {
                 // perversely, it is possible to have a leaf node at the root
@@ -2765,7 +2765,7 @@ function basesAndDashes(bases, dashes) {
 function addLemma(lemma) {
     // TODO: This only makes sense for dash-format corpora
     if (!startnode || endnode) return;
-    if (!isLeafNode($(startnode)) || isEmpty(wnodeString($(startnode)))) return;
+    if (!isLeafNode($(startnode)) || isEmptyNode(startnode)) return;
     touchTree($(startnode));
     var theLemma = $("<span class='lemma'>-" + lemma +
                      "</span>");
