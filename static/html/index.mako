@@ -1,30 +1,29 @@
-## -*- coding: utf-8 -*-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
-<!-- This file copyright © 2012 by Aaron Ecay, Anton Ingason.  It is made
-available under the terms of the GNU GPL, version 3 or (at your option)
-any later version.  See the LICENSE file for more information. -->
+<!-- This file copyright © 2012-2013 by Aaron Ecay, Anton Ingason.  It
+is made available under the terms of the GNU GPL, version 3 or (at your
+option) any later version.  See the LICENSE file for more
+information. -->
 
 <html>
   <head>
     <title>Annotald</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" type="text/css" href="css/treedrawing.css" />
+    <link rel="stylesheet" type="text/css" href="treedrawing.css" />
 %if colorCSS:
     <style type="text/css">
     ${open(colorPath).read()}
     </style>
 %endif
 %if debugJs:
-    <script type= "application/javascript" src="scripts/jquery-debug.js"></script>
+    <script type= "application/javascript" src="jquery-debug.js"></script>
 %else:
-    <script type= "application/javascript" src="scripts/jquery.js"></script>
+    <script type= "application/javascript" src="jquery.js"></script>
 %endif
-    <script type= "application/javascript" src="scripts/jquery.mousewheel.min.js"></script>
-    <script type= "application/javascript" src="scripts/treedrawing.utils.js"></script>
-    <script type= "application/javascript" src="scripts/treedrawing.js"></script>
-    <script type= "application/javascript" src="scripts/underscore-min.js"></script>
+    <script type= "application/javascript" src="jquery.mousewheel.min.js"></script>
+    <script type= "application/javascript" src="treedrawing.utils.js"></script>
+    <script type= "application/javascript" src="treedrawing.js"></script>
+    <script type= "application/javascript" src="underscore-min.js"></script>
     <script type="application/javascript">var startTime = ${startTime};</script>
 %for script in extraScripts:
     <script type="application/javascript">
@@ -32,10 +31,9 @@ any later version.  See the LICENSE file for more information. -->
     </script>
 %endfor
     <script type= "application/javascript">  ${currentSettings} </script>
-    <script type= "application/javascript" src="scripts/treedrawing.contextMenu.js"></script>
+    <script type= "application/javascript" src="treedrawing.contextMenu.js"></script>
 %if test:
-    <script type="application/javascript"
-    src="scripts/test.js"></script>
+    <script type="application/javascript" src="test.js"></script>
 %endif
 
   </head>

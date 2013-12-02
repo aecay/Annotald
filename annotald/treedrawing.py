@@ -75,8 +75,6 @@ class Treedraw(object):
                               'colorCSS': False,
                               # TODO: this masks a bug in jana's branch
                               'colorCSSPath': "/dev/null",
-                              'corpusSearchValidate':
-                              util.corpusSearchValidate,
                               'rewriteIndices': True,
                               'serverMode': True}
         if args.pythonSettings is not None:
@@ -96,7 +94,7 @@ class Treedraw(object):
 
     _cp_config = { 'tools.staticdir.on'    : True,
                    'tools.staticdir.dir'   :
-                   pkg_resources.resource_filename("annotald", "data/"),
+                   pkg_resources.resource_filename("annotald", "static/"),
                    'tools.staticdir.index' : 'index.html',
                    'tools.caching.on'      : False
                    }
@@ -340,7 +338,7 @@ class Treedraw(object):
     def renderIndex(self, currentTree, currentSettings, test):
         indexTemplate = Template(
             filename = pkg_resources.resource_filename(
-                "annotald", "/data/html/index.mako"),
+                "annotald", "static/index.mako"),
             strict_undefined = True)
 
         validators = {}
@@ -485,7 +483,7 @@ def _main(argv):
 
     parser.set_defaults(port = 8080,
                         settings = pkg_resources.resource_filename(
-                            "annotald", "settings.js"),
+                            "annotald", "config/settings.js"),
                         pythonSettings = None,
                         oneTree = False,
                         numTrees = 1)

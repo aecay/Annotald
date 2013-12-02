@@ -34,11 +34,8 @@ from collections import defaultdict
 import hashlib
 import json
 import os
-import pkg_resources
 import re
-import subprocess
 import sys
-import tempfile
 
 # External libraries
 import nltk.tree as T
@@ -292,41 +289,6 @@ def _formatTree(tree, indent = 0):
         leaves = (u"\n" + u" " * (indent + l)).join(
             map(lambda x: _formatTree(x, indent + l), tree))
         return u"%s%s%s" % (s, leaves, u")")
-
-
-def corpusSearchValidate(queryFile):  # pragma: no cover
-    # TODO: how to test?
-    # TODO: test the unicode part
-    def corpusSearchValidateInner(version, trees):
-        # Should use writetreestofile for unicode thing
-        tf = tempfile.NamedTemporaryFile(delete = False)
-        name = tf.name
-        writer = codecs.getwriter("utf-8")
-        write_handle = writer(tf)
-        write_handle.write(trees)
-        tf.close()
-        # TODO: this will break when merging anton's branch
-        cmdline = 'java -classpath ' + \
-                  pkg_resources.resource_filename(
-                      "annotald", 'CS_Tony_oct19.jar') + \
-                  ' csearch.CorpusSearch ' + queryFile + ' ' + name + \
-                  ' -out ' + name + '.out'
-        # make sure console is hidden in windows py2exe version
-        if os.name == "nt":
-            subprocess.check_call(cmdline.split(" "),
-                                  creationflags=win32process.CREATE_NO_WINDOW)
-        else:
-            subprocess.check_call(cmdline.split(" "))
-
-        with open(name + ".out") as f:
-            newtrees = f.read()
-        newtrees = scrubText(newtrees)
-        os.unlink(name)
-        os.unlink(name + ".out")
-
-        return newtrees
-
-    return corpusSearchValidateInner
 
 
 def scrubText(text):

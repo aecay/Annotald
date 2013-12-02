@@ -52,7 +52,7 @@ def getIntervals(logData, start, end):
                           "user-resume",
                           "auto-idle",
                           "auto-resume"]
-    
+
     keys = logData.keys()
     keys.sort()
     start = float(time.mktime(start))
@@ -172,8 +172,8 @@ def timeline(logData, **kwargs):
                           0),
                    0),
              round((time.mktime(end) - time.mktime(start)) / (60*60*24), 0))).decode("utf-8")
-    
-    
+
+
 
 allPlots = {
     "Idle/active timeline": timeline
@@ -195,11 +195,11 @@ def formatPlot(name, plot):
 
 def plotPage(evtlog, **formData):
     plotTemplate = Template(filename = pkg_resources.resource_filename(
-                            "annotald","data/html/logs.mako"),
+                            "annotald","static/logs.mako"),
                             strict_undefined = True)
 
     plots = []
-    
+
     if formData:
         for k in allPlots.keys():
             print k
@@ -223,4 +223,3 @@ def plotPage(evtlog, **formData):
                                startdate = startdate,
                                enddate = enddate,
                                plots = plots)
-    
