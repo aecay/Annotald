@@ -1,0 +1,12 @@
+* TODO Add a check-hash command to annotald-aux                     :feature:
+* Docs                                                                  :doc:
+** TODO Convert docs to RST, host on readthedocs
+** TODO Use ArgDoc
+https://github.com/chriskiehl/ArgDoc
+* TODO Convert to python2/3 compat with six
+* TODO Use argh for annotald-aux
+* Versioning
+Use =git describe= or similar.
+* TODO Add deploy hooks
+- ReadTheDocs
+- Travis-CI (with deploy to pypi)
