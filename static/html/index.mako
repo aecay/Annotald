@@ -18,7 +18,7 @@ information. -->
 %if debugJs:
     <script type= "application/javascript" src="jquery-debug.js"></script>
 %else:
-    <script type= "application/javascript" src="ext/jquery.js"></script>
+    <script type= "application/javascript" src="ext/jquery-2.0.3.min.js"></script>
 %endif
     <script type= "application/javascript" src="ext/jquery.mousewheel.min.js"></script>
     <script type= "application/javascript" src="treedrawing.utils.js"></script>
