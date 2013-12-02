@@ -10,3 +10,56 @@ Use =git describe= or similar.
 * TODO Add deploy hooks
 - ReadTheDocs
 - Travis-CI (with deploy to pypi)
+* Using a data-binding library
+After exploring the idea of using a data-binding library such as [[http://www.ractivejs.org/][Ractive]]
+for Annotald’s UI, I’ve decided against it.  This is because in the JS
+object, we’d need to maintain parent references, a burdensome task.
+This is handled in the DOM automatically (and efficiently), however.
+The current plan is to make use of more structured DOM representations,
+with data-* attributes, in conjunction with Shadow DOM/Web Components
+inspired ideas for presenting UI elements.  (Or just hack it with
+onchange events and DOM munging.)
+* PSDX format
+- Define format (XML schema)
+- Write up- and down-converters in lovett (release lovett)
+  - add a lovett command line tool which reindents, checks trees, checks
+    hashes, ...
+- Support this format in Annotald 2
+** Format ideas
+
+Doc structure <doc><header></hdr><trees></trees></doc>
+
+In header:
+- file-level info (corpus name, version, etc.)
+- hash
+- info about metadata fields: what type (string, bool, choice, etc.),
+  what vals are allowed
+  - can we use embedded xml schema for this?
+  - can we use xml include to have this info represented once for a
+    many-file corpus
+    - or should corpora be distributed as a single file??? (gzipped?)
+*** Notion of scopes
+Allow a scope tag inside trees, which wraps some trees and assigns their
+metadata (e.g. author) jointly
+
+How to edit? -> each scope has a name, annotald lets you open just a
+single scope within a file?  Or: scopal metadata vals show up in
+metadata editor (in separate section to indicate they are scope and not
+tree-level)  But: how to delimit a scope?  Manually (by editing as text?
+a bad idea if it can be cleverly avoided)?
+
+inheritance of metadata:
+- tree
+- scopes, nestedly
+- file-level
+
+* Annotald 2 features
+- PSDX support
+- revamped frontend code (data-* attributes instead of mov’t indices as
+  text, e.g.)
+- works in node-webkit and from server
+  - explore moving to node.js as server backend
+    - drawback: harder to install on legacy systems (babel)
+* For DIGS workshop
+- TogetherJS
+- metadata editor
