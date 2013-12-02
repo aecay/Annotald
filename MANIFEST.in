@@ -1,1 +1,3 @@
 include *.rst LICENSE
+recursive-include frontend *.mako *.css *.js *.map
+include config/settings.js config/settings.py

@@ -93,8 +93,7 @@ class Treedraw(object):
 
     _cp_config = { 'tools.staticdir.on'    : True,
                    'tools.staticdir.dir'   :
-                   pkg_resources.resource_filename("annotald", "static/"),
-                   'tools.staticdir.index' : 'index.html',
+                   pkg_resources.resource_filename("annotald", "frontend/"),
                    'tools.caching.on'      : False
                    }
     if os.name == "nt":
@@ -337,7 +336,7 @@ class Treedraw(object):
     def renderIndex(self, currentTree, currentSettings, test):
         indexTemplate = Template(
             filename = pkg_resources.resource_filename(
-                "annotald", "static/html/index.mako"),
+                "annotald", "frontend/html/index.mako"),
             strict_undefined = True)
 
         validators = {}

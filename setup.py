@@ -1,6 +1,7 @@
 from setuptools import setup
 
 import os
+import glob
 import annotald
 
 setup_args = {
@@ -21,16 +22,16 @@ setup_args = {
                            open("NEWS.rst").read())
 }
 
-else:
-    setup(
-          packages=['annotald']
-        , scripts=['bin/annotald', 'bin/annotald-aux']
-        , data_files=[('static', [dir + "/" + file
-                                  for (dir, _, files) in os.walk("static")
-                                  for file in files]),
-                      ('config', ["settings.py", "settings.js"])]
-        , install_requires=["mako", "cherrypy", "argparse", "nltk"]
-        , setup_requires = ["setuptools"]
-        , provides=["annotald"]
-        , **setup_args
-    )
+setup(
+    packages=['annotald']
+    , scripts=['bin/annotald', 'bin/annotald-aux']
+    , package_data={'annotald':
+                    glob.glob('config/*') +
+                    [dir + "/" + file
+                     for dir, _, files in os.walk("frontend")
+                     for file in files]}
+    , install_requires=["mako", "cherrypy", "argparse", "nltk"]
+    , setup_requires = ["setuptools"]
+    , provides=["annotald"]
+    , **setup_args
+)
