@@ -119,7 +119,7 @@ function formToDictionary(form) {
             var key = $(this).children(".key").text();
             var val = $(this).find(".val>.metadataField").val();
             d[key] = val;
-            if ($(this).attr("data-level") < curlevel) {
+            if ($(this).prop("data-level") < curlevel) {
                 var new_d = dstack.pop();
                 var next_name = namestack.pop();
                 new_d[next_name] = d;
@@ -127,7 +127,7 @@ function formToDictionary(form) {
             }
         } else if ($(this).hasClass("tabhead")) {
             namestack.push($(this).text());
-            curlevel = $(this).attr("data-level");
+            curlevel = $(this).prop("data-level");
             dstack.push(d);
             d = {};
         }
@@ -334,7 +334,7 @@ function guessLeafNode(node) {
  * @param {JQuery Node} node the node to operate on
  */
 function getTokenRoot(node) {
-    return node.parents().andSelf().filter("#sn0>.snode").get(0);
+    return node.parents().addBack().filter("#sn0>.snode").get(0);
 }
 
 /**
@@ -402,7 +402,7 @@ function getLemma(node) {
 
 // TODO: document
 function getMetadata(node) {
-    var m = node.attr("data-metadata");
+    var m = node.prop("data-metadata");
     if (m) {
         return JSON.parse(m);
     } else {
@@ -554,7 +554,7 @@ function maxIndex(token) {
 function addToIndices(tokenRoot, numberToAdd) {
     var ind = 1;
     var maxindex = maxIndex(tokenRoot);
-    var nodes = tokenRoot.find(".snode,.wnode").andSelf();
+    var nodes = tokenRoot.find(".snode,.wnode").addBack();
     nodes.each(function(index) {
         var curNode = $(this);
         var nindex = getIndex(curNode);

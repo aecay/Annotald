@@ -599,7 +599,7 @@ function scrollToShowSel() {
 
 function saveMetadata() {
     if ($("#metadata").html() !== "") {
-        $(startnode).attr("data-metadata",
+        $(startnode).prop("data-metadata",
                           JSON.stringify(formToDictionary($("#metadata"))));
     }
 }
@@ -661,7 +661,7 @@ function addMetadataDialog() {
     function addMetadata() {
         var oldMetadata = formToDictionary($("#metadata"));
         oldMetadata[$("#metadataNewName").val()] = "NEW";
-        $(startnode).attr("data-metadata", JSON.stringify(oldMetadata));
+        $(startnode).prop("data-metadata", JSON.stringify(oldMetadata));
         updateMetadataEditor();
         hideDialogBox();
     }
@@ -984,7 +984,7 @@ function displayRename() {
                 if (event.keyCode == 9) {
                     var element = (event.target || event.srcElement);
                     if ($("#leafphrasebox").is(element)) {
-                        if (!$("#leaftextbox").attr("disabled")) {
+                        if (!$("#leaftextbox").prop("disabled")) {
                             $("#leaftextbox").focus();
                         } else if ($("#leaflemmabox").length == 1) {
                             $("#leaflemmabox").focus();
@@ -1664,7 +1664,7 @@ function moveNode(parent) {
             if (currentText(parent_ip) != textbefore)  {
                 undoAbortTransaction();
                 parent_ip.replaceWith(parent_before);
-                if (parent_ip.attr("id") == "sn0") {
+                if (parent_ip.prop("id") == "sn0") {
                     $("#sn0").mousedown(handleNodeClick);
                 }
                 clearSelection();
@@ -2499,7 +2499,7 @@ var idNumber = 1;
 
 function prepareUndoIds() {
     $("#sn0>.snode").map(function () {
-        $(this).attr("id", "id" + idNumber);
+        $(this).prop("id", "id" + idNumber);
         idNumber++;
     });
     nukeUndo();
@@ -2605,8 +2605,8 @@ function ignoringUndo(fn) {
  */
 function touchTree(node) {
     var root = $(getTokenRoot(node));
-    if (!undoMap[root.attr("id")]) {
-        undoMap[root.attr("id")] = root.clone();
+    if (!undoMap[root.prop("id")]) {
+        undoMap[root.prop("id")] = root.clone();
     }
 }
 
@@ -2619,7 +2619,7 @@ function registerNewRootTree(tree) {
     var newid = "id" + idNumber;
     idNumber++;
     undoNewTrees.push(newid);
-    tree.attr("id", newid);
+    tree.prop("id", newid);
 }
 
 /**
@@ -2634,7 +2634,7 @@ function registerDeletedRootTree(tree) {
     }
     undoDeletedTrees.push({
         tree: tree,
-        before: prev && prev.attr("id")
+        before: prev && prev.prop("id")
     });
 }
 
@@ -2665,7 +2665,7 @@ function doUndo(undoData) {
         } else {
             v.tree.prependTo($("#sn0"));
         }
-        newTr.push(v.tree.attr("id"));
+        newTr.push(v.tree.prop("id"));
     });
 
     _.each(undoData.newTr, function(v) {
@@ -2676,7 +2676,7 @@ function doUndo(undoData) {
         }
         delTr.push({
             tree: theNode.clone(),
-            before: prev && prev.attr("id")
+            before: prev && prev.prop("id")
         });
         theNode.remove();
     });
@@ -2878,7 +2878,7 @@ function updateCssClass(node, oldlabel) {
         oldlabel = parseLabel($.trim(oldlabel));
     } else {
         // oldlabel wasn't supplied -- try to guess
-        oldlabel = node.attr("class").split(" ");
+        oldlabel = node.prop("class").split(" ");
         oldlabel = _.find(oldlabel, function (s) { return (/[A-Z-]/).match(s); });
     }
     node.removeClass(oldlabel);
@@ -2911,7 +2911,7 @@ function resetLabelClasses(alertOnError) {
             var node = $(this);
             var label = $.trim(getLabel(node));
             if (alertOnError) {
-                var classes = node.attr("class").split(" ");
+                var classes = node.prop("class").split(" ");
                 // This incantation removes a value from an array.
                 classes.indexOf("snode") >= 0 &&
                     classes.splice(classes.indexOf("snode"), 1);
@@ -2919,10 +2919,10 @@ function resetLabelClasses(alertOnError) {
                     classes.splice(classes.indexOf(label), 1);
                 if (classes.length > 0) {
                     alert("Spurious classes '" + classes.join() +
-                          "' detected on node id'" + node.attr("id") + "'");
+                          "' detected on node id'" + node.prop("id") + "'");
                 }
             }
-        node.attr("class", "snode " + label);
+        node.prop("class", "snode " + label);
         });
 }
 
