@@ -756,6 +756,7 @@ function editNode() {
         displayRename();
     }
 }
+editNode.async = true;
 
 var commentTypeCheckboxes = "Type of comment: ";
 
@@ -820,6 +821,7 @@ function editComment() {
         }
     });
 }
+editComment.async = true;
 
 /**
  * Return the JQuery object with the editor for a leaf node.
