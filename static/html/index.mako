@@ -18,12 +18,12 @@ information. -->
 %if debugJs:
     <script type= "application/javascript" src="jquery-debug.js"></script>
 %else:
-    <script type= "application/javascript" src="jquery.js"></script>
+    <script type= "application/javascript" src="ext/jquery.js"></script>
 %endif
-    <script type= "application/javascript" src="jquery.mousewheel.min.js"></script>
+    <script type= "application/javascript" src="ext/jquery.mousewheel.min.js"></script>
     <script type= "application/javascript" src="treedrawing.utils.js"></script>
     <script type= "application/javascript" src="treedrawing.js"></script>
-    <script type= "application/javascript" src="underscore-min.js"></script>
+    <script type= "application/javascript" src="ext/underscore-min.js"></script>
     <script type="application/javascript">var startTime = ${startTime};</script>
 %for script in extraScripts:
     <script type="application/javascript">
