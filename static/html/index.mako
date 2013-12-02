@@ -11,17 +11,17 @@ information. -->
   <head>
     <title>Annotald</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <link rel="stylesheet" type="text/css" href="treedrawing.css" />
+    <link rel="stylesheet" type="text/css" href="css/treedrawing.css" />
 %if colorCSS:
     <style type="text/css">
     ${open(colorPath).read()}
     </style>
 %endif
-    <script type= "application/javascript" src="ext/jquery-2.0.3.min.js"></script>
-    <script type= "application/javascript" src="ext/jquery.mousewheel.js"></script>
-    <script type= "application/javascript" src="treedrawing.utils.js"></script>
-    <script type= "application/javascript" src="treedrawing.js"></script>
-    <script type= "application/javascript" src="ext/underscore-min.js"></script>
+    <script type= "application/javascript" src="js/ext/jquery-2.0.3.min.js"></script>
+    <script type= "application/javascript" src="js/ext/jquery.mousewheel.js"></script>
+    <script type= "application/javascript" src="js/treedrawing.utils.js"></script>
+    <script type= "application/javascript" src="js/treedrawing.js"></script>
+    <script type= "application/javascript" src="js/ext/underscore-min.js"></script>
     <script type="application/javascript">var startTime = ${startTime};</script>
 %for script in extraScripts:
     <script type="application/javascript">
@@ -29,9 +29,8 @@ information. -->
     </script>
 %endfor
     <script type= "application/javascript">  ${currentSettings} </script>
-    <script type= "application/javascript" src="treedrawing.contextMenu.js"></script>
 %if test:
-    <script type="application/javascript" src="test.js"></script>
+    <script type="application/javascript" src="js/test.js"></script>
 %endif
 
   </head>

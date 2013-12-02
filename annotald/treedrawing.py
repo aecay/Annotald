@@ -337,7 +337,7 @@ class Treedraw(object):
     def renderIndex(self, currentTree, currentSettings, test):
         indexTemplate = Template(
             filename = pkg_resources.resource_filename(
-                "annotald", "static/index.mako"),
+                "annotald", "static/html/index.mako"),
             strict_undefined = True)
 
         validators = {}
