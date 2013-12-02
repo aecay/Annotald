@@ -4,10 +4,6 @@
 # Annotald UI
 extraJavascripts = []
 
-# Set this to True if you are an Annotald developer or otherwise need to
-# debug Annotald's jQuery code
-debugJs = False
-
 # TODO: add an option to include waxeye files, which we will distribute?
 
 # Set this to True if you have defined a color.css file to use a personalized

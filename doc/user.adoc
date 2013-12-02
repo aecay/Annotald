@@ -554,10 +554,6 @@ be discussed.
 included in the page.  This is relevant if for advanced users who are
 writing their own <<customjs,javascript functions>> and would like to include external libraries.
 
-`debugJs`:: Include debugger-friendly versions of javascript files in
-the page.  Only Annotald developers need to set this; for users the
-default value `False` is appropriate.
-
 `colorCSS` [[colorcss]]:: Whether to use a user-supplied CSS file.
 
 `colorCSSPath`:: The path to the user-supplied CSS file.

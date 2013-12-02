@@ -70,7 +70,6 @@ class Treedraw(object):
         self.showingPartialFile = self.options.oneTree or \
                                   self.options.numTrees > 1
         self.pythonOptions = {'extraJavascripts': [],
-                              'debugJs': False,
                               'validators': {},
                               'colorCSS': False,
                               # TODO: this masks a bug in jana's branch
@@ -368,7 +367,6 @@ class Treedraw(object):
                                     colorCSS = self.pythonOptions['colorCSS'],
                                     colorPath = self.pythonOptions['colorCSSPath'],  # noqa
                                     startTime = self.startTime,
-                                    debugJs = self.pythonOptions['debugJs'],
                                     useValidator = useValidator,
                                     validators = validatorNames,
                                     treeIndexStatement = ti,
