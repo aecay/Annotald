@@ -16,7 +16,7 @@ information. -->
     </style>
 %endif
     <script type= "application/javascript" src="ext/jquery-2.0.3.min.js"></script>
-    <script type= "application/javascript" src="ext/jquery.mousewheel.min.js"></script>
+    <script type= "application/javascript" src="ext/jquery.mousewheel.js"></script>
     <script type= "application/javascript" src="treedrawing.utils.js"></script>
     <script type= "application/javascript" src="treedrawing.js"></script>
     <script type= "application/javascript" src="ext/underscore-min.js"></script>
