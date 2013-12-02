@@ -343,6 +343,11 @@ body {
 
 /* TODO: special styles for the root node, or/deep/etc nodes */
 
+/* Collaboration */
+.togetherjs-started {
+    background-color: #33AA33;
+}
+
 /* Misc */
 .shown {
     visibility: visible;

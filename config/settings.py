@@ -38,3 +38,6 @@ validators = {}
 
 # TODO: document
 serverMode = True
+
+# TODO: document
+organization = "Annotald"

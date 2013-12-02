@@ -270,8 +270,11 @@ function addCommand(dict, fn) {
 
 // ========== Event handlers
 
-function killTextSelection() {
-    if (dialogShowing) return;
+function killTextSelection(e) {
+    if (dialogShowing ||
+        $(e.target).parents(".togetherjs,.togetherjs-modal").length > 0) {
+        return;
+    }
     var sel = window.getSelection();
     sel.removeAllRanges();
 }
@@ -304,6 +307,10 @@ function handleKeyDown(e) {
     }
     if (e.keyCode == 16 || e.keyCode == 17 || e.keyCode == 18) {
         // Don't handle shift, ctrl, and meta presses
+        return true;
+    }
+    if ($(e.target).parents(".togetherjs,.togetherjs-modal").length > 0) {
+        // Don't interfere with TogetherJS UI elements
         return true;
     }
     var commandMap;
@@ -503,7 +510,8 @@ function setInputFieldEnter(field, fn) {
  *
  * @param {DOM Node} node the node to be selected
  * @param {Boolean} force if true, force this node to be a secondary
- * selection, even if it wouldn't otherwise be.
+ * selection, even if it wouldn't otherwise be
+ * @param {Boolean} remote whether this request was triggered remotely
  */
 function selectNode(node, force) {
     if (node) {
@@ -564,7 +572,7 @@ function clearSelection() {
     hideContextMenu();
 }
 
-function updateSelection() {
+function updateSelection(remote) {
     // update selection display
     $('.snodesel').removeClass('snodesel');
 
@@ -577,6 +585,10 @@ function updateSelection() {
     }
 
     updateMetadataEditor();
+
+    if (!remote) {
+        $(document).trigger("set_selection", [startnode, endnode]);
+    }
 }
 
 /**
@@ -893,7 +905,7 @@ function displayRename() {
     function postChange(newNode) {
         if (newNode) {
             updateCssClass(newNode, oldClass);
-            startnode = endnode = null;
+            clearSelection();
             updateSelection();
             document.body.onkeydown = handleKeyDown;
             $("#sn0").mousedown(handleNodeClick);
@@ -1065,7 +1077,7 @@ function editLemma() {
         event.preventDefault();
     }
     function postChange() {
-        startnode = null; endnode = null;
+        clearSelection();
         updateSelection();
         document.body.onkeydown = handleKeyDown;
         $("#sn0").mousedown(handleNodeClick);
@@ -1938,8 +1950,7 @@ function makeNode(label) {
 
     var toselect = $(startnode).parent();
 
-    startnode = null;
-    endnode = null;
+    clearSelection();
 
     if (rootLevel) {
         registerNewRootTree(toselect);
@@ -1985,7 +1996,7 @@ function pruneNode() {
                 }
             }
             $(startnode).remove();
-            startnode = endnode = null;
+            clearSelection();
             updateSelection();
             return;
         } else if (isLeafNode(startnode)) {
@@ -1998,7 +2009,7 @@ function pruneNode() {
         var toselect = $(startnode).children().first();
         touchTree($(startnode));
         $(startnode).replaceWith($(startnode).children());
-        startnode = endnode = null;
+        clearSelection();
         selectNode(toselect.get(0));
         updateSelection();
     }
@@ -2708,7 +2719,7 @@ function undo() {
     }
     var lastUndo = undoStack.pop();
     redoStack.push(doUndo(lastUndo));
-    startnode = endnode = undefined;
+    clearSelection();
     updateSelection();
 }
 
@@ -2721,7 +2732,7 @@ function redo () {
         return;
     }
     undoStack.push(doUndo(redoStack.pop()));
-    startnode = endnode = undefined;
+    clearSelection();
     updateSelection();
 }
 

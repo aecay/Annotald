@@ -17,12 +17,14 @@ information. -->
     ${open(colorPath).read()}
     </style>
 %endif
+    <script type="application/javascript">var startTime = ${startTime}, TJSroom = "${TJSroom}";</script>
     <script type= "application/javascript" src="js/ext/jquery-2.0.3.min.js"></script>
     <script type= "application/javascript" src="js/ext/jquery.mousewheel.js"></script>
     <script type= "application/javascript" src="js/treedrawing.utils.js"></script>
     <script type= "application/javascript" src="js/treedrawing.js"></script>
+    <script type= "application/javascript" src="js/annotald.collab.js"></script>
     <script type= "application/javascript" src="js/ext/underscore-min.js"></script>
-    <script type="application/javascript">var startTime = ${startTime};</script>
+    <script src="https://togetherjs.com/togetherjs-min.js"></script>
 %for script in extraScripts:
     <script type="application/javascript">
       ${open(script).read()}
@@ -61,6 +63,9 @@ information. -->
         <input class="menubutton" type="button" value="Run Tests"
         id="buttests" /><br />
 %endif
+        <button class="menubutton" type="button" id="butcollaborate"
+               onclick="clearSelection();TogetherJS(this);return false;"
+               data-end-togetherjs-html="Uncollaborate">Collaborate</button><br />
         <input class="menubutton" type="button" value="Exit" id="butexit" /><br />
       </div>
 

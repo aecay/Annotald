@@ -75,7 +75,8 @@ class Treedraw(object):
                               # TODO: this masks a bug in jana's branch
                               'colorCSSPath': "/dev/null",
                               'rewriteIndices': True,
-                              'serverMode': True}
+                              'serverMode': True,
+                              'organization': "Annotald"}
         if args.pythonSettings is not None:
             if sys.version_info[0] == 2 and sys.version_info[1] < 7 or \
                sys.version_info[0] == 3 and sys.version_info[1] < 2:
@@ -369,6 +370,8 @@ class Treedraw(object):
                                     useValidator = useValidator,
                                     validators = validatorNames,
                                     treeIndexStatement = ti,
+                                    TJSroom = "%s_%s" % (self.pythonOptions['organization'],  # noqa
+                                                         self.shortfile),
                                     idle = "<div style='color:#64C465'>Editing.</div>"  # noqa
                                     )
 
