@@ -1069,10 +1069,9 @@ function editLemma() {
         updateSelection();
         document.body.onkeydown = handleKeyDown;
         $("#sn0").mousedown(handleNodeClick);
-        $("#undo").attr("disabled", false);
-        $("#redo").attr("disabled", false);
-        $("#save").attr("disabled", false);
-        undoBarrier();
+        $("#butundo").prop("disabled", false);
+        $("#butredo").prop("disabled", false);
+        $("#butsave").prop("disabled", false);
     }
 
     // Begin code
@@ -1084,9 +1083,9 @@ function editLemma() {
     $("#sn0").unbind('mousedown');
     undoBeginTransaction();
     touchTree($(startnode));
-    $("#undo").attr("disabled", true);
-    $("#redo").attr("disabled", true);
-    $("#save").attr("disabled", true);
+    $("#butundo").prop("disabled", true);
+    $("#butredo").prop("disabled", true);
+    $("#butsave").prop("disabled", true);
 
     var lemma = $(startnode).children(".wnode").children(".lemma").text();
     lemma = lemma.substring(1);
@@ -1102,6 +1101,12 @@ function editLemma() {
             if (event.keyCode == 32) {
                 space(event);
             }
+            if (event.keyCode == 27) {
+                $('#leafeditor').replaceWith("<span class='lemma'>-" +
+                                             lemma + "</span>");
+                postChange();
+                undoAbortTransaction();
+            }
             if (event.keyCode == 13) {
                 var newlemma = $('#leaflemmabox').val();
                 newlemma = newlemma.replace("<","&lt;");
@@ -1111,8 +1116,11 @@ function editLemma() {
                 $("#leafeditor").replaceWith("<span class='lemma'>-" +
                                              newlemma + "</span>");
                 postChange();
+                undoEndTransaction();
+                undoBarrier();
             }
-            // TODO: escape
+        }).mouseup(function editLemmaClick(e) {
+            e.stopPropagation();
         });
     setTimeout(function(){ $("#leaflemmabox").focus(); }, 10);
 }
