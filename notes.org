@@ -66,11 +66,17 @@ inheritance of metadata:
 * Brainstorming TogetherJS
 1. make the site usable as statically served JS
 2. integrate with various ways of getting the file into the page
- 1. Fetch from web via Ajax
- 2. Fetch from github with its API
-   - Then upload changes to repo
- 3. Upload from computer
-   - Then download to save again?
-   - With multi-user syncing via WebRTC?
-   - Store intermediate data in localStorage, with export page to
-     download changed files?
+   1. Fetch from web via Ajax
+   2. Fetch from github with its API
+      - Then upload changes to repo
+   3. Upload from computer
+      - Then download to save again?
+      - With multi-user syncing via WebRTC?
+      - Store intermediate data in localStorage, with export page to
+        download changed files?
+   4. Local files
+      - use node-webkit to create a thin wrapper which:
+        - allows read/write of local files
+        - downloads and caches the JS files from the server
+** Other TODOs
+- log multiuser joins and leaves in event journal
