@@ -30,7 +30,7 @@ setup(
                     [dir + "/" + file
                      for dir, _, files in os.walk("frontend")
                      for file in files]}
-    , install_requires=["mako", "cherrypy", "argparse", "nltk"]
+    , install_requires=["pystache", "cherrypy", "argparse", "nltk"]
     , setup_requires = ["setuptools"]
     , provides=["annotald"]
     , **setup_args

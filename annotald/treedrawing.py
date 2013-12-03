@@ -41,7 +41,7 @@ import argparse
 # External libraries
 import cherrypy
 import cherrypy.lib.caching
-from mako.template import Template
+import pystache
 import nltk.tree as T
 
 # Local libraries
@@ -264,7 +264,8 @@ class Treedraw(object):
 
     @cherrypy.expose
     def test(self):
-        currentSettings = open(self.options.settings).read()
+        with codecs.open(self.options.settings, "r", "utf-8") as f:
+            currentSettings = f.read()
         currentTree = self.readTrees(None, text="""
 ( (IP-MAT (NP-SBJ (D This)) (BEP is) (NP-PRD (D a) (N test)))
   (ID test-01))
@@ -335,10 +336,9 @@ class Treedraw(object):
         return alltrees
 
     def renderIndex(self, currentTree, currentSettings, test):
-        indexTemplate = Template(
-            filename = pkg_resources.resource_filename(
-                "annotald", "frontend/html/index.mako"),
-            strict_undefined = True)
+        with codecs.open(pkg_resources.resource_filename(
+                "annotald", "frontend/html/index.html"), "r", "utf-8") as f:
+            indexTemplate = f.read()
 
         validators = {}
 
@@ -355,25 +355,38 @@ class Treedraw(object):
         else:
             ti = ""
 
-        return indexTemplate.render(annotaldVersion = VERSION,
-                                    currentSettings = currentSettings,
-                                    shortfile = self.shortfile,
-                                    currentTree = currentTree,
-                                    usetimelog = self.options.timelog,
-                                    usemetadata = self.useMetadata,
-                                    test = test,
-                                    partialFile = self.showingPartialFile,
-                                    extraScripts = self.pythonOptions['extraJavascripts'],  # noqa
-                                    colorCSS = self.pythonOptions['colorCSS'],
-                                    colorPath = self.pythonOptions['colorCSSPath'],  # noqa
-                                    startTime = self.startTime,
-                                    useValidator = useValidator,
-                                    validators = validatorNames,
-                                    treeIndexStatement = ti,
-                                    TJSroom = "%s_%s" % (self.pythonOptions['organization'],  # noqa
-                                                         self.shortfile),
-                                    idle = "<div style='color:#64C465'>Editing.</div>"  # noqa
-                                    )
+        colorCSS = None
+        if self.pythonOptions['colorCSS']:
+            with codecs.open(self.pythonOptions['colorCSSPath'],
+                             "r", "utf-8") as f:
+                colorCSS = f.read()
+
+        extraJS = ""
+        for script in self.pythonOptions['extraJavascripts']:
+            with codecs.open(script, "r", "utf-8") as f:
+                extraJS += "<script type=\"application/javascript\">" + \
+                           f.read() + \
+                           "</script>"
+
+        context = dict(annotaldVersion = VERSION,
+                       currentSettings = currentSettings,
+                       shortfile = self.shortfile,
+                       currentTree = currentTree,
+                       usetimelog = self.options.timelog,
+                       usemetadata = self.useMetadata,
+                       test = test,
+                       partialFile = self.showingPartialFile,
+                       extraScripts = self.pythonOptions['extraJavascripts'],
+                       colorCSS = colorCSS,
+                       startTime = self.startTime,
+                       useValidator = useValidator,
+                       validators = validatorNames,
+                       treeIndexStatement = ti,
+                       TJSroom = "%s_%s" % (self.pythonOptions['organization'],
+                                            self.shortfile),
+                       idle = "<div style='color:#64C465'>Editing.</div>")
+
+        return pystache.render(indexTemplate, context)
 
     @cherrypy.expose
     def index(self):
@@ -392,7 +405,8 @@ class Treedraw(object):
     @cherrypy.expose(alias=getpass.getuser())
     def inner_index(self):
         cherrypy.lib.caching.expires(0, force = True)
-        currentSettings = open(self.options.settings).read()
+        with codecs.open(self.options.settings, "r", "utf-8") as f:
+            currentSettings = f.read()
         currentTrees = self.readTrees(self.thefile)
         self.trees = currentTrees
         if self.showingPartialFile:

@@ -1,5 +1,3 @@
-## -*- coding: utf-8 -*-
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <!-- This file copyright © 2012-2013 by Aaron Ecay, Anton Ingason.  It
@@ -12,12 +10,12 @@ information. -->
     <title>Annotald</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <link rel="stylesheet" type="text/css" href="css/treedrawing.css" />
-%if colorCSS:
-    <style type="text/css">
-    ${open(colorPath).read()}
-    </style>
-%endif
-    <script type="application/javascript">var startTime = ${startTime}, TJSroom = "${TJSroom}";</script>
+    {{#colorCSS}}
+      <style type="text/css">
+        {{{colorCSS}}}
+      </style>
+    {{/colorCSS}}
+    <script type="application/javascript">var startTime = {{startTime}}, TJSroom = "{{{TJSroom}}}";</script>
     <script type= "application/javascript" src="js/ext/jquery-2.0.3.min.js"></script>
     <script type= "application/javascript" src="js/ext/jquery.mousewheel.js"></script>
     <script type= "application/javascript" src="js/treedrawing.utils.js"></script>
@@ -25,44 +23,39 @@ information. -->
     <script type= "application/javascript" src="js/annotald.collab.js"></script>
     <script type= "application/javascript" src="js/ext/underscore-min.js"></script>
     <script src="https://togetherjs.com/togetherjs-min.js"></script>
-%for script in extraScripts:
-    <script type="application/javascript">
-      ${open(script).read()}
-    </script>
-%endfor
-    <script type= "application/javascript">  ${currentSettings} </script>
-%if test:
+    {{{extraJS}}}
+    <script type= "application/javascript">{{{currentSettings}}}</script>
+    {{#test}}
     <script type="application/javascript" src="js/test.js"></script>
-%endif
-
+    {{/test}}
   </head>
   <body oncontextmenu="return false;">
     <br />
     <div id="menus">
       <div id="floatMenu" class="menuPane">
         <div class="menuTitle">
-          Annotald ${annotaldVersion}
+          Annotald {{annotaldVersion}}
         </div>
 
-        Editing: ${shortfile} <br />
+        Editing:{{shortfile}}<br />
         <input class="menubutton" type="button" value="Save" id="butsave" /><br />
         <div id="undoCtrls">
         <input class="menubutton" type="button" value="Undo" id="butundo" /><br />
         <input class="menubutton" type="button" value="Redo" id="butredo" /><br />
         </div>
-%if partialFile:
+        {{#partialFile}}
         <input class="menubutton" type="button" value="Prev Tree" id="butprevtree" /><br />
         <input class="menubutton" type="button" value="Next Tree" id="butnexttree" /><br />
 	<input class="menubutton" type="button" value="GoTo Tree #" id="butgototree" /><br />
-	<div id="treeIndexDisplay">Editing tree #${treeIndexStatement}</div>
-%endif
-%if usetimelog:
+	<div id="treeIndexDisplay">Editing tree #{{treeIndexStatement}}</div>
+        {{/partialFile}}
+        {{#useTimelog}}
         <input class="menubutton" type="button" value="Idle/Resume" id="butidle" /><br />
-%endif
-%if test:
+        {{/useTimelog}}
+        {{#test}}
         <input class="menubutton" type="button" value="Run Tests"
         id="buttests" /><br />
-%endif
+        {{/test}}
         <button class="menubutton" type="button" id="butcollaborate"
                onclick="clearSelection();TogetherJS(this);return false;"
                data-end-togetherjs-html="Uncollaborate">Collaborate</button><br />
@@ -77,20 +70,20 @@ information. -->
           <input class="menubutton" type="button" value="Next Match" id="butnextmatch" /><br />
           <input class="menubutton" type="button" value="Clear Matches" id="butclearmatch" /><br />
         </div>
-%if useValidator:
+        {{#useValidator}}
         <select name="validators" id="validatorsSelect">
-%for v in validators:
-          <option value="${v}">${v}</option>
-%endfor
+          {{#validatorNames}}
+          <option value="{{name}}">{{.}}</option>
+          {{/validatorNames}}
         </select>
         <input class="menubutton" type="button" value="Validate" id="butvalidate" /><br />
         <input class="menubutton" type="button" value="Next Error" id="butnexterr" /><br />
-%endif
+        {{/useValidator}}
       </div>
       <div id="metadataEditor"
-%if not usemetadata:
+           {{^usemetadata}}
            style="visibility:hidden;"
-%endif
+           {{/usemetadata}}
            >
         <div class="menuTitle">Metadata</div>
         <div id="metadata"></div>
@@ -99,14 +92,14 @@ information. -->
       <div id="messageBox" class="menuPane">
         <div class="menuTitle" id="messagesTitle">Messages</div>
         <div id="messageBoxInner">----</div>
-%if usetimelog:
+        {{#usetimelog}}
 	<div class="menuTitle">Status</div>
-	<div id="idlestatus">${idle}</div>
-%endif
+	<div id="idlestatus">{{{idle}}}</div>
+        {{/usetimelog}}
       </div>
     </div>
 
-    <div id="editpane">${currentTree}</div>
+    <div id="editpane">{{{currentTree}}}</div>
 
 
     <div id="conMenu">
