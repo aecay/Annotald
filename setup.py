@@ -28,7 +28,7 @@ setup(
     , package_data={'annotald':
                     glob.glob('config/*') +
                     [dir + "/" + file
-                     for dir, _, files in os.walk("frontend")
+                     for dir, _, files in os.walk("webapp")
                      for file in files]}
     , install_requires=["pystache", "cherrypy", "argparse", "nltk"]
     , setup_requires = ["setuptools"]

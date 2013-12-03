@@ -337,7 +337,7 @@ class Treedraw(object):
 
     def renderIndex(self, currentTree, currentSettings, test):
         with codecs.open(pkg_resources.resource_filename(
-                "annotald", "frontend/html/index.html"), "r", "utf-8") as f:
+                "annotald", "webapp/html/index.html"), "r", "utf-8") as f:
             indexTemplate = f.read()
 
         validators = {}
