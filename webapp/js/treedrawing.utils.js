@@ -194,7 +194,7 @@ function displayError(html) {
  *
  * If no matches, do nothing.
  *
- * @returns {JQuery Node} the node scrolled to, or `undefined` if none.
+ * @returns {JQuery} the node scrolled to, or `undefined` if none.
  */
 function scrollToNext(selector) {
     var docViewTop = $(window).scrollTop();
@@ -217,7 +217,7 @@ function scrollToNext(selector) {
 /**
  * Indicate whether a node has a lemma associated with it.
  *
- * @param {JQuery Node} node
+ * @param {JQuery} node
  * @returns {Boolean}
  * @private
  */
@@ -230,7 +230,7 @@ function hasLemma(node) {
  * Test whether a given node is empty, i.e. a trace, comment, or other empty
  * category.
  *
- * @param {DOM Node} node
+ * @param {Node} node
  * @returns {Boolean}
  */
 function isEmptyNode(node) {
@@ -271,7 +271,7 @@ function isEmpty (text) {
 /**
  * Test whether a node is a possible target for movement.
  *
- * @param {DOM node} node the node to operate on
+ * @param {Node} node the node to operate on
  */
 function isPossibleTarget(node) {
     // cannot move under a tag node
@@ -286,7 +286,7 @@ function isPossibleTarget(node) {
 /**
  * Test whether a node is the root node of a tree.
  *
- * @param {JQuery Node} node the node to operate on
+ * @param {JQuery} node the node to operate on
  */
 function isRootNode(node) {
     return node.filter("#sn0>.snode").size() > 0;
@@ -295,7 +295,7 @@ function isRootNode(node) {
 /**
  * Test whether a node is a purely structural leaf.
  *
- * @param {DOM node} node the node to operate on
+ * @param {Node} node the node to operate on
  */
 function isLeafNode(node) {
     return $(node).children(".wnode").size() > 0;
@@ -307,7 +307,7 @@ function isLeafNode(node) {
  * This function respects the results of the `testValidLeafLabel` and
  * `testValidPhraseLabel` functions, if these are defined.
  *
- * @param {DOM node} node the node to operate on
+ * @param {Node} node the node to operate on
  */
 function guessLeafNode(node) {
     var label = getLabel($(node)).replace("-FLAG", "");
@@ -331,7 +331,7 @@ function guessLeafNode(node) {
 /**
  * Get the root of the tree that a node belongs to.
  *
- * @param {JQuery Node} node the node to operate on
+ * @param {JQuery} node the node to operate on
  */
 function getTokenRoot(node) {
     return node.parents().addBack().filter("#sn0>.snode").get(0);
@@ -340,7 +340,7 @@ function getTokenRoot(node) {
 /**
  * Get the text dominated by a given node, without removing empty material.
  *
- * @param {DOM node} node the node to operate on
+ * @param {Node} node the node to operate on
  */
 function wnodeString(node) {
     var text = $(node).find('.wnode').text();
@@ -353,7 +353,7 @@ function wnodeString(node) {
  * This function removes any empty material (traces, comments, etc.)  It does
  * not rejoin words which have been split.  It also does not add spaces.
  *
- * @param {JQuery Node} root the node to operate on
+ * @param {JQuery} root the node to operate on
  */
 function currentText(root) {
     var nodes = root.get(0).getElementsByClassName("wnode");
@@ -371,7 +371,7 @@ function currentText(root) {
 /**
  * Get the label of a node.
  *
- *@param {JQuery Node} node the node to operate on
+ *@param {JQuery} node the node to operate on
  */
 function getLabel(node) {
     return $.trim(textNode(node).text());
@@ -381,7 +381,7 @@ function getLabel(node) {
  * Get the first text node dominated by a node.
  * @private
  *
- * @param {JQuery Node} node the node to operate on
+ * @param {JQuery} node the node to operate on
  */
 function textNode(node) {
     return node.contents().filter(function() {
@@ -392,7 +392,7 @@ function textNode(node) {
 /**
  * Return the lemma of a node, or undefined if none.
  *
- * @param {JQuery Node} node
+ * @param {JQuery} node
  * @returns {String}
  */
 function getLemma(node) {
@@ -413,7 +413,7 @@ function getMetadata(node) {
 /**
  * Test whether a node has a certain dash tag.
  *
- * @param {JQuery Node} node the node to operate on
+ * @param {JQuery} node the node to operate on
  * @param {String} tag the dash tag to look for, without any dashes
  */
 function hasDashTag(node, tag) {
@@ -479,7 +479,7 @@ function parseIndexType(label) {
 /**
  * Return the movement index associated with a node.
  *
- * @param {JQuery Node} node the node to operate on
+ * @param {JQuery} node the node to operate on
  */
 function getIndex(node) {
     if (shouldIndexLeaf(node)) {
@@ -492,7 +492,7 @@ function getIndex(node) {
 /**
  * Return the type of index associated with a node, either `"-"` or `"="`.
  *
- * @param {JQuery Node} node the node to operate on
+ * @param {JQuery} node the node to operate on
  */
 // TODO: only used once, eliminate?
 function getIndexType (node) {
@@ -512,7 +512,7 @@ function getIndexType (node) {
 /**
  * Determine whether to place a movement index on the node label or the text.
  *
- * @param {JQuery Node} node the node to operate on
+ * @param {JQuery} node the node to operate on
  */
 function shouldIndexLeaf(node) {
     // The below check bogusly returns true if the leftmost node in a tree is
@@ -529,7 +529,7 @@ function shouldIndexLeaf(node) {
 /**
  * Get the highest index attested in a token.
  *
- * @param {DOM node} token the token to work on
+ * @param {Node} token the token to work on
  */
 function maxIndex(token) {
     var allSNodes = $(token).find(".snode,.wnode");
@@ -548,7 +548,7 @@ function maxIndex(token) {
  * Increase the value of a tree's indices by an amount
  * @private
  *
- * @param {JQuery Node} tokenRoot the token to operate on
+ * @param {JQuery} tokenRoot the token to operate on
  * @param {number} numberToAdd
  */
 function addToIndices(tokenRoot, numberToAdd) {
@@ -582,7 +582,7 @@ function addToIndices(tokenRoot, numberToAdd) {
  * This function respects the case-related variable `caseMarkers`.  It does
  * not check if a node is in `caseTags`.
  *
- * @param {JQuery Node} node
+ * @param {JQuery} node
  * @returns {String} the case on the node, or `""` if none
  */
 function getCase(node) {
@@ -621,7 +621,7 @@ function labelGetCase(label) {
  * This function tests whether a node is in `caseTags`, and then whether it
  * has case.
  *
- * @param {JQuery Node} node
+ * @param {JQuery} node
  * @returns {Boolean}
  */
 function hasCase(node) {
@@ -647,7 +647,7 @@ function labelHasCase(label) {
  *
  * Based on the `casePhrases` configuration variable.
  *
- * @param {JQuery Node} nodeLabel
+ * @param {JQuery} nodeLabel
  * @returns {Boolean}
  */
 function isCasePhrase(node) {
@@ -672,7 +672,7 @@ function isCaseLabel(label) {
  *
  * See ``isCaseLabel``.
  *
- * @param {JQuery Node} node
+ * @param {JQuery} node
  * @returns {Boolean}
  */
 function isCaseNode(node) {
@@ -698,7 +698,7 @@ function labelRemoveCase(label) {
  *
  * Does not record undo information.
  *
- * @param {JQuery Node} node
+ * @param {JQuery} node
  */
 function removeCase(node) {
     if (!hasCase(node)) {
@@ -713,7 +713,7 @@ function removeCase(node) {
  *
  * Removes any previous case.  Does not record undo information.
  *
- * @param {JQuery Node} node
+ * @param {JQuery} node
  */
 function setCase(node, theCase) {
     removeCase(node);

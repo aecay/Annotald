@@ -43,7 +43,7 @@ function addConLeaf(suggestion, before, label, word) {
  * to one of these groups, the other entries in the group will be suggested as
  * new labels.
  *
- * @param {Array of String} group
+ * @param {String[]} group
  */
 function addConMenuGroup(group) {
     for(var i = 0; i < group.length; i++){
@@ -114,7 +114,7 @@ function getSuggestions(label) {
  *
  * Does not display the menu.
  *
- * @param {DOM node} nodeOrig
+ * @param {Node} nodeOrig
  * @private
  */
 function loadContextMenu(nodeOrig) {
@@ -195,7 +195,7 @@ function loadContextMenu(nodeOrig) {
  *
  * A context menu action function.
  *
- * @param {DOM node} node
+ * @param {Node} node
  * @param {String} extension the extension to toggle
  * @returns {Function} A function which, when called, will execute the action.
  * @private
@@ -218,7 +218,7 @@ function doToggleExtension(node, extension) {
  * stopping when a barrier (case node or explicitly defined barrier) is
  * reached.
  *
- * @param {DOM node} node
+ * @param {Node} node
  * @param {String} theCase the case to assign
  * @returns {Function} A function which, when called, will execute the action.
  * @private
@@ -255,7 +255,7 @@ function setCaseOnTag(node, theCase) {
  * - `before` Boolean, insert this leaf beofre or fter the target
  * - `label` String, the label of the node to insert
  * - `word` String, the text of the node to insert
- * @param {DOM node} node
+ * @param {Node} node
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
