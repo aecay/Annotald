@@ -20,22 +20,9 @@
  * Utility functions for Annotald.
  */
 
-// Table of contents:
-// * Javascript object manipulation
-// * Interconversion of different representations
-// * UI helper functions
-// * Functions on node representation
-// ** Predicates
-// ** Accessor functions
-// ** Index-related functions
-// **********
-// End TOC
-
-
-
 // TODOs: mark @privates appropriately, consider naming scheme for dom vs JQ args
 
-// ===== Javascript object manipulation
+// * Javascript object manipulation
 
 function safeGet (obj, key, def) {
     if (_.has(obj, key)) {
@@ -45,7 +32,7 @@ function safeGet (obj, key, def) {
     }
 }
 
-// ===== Interconversion of different representations
+// * Interconversion of different representations
 
 function jsonToTree(json) {
     var d = JSON.parse(json);
@@ -144,7 +131,7 @@ function formToDictionary(form) {
     return d;
 }
 
-// ===== UI helper functions
+// * UI helper functions
 
 var messageHistory = "";
 
@@ -210,9 +197,9 @@ function scrollToNext(selector) {
     return undefined;
 }
 
-// ===== Functions on node representation
+// * Functions on node representation
 
-// ========== Predicates
+// ** Predicates
 
 /**
  * Indicate whether a node has a lemma associated with it.
@@ -326,7 +313,7 @@ function guessLeafNode(node) {
     }
 }
 
-// ========== Accessor functions
+// ** Accessor functions
 
 /**
  * Get the root of the tree that a node belongs to.
@@ -422,7 +409,7 @@ function hasDashTag(node, tag) {
     return (tags.indexOf(tag) > -1);
 }
 
-// ========== Index-related functions
+// ** Index-related functions
 
 /**
  * Return the index portion of a label, or -1 if no index.
@@ -574,7 +561,7 @@ function addToIndices(tokenRoot, numberToAdd) {
     });
 }
 
-// ========== Case-related functions
+// ** Case-related functions
 
 /**
  * Find the case associated with a node.
@@ -730,7 +717,7 @@ function setCase(node, theCase) {
 
 // }
 
-// ==================================================
+// * Uncategorized
 
 
 
@@ -901,4 +888,5 @@ function nextNodeSuchThat(node, pred) {
 // testValidPhraseLabel" "caseMarkers" "casePhrases" "caseTags" "\
 // startnode")
 // indent-tabs-mode: nil
+// eval: (outline-minor-mode 1)
 // End:
