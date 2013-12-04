@@ -3,16 +3,10 @@
 ### Documentation targets
 
 api-doc:
-	jsdoc -d api-doc -c doc/conf.json -t templates/awe \
-		annotald/data/scripts/treedrawing.js \
-		annotald/data/scripts/treedrawing.utils.js \
-		annotald/data/scripts/treedrawing.contextMenu.js
+	jsdoc -d api-doc -c doc/conf.json --lenient webapp/js/*.js
 
 priv-doc:
-	jsdoc -p -d priv-doc -c doc/conf.json -t templates/awe \
-		annotald/data/scripts/treedrawing.js \
-		annotald/data/scripts/treedrawing.utils.js \
-		annotald/data/scripts/treedrawing.contextMenu.js
+	jsdoc -p -d api-doc -c doc/conf.json --lenient webapp/js/*.js
 
 doc: doc/devel.html doc/user.html doc/index.html
 

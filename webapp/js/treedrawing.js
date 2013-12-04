@@ -29,58 +29,20 @@
 // TODO: for unsaved ch warning: use tolabeledbrax, not html...html is
 // sensitive to search highlight, selection, etc
 
-// Table of contents:
 // * Initialization
-// * User configuration
-// ** CSS styles
-// ** Key bindings
-// * UI functions
-// ** Event handlers
-// ** Context Menu
-// ** Messages
-// ** Dialog boxes
-// ** Selection
-// ** Metadata editor
-// ** Splitting words
-// ** Editing parts of the tree
-// ** Search
-// *** HTML strings and other globals
-// *** Event handlers
-// *** Helper functions
-// *** Search interpretation function
-// *** The core search function
-// * Tree manipulations
-// ** Movement
-// ** Creation
-// ** Deletion
-// ** Label manipulation
-// ** Coindexation
-// * Server-side operations
-// ** Saving
-// *** Save helper function
-// ** Validating
-// ** Advancing through the file
-// ** Idle/resume
-// ** Quitting
-// * Undo/redo
-// * Misc
-// * Misc (candidates to move to utils)
-// End TOC
-
-// ===== Initialization
 
 /**
  * This variable holds the selected node, or "start" node if multiple
  * selection is in effect.  Otherwise undefined.
  *
- * @type DOM Node
+ * @type Node
  */
 var startnode = null;
 /**
  * This variable holds the "end" node if multiple selection is in effect.
  * Otherwise undefined.
  *
- * @type DOM Node
+ * @type Node
  */
 var endnode = null;
 var ctrlKeyMap = {};
@@ -185,9 +147,9 @@ $(document).ready(function () {
     documentReadyHandler();
 });
 
-// ===== User configuration
+// * User configuration
 
-// ========== CSS styles
+// ** CSS styles
 
 function addStyle(string) {
     var style = globalStyle.text() + "\n" + string;
@@ -232,7 +194,7 @@ function styleTags(tagNames, css) {
     }
 }
 
-// ========== Key bindings
+// ** Key bindings
 
 /**
  * Add a keybinding command.
@@ -266,9 +228,9 @@ function addCommand(dict, fn) {
     };
 }
 
-// ===== UI functions
+// * UI functions
 
-// ========== Event handlers
+// ** Event handlers
 
 function killTextSelection(e) {
     if (dialogShowing ||
@@ -391,7 +353,7 @@ function handleNodeClick(e) {
     undoBarrier();
 }
 
-// ========== Context Menu
+// ** Context Menu
 
 function showContextMenu(e) {
     var element = e.target || e.srcElement;
@@ -431,7 +393,7 @@ function hideContextMenu() {
     $("#conMenu").css("visibility","hidden");
 }
 
-// ========== Messages
+// ** Messages
 
 /**
  * Show the message history.
@@ -445,7 +407,7 @@ addStartupHook(function () {
     $("#messagesTitle").click(showMessageHistory);
 });
 
-// ========== Dialog boxes
+// ** Dialog boxes
 
 var dialogShowing = false;
 
@@ -503,12 +465,12 @@ function setInputFieldEnter(field, fn) {
     });
 }
 
-// ========== Selection
+// ** Selection
 
 /**
  * Select a node, and update the GUI to reflect that.
  *
- * @param {DOM Node} node the node to be selected
+ * @param {Node} node the node to be selected
  * @param {Boolean} force if true, force this node to be a secondary
  * selection, even if it wouldn't otherwise be
  * @param {Boolean} remote whether this request was triggered remotely
@@ -607,7 +569,7 @@ function scrollToShowSel() {
     }
 }
 
-// ========== Metadata editor
+// ** Metadata editor
 
 function saveMetadata() {
     if ($("#metadata").html() !== "") {
@@ -681,7 +643,7 @@ function addMetadataDialog() {
     setInputFieldEnter($("#metadataNewName"), addMetadata);
 }
 
-// ========== Splitting words
+// ** Splitting words
 
 function splitWord() {
     if (!startnode || endnode) return;
@@ -749,7 +711,7 @@ function splitWord() {
 }
 splitWord.async = true;
 
-// ========== Editing parts of the tree
+// ** Editing parts of the tree
 
 // TODO: document entry points better
 // DONE(?): split these fns up...they are monsters.  (or split to sep. file?)
@@ -1138,13 +1100,13 @@ function editLemma() {
 }
 editLemma.async = true;
 
-// ========== Search
+// ** Search
 
 // TODO: anchor right end of string, so that NP does not match NPR, only NP or NP-X (???)
 
 // TODO: profile this and optimize like crazy.
 
-// =============== HTML strings and other globals
+// *** HTML strings and other globals
 
 /**
  * The HTML code for a regular search node
@@ -1239,7 +1201,7 @@ addStartupHook(function () {
     $("#matchcommands").hide();
 });
 
-// =============== Event handlers
+// *** Event handlers
 
 /**
  * Clear the highlighting from search matches.
@@ -1339,12 +1301,12 @@ function searchPrecNode(e) {
     searchNodePostAdd(newnode);
 }
 
-// =============== Helper functions
+// *** Helper functions
 
 /**
  * Indicate that a node matches a search
  *
- * @param {DOM node} node the node to flag
+ * @param {Node} node the node to flag
  */
 function flagSearchMatch(node) {
     $(node).addClass("searchmatch");
@@ -1439,7 +1401,7 @@ function clearSearch() {
     searchNodePostAdd();
 }
 
-// =============== Search interpretation function
+// *** Search interpretation function
 
 /**
  * Interpret the DOM nodes comprising the search dialog.
@@ -1449,10 +1411,10 @@ function clearSearch() {
  * node.
  * @private
  *
- * @param {DOM node} node the search node to interpret
- * @param {DOM node} target the tree node to match it against
+ * @param {Node} node the search node to interpret
+ * @param {Node} target the tree node to match it against
  * @param {Object} options search options
- * @returns {DOM node} `target` if it matched the query, otherwise `undefined`
+ * @returns {Node} `target` if it matched the query, otherwise `undefined`
  */
 
 function interpretSearchNode(node, target, options) {
@@ -1528,7 +1490,7 @@ function interpretSearchNode(node, target, options) {
     return target;
 }
 
-// =============== The core search function
+// *** The core search function
 
 /**
  * Display a search dialog.
@@ -1550,7 +1512,7 @@ function search() {
     searchNodePostAdd();
 }
 
-// ===== Collapsing nodes
+// * Collapsing nodes
 
 /**
  * Toggle collapsing of a node.
@@ -1567,9 +1529,9 @@ function toggleCollapsed() {
     return true;
 }
 
-// ===== Tree manipulations
+// * Tree manipulations
 
-// ========== Movement
+// ** Movement
 
 /**
  * Move the selected node(s) to a new position.
@@ -1579,7 +1541,7 @@ function toggleCollapsed() {
  * Empty categories are not allowed to be moved as a leaf.  However, a
  * non-terminal containing only empty categories can be moved.
  *
- * @param {DOM Node} parent the parent node to move selection under
+ * @param {Node} parent the parent node to move selection under
  *
  * @returns {Boolean} whether the operation was successful
  */
@@ -1734,7 +1696,7 @@ function moveNode(parent) {
  * The two selected nodes must be sisters, and they and all intervening sisters
  * will be moved as a unit.  Calls {@link moveNode} to do the heavy lifting.
  *
- * @param {DOM Node} parent the parent to move the selection under
+ * @param {Node} parent the parent to move the selection under
  */
 function moveNodes(parent) {
     if (!startnode || !endnode) {
@@ -1775,7 +1737,7 @@ function moveNodes(parent) {
     clearSelection();
 }
 
-// ========== Creation
+// ** Creation
 
 /**
  * Create a leaf node before the selected node.
@@ -1809,7 +1771,7 @@ function leafAfter() {
  * @param {Boolean} before whether to create the node before or after selection
  * @param {String} label the label to give the new node
  * @param {String} word the text to give the new node
- * @param {DOM Node} target where to put the new node (default: selected node)
+ * @param {Node} target where to put the new node (default: selected node)
  */
 function makeLeaf(before, label, word, target) {
     if (!(target || startnode)) return;
@@ -1962,7 +1924,7 @@ function makeNode(label) {
     updateSelection();
 }
 
-// ========== Deletion
+// ** Deletion
 
 /**
  * Delete a node.
@@ -2015,7 +1977,7 @@ function pruneNode() {
     }
 }
 
-// ========== Label manipulation
+// ** Label manipulation
 
 /**
  * Toggle a dash tag on a node
@@ -2026,7 +1988,7 @@ function pruneNode() {
  * `clause_extensions` variables in the `settings.js` file.
  *
  * @param {String} extension the dash tag to toggle
- * @param {Array of String} [extensionList] override the guess as to the
+ * @param {String[]} [extensionList] override the guess as to the
  * appropriate ordered list of possible extensions.
  */
 function toggleExtension(extension, extensionList) {
@@ -2107,7 +2069,7 @@ function setLabel(labels) {
     return true;
 }
 
-// ========== Coindexation
+// ** Coindexation
 
 /**
  * Coindex nodes.
@@ -2170,11 +2132,11 @@ function coIndex() {
     }
 }
 
-// ===== Server-side operations
+// * Server-side operations
 
-// ========== Saving
+// ** Saving
 
-// =============== Save helper function
+// *** Save helper function
 
 // TODO: move to utils?
 // TODO: this is not very general, in fact only works when called with
@@ -2270,7 +2232,7 @@ function save(e, extraArgs) {
     }
 }
 
-// ========== Validating
+// ** Validating
 
 var validatingCurrently = false;
 
@@ -2319,7 +2281,7 @@ function nextValidationError() {
     selectNode(node.get(0));
 }
 
-// ========== Advancing through the file
+// ** Advancing through the file
 
 function nextTree(e) {
     e = e || {};
@@ -2382,9 +2344,9 @@ function goToTree() {
     $("#gotoInput").focus();
 }
 
-// ========== Event logging and idle
+// ** Event logging and idle
 
-// =============== Event logging function
+// *** Event logging function
 
 function logEvent(type, data) {
     data = data || {};
@@ -2399,7 +2361,7 @@ function logEvent(type, data) {
           });
 }
 
-// =============== Idle timeout
+// *** Idle timeout
 
 var idleTimeout = false;
 var isIdle = false;
@@ -2435,7 +2397,7 @@ function unAutoIdle() {
     }
 }
 
-// =============== User interface
+// *** User interface
 
 function becomeIdle() {
     isIdle = true;
@@ -2459,7 +2421,7 @@ function resume() {
     becomeEditing();
 }
 
-// =============== Key/click logging
+// *** Key/click logging
 
 addStartupHook(function () {
     // This must be delayed, because this file is loaded before settings.js is
@@ -2487,7 +2449,7 @@ addStartupHook(function () {
     }
 });
 
-// ========== Quitting
+// ** Quitting
 
 function quitServer(e, force) {
     unAutoIdle();
@@ -2505,7 +2467,7 @@ function quitServer(e, force) {
     }
 }
 
-// ===== Undo/redo
+// * Undo/redo
 
 // TODO: organize this code
 
@@ -2622,7 +2584,7 @@ function ignoringUndo(fn) {
 /**
  * Inform the undo system that changes are being made.
  *
- * @param {JQuery Node} node the node in which changes are being made
+ * @param {JQuery} node the node in which changes are being made
  */
 function touchTree(node) {
     var root = $(getTokenRoot(node));
@@ -2634,7 +2596,7 @@ function touchTree(node) {
 /**
  * Inform the undo system of the addition of a new tree at the root level.
  *
- * @param {JQuery Node} tree the tree being added
+ * @param {JQuery} tree the tree being added
  */
 function registerNewRootTree(tree) {
     var newid = "id" + idNumber;
@@ -2646,7 +2608,7 @@ function registerNewRootTree(tree) {
 /**
  * Inform the undo system of a tree's removal at the root level
  *
- * @param {JQuery Node} tree the tree being removed
+ * @param {JQuery} tree the tree being removed
  */
 function registerDeletedRootTree(tree) {
     var prev = tree.prev();
@@ -2736,7 +2698,7 @@ function redo () {
     updateSelection();
 }
 
-// ===== Misc
+// * Misc
 
 /**
  * Toggle display of lemmata.
@@ -2816,7 +2778,7 @@ function leafOrNot(leaf, not) {
     fn.apply(null, args);
 }
 
-// ===== Misc (candidates to move to utils)
+// * Misc (candidates to move to utils)
 
 // TODO: move to utils?
 function setLeafLabel(node, label) {
@@ -2887,7 +2849,7 @@ function setLabelLL(node, label) {
 /**
  * Update the CSS class of a node to reflect its label.
  *
- * @param {JQuery Node} node
+ * @param {JQuery} node
  * @param {String} oldlabel (optional) the former label of this node
  */
 function updateCssClass(node, oldlabel) {
@@ -2906,14 +2868,14 @@ function updateCssClass(node, oldlabel) {
     node.addClass(parseLabel(getLabel(node)));
 }
 
-//================================================== Obsolete/other
+// * Obsolete/other
 
 /**
  * Sets the label of a node
  *
  * Contains none of the heuristics of {@link setLabel}.
  *
- * @param {JQuery Node} node the target node
+ * @param {JQuery} node the target node
  * @param {String} label the new label
  * @param {Boolean} noUndo whether to record this operation for later undo
  */
@@ -2966,4 +2928,5 @@ function resetLabelClasses(alertOnError) {
 // " "scrollToNext" "clearTimeout" "logDetail" "hasLemma" "getLemma\
 // " "logDetail" "isEmptyNode")
 // indent-tabs-mode: nil
+// eval: (outline-minor-mode 1)
 // End:
