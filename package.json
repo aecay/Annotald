@@ -2,6 +2,10 @@
     "name": "annotald",
     "version": "1.2.1-dev1",
     "dependencies": {
+        "jquery": "latest",
+        "underscore": "latest",
+        "jquery-mousewheel": "latest",
+        "q": "latest",
         "q-io": "latest"
     },
     "license": "GPL v3+",
