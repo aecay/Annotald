@@ -8,12 +8,24 @@
         "q": "latest",
         "q-io": "latest"
     },
+    "devDependencies": {
+        "browserify": "latest",
+        "beefy": "latest",
+        "typescript": "latest",
+        "tslint": "latest",
+        "grunt": "latest"
+    },
     "license": "GPL v3+",
     "private": true,
-    "authors": [{
+    "author": {
         "name": "Aaron Ecay",
         "email": "aaronecay@gmail.com",
         "homepage": "http://www.ling.upenn.edu/~ecay"
+    },
+    "contributors": [{
+        "name": "Anton Karl Ingason",
+        "email": "ingason@babel.ling.upenn.edu",
+        "homepage": "http://linguist.is"
     }],
     "homepage": "http://annotald.github.io"
 }
