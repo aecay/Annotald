@@ -17,3 +17,5 @@ dist/
 annotaldLog.*
 annotald.egg-info/
 doc/README.asciidoc
+
+node_modules/
