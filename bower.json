@@ -6,7 +6,8 @@
         "underscore": "latest",
         "togetherjs": "latest",
         "requirejs": "latest",
-        "jquery-mousewheel": "latest"
+        "jquery-mousewheel": "latest",
+        "q": "latest",
     },
     "license": "GPL v3+",
     "private": true,
