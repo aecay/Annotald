@@ -2,7 +2,8 @@
 
 function makeWnode (xmlNode) {
     var wnode = document.createElement("span")
-    , tn = document.createTextNode(xmlNode.textContent);
+      , tn = document.createTextNode(xmlNode.textContent);
+    wnode.className = "wnode";
     wnode.appendChild(tn);
     return wnode;
 }
