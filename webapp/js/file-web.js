@@ -9,14 +9,15 @@ function writeBackFileWeb (data) {
 }
 exports.readFile = function readFileWeb () {
     var dialog = $('#fileInputDialog')
-      , promise = Q.deferred();
+      , deferred = Q.defer();
+    // doesn't work, will need to show the input in a dialog and use onchange?
     dialog.trigger('click');
     var file = dialog[0].files[0]
       , fr = new FileReader();
     fr.onload = function () {
-        promise.resolve({ content: file[0]
+        deferred.fulfill({ content: file[0]
                           , writeBack: writeBackFileWeb });
     };
     fr.readAsText(file);
-    return promise;
+    return deferred.promise;
 };

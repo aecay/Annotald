@@ -1,7 +1,6 @@
 /*global require: false, exports: false */
 
 var $ = require('jquery')
-  , Q = require("q")
   , fs = require("q-io/fs");
 
 exports.readFile =  function readFileNw () {
