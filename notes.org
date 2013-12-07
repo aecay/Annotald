@@ -1,4 +1,4 @@
-* TODO Add a check-hash command to annotald-aux                     :feature:
+* TODO Add a check-hash command to lovett CLI tool                  :feature:
 * Docs                                                                  :doc:
 ** TODO Convert docs to RST, host on readthedocs
 ** TODO Use ArgDoc
@@ -10,6 +10,7 @@ Use =git describe= or similar.
 * TODO Add deploy hooks
 - ReadTheDocs
 - Travis-CI (with deploy to pypi)
+* TODO switch to lodash
 * Using a data-binding library
 After exploring the idea of using a data-binding library such as [[http://www.ractivejs.org/][Ractive]]
 for Annotald’s UI, I’ve decided against it.  This is because in the JS
