@@ -12,8 +12,8 @@
         "browserify-shim": "latest",
         "grunt": "latest",
         "grunt-browserify": "latest",
+        "grunt-contrib-jasmine": "latest",
         "grunt-jasmine-node": "latest",
-        "grunt-jasmine-runner": "latest",
         "grunt-node-webkit-builder": "latest",
         "grunt-tslint": "latest",
         "grunt-typescript": "latest",
@@ -38,7 +38,7 @@
         "transform": ["browserify-shim"]
     },
     "broswerify-shim": {
-        "./bower_components/jquery/jquery.min.js": "$"
+        "./bower_components/jquery/jquery.js": "$"
     },
     "browser": {
         "jquery": "./bower_components/jquery/jquery.js"
