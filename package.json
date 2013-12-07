@@ -2,18 +2,24 @@
     "name": "annotald",
     "version": "1.2.1-dev1",
     "dependencies": {
-        "jquery": "latest",
         "underscore": "latest",
-        "jquery-mousewheel": "latest",
         "q": "latest",
         "q-io": "latest"
     },
     "devDependencies": {
-        "browserify": "latest",
         "beefy": "latest",
-        "typescript": "latest",
+        "browserify": "latest",
+        "browserify-shim": "latest",
+        "grunt": "latest",
+        "grunt-browserify": "latest",
+        "grunt-jasmine-node": "latest",
+        "grunt-jasmine-runner": "latest",
+        "grunt-node-webkit-builder": "latest",
+        "grunt-tslint": "latest",
+        "grunt-typescript": "latest",
+        "jasmine-node": "latest",
         "tslint": "latest",
-        "grunt": "latest"
+        "typescript": "latest"
     },
     "license": "GPL v3+",
     "private": true,
@@ -27,5 +33,14 @@
         "email": "ingason@babel.ling.upenn.edu",
         "homepage": "http://linguist.is"
     }],
-    "homepage": "http://annotald.github.io"
+    "homepage": "http://annotald.github.io",
+    "browserify": {
+        "transform": ["browserify-shim"]
+    },
+    "broswerify-shim": {
+        "./bower_components/jquery/jquery.min.js": "$"
+    },
+    "browser": {
+        "jquery": "./bower_components/jquery/jquery.js"
+    }
 }
