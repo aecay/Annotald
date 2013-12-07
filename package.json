@@ -1,0 +1,46 @@
+{
+    "name": "annotald",
+    "version": "1.2.1-dev1",
+    "dependencies": {
+        "underscore": "latest",
+        "q": "latest",
+        "q-io": "latest"
+    },
+    "devDependencies": {
+        "beefy": "latest",
+        "browserify": "latest",
+        "browserify-shim": "latest",
+        "grunt": "latest",
+        "grunt-browserify": "latest",
+        "grunt-jasmine-node": "latest",
+        "grunt-jasmine-runner": "latest",
+        "grunt-node-webkit-builder": "latest",
+        "grunt-tslint": "latest",
+        "grunt-typescript": "latest",
+        "jasmine-node": "latest",
+        "tslint": "latest",
+        "typescript": "latest"
+    },
+    "license": "GPL v3+",
+    "private": true,
+    "author": {
+        "name": "Aaron Ecay",
+        "email": "aaronecay@gmail.com",
+        "homepage": "http://www.ling.upenn.edu/~ecay"
+    },
+    "contributors": [{
+        "name": "Anton Karl Ingason",
+        "email": "ingason@babel.ling.upenn.edu",
+        "homepage": "http://linguist.is"
+    }],
+    "homepage": "http://annotald.github.io",
+    "browserify": {
+        "transform": ["browserify-shim"]
+    },
+    "broswerify-shim": {
+        "./bower_components/jquery/jquery.min.js": "$"
+    },
+    "browser": {
+        "jquery": "./bower_components/jquery/jquery.js"
+    }
+}

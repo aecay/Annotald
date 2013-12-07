@@ -1,16 +1,18 @@
-/*global define: false */
+/*global require: false, exports: false */
 
-define(["require", "jquery"], function (require, $) {
-    var fs = require("fs");
-    return {
-        chooseFile: function () {
-            var dialog = $('#fileInputDialog');
-            dialog.trigger('click');
-            var files = dialog[0].files;
-            return files[0].path;
-        },
-        writeFile: function (path, data) {
-            fs.writeFileSync(path, data);
-        }
-    };
-});
+var $ = require('jquery')
+  , fs = require("q-io/fs");
+
+exports.readFile =  function readFileNw () {
+    var dialog = $('#fileInputDialog');
+    dialog.trigger('click');
+    var file = dialog[0].files[0]
+      , path = file.path;
+    return fs.readFile(path, { encoding: 'utf8' })
+        .then(function (data) {
+            return { data: data
+                     , writeBack: function (dat) {
+                         fs.writeFile(path, dat);
+                     }};
+        });
+};
