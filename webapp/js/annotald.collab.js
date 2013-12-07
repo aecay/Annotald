@@ -1,3 +1,6 @@
+/*global TogetherJS: false, startnode: true, endnode: true, TJSroom: false,
+         displayError: false, updateSelection: false, $: false */
+
 function annotaldCollabSelectionSend (event, sn, en) {
     var elementFinder = TogetherJS.require("elementFinder");
     var sn_loc = sn && elementFinder.elementLocation(sn);
