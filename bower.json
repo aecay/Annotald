@@ -1,0 +1,8 @@
+{
+    "name": "annotald",
+    "private": true,
+    "dependencies": {
+        "jquery": "latest",
+        "jquery-mousewheel": "latest"
+    }
+}
