@@ -53,7 +53,6 @@ inheritance of metadata:
 - tree
 - scopes, nestedly
 - file-level
-
 * Annotald 2 features
 - PSDX support
 - revamped frontend code (data-* attributes instead of mov’t indices as
@@ -81,3 +80,4 @@ inheritance of metadata:
         - downloads and caches the JS files from the server
 ** Other TODOs
 - log multiuser joins and leaves in event journal
+* TODO add .dir-locals.el with js2 mode local var decls
