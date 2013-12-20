@@ -81,3 +81,4 @@ inheritance of metadata:
 ** Other TODOs
 - log multiuser joins and leaves in event journal
 * TODO add .dir-locals.el with js2 mode local var decls
+* var -> let?
