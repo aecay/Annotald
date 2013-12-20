@@ -82,3 +82,24 @@ inheritance of metadata:
 - log multiuser joins and leaves in event journal
 * TODO add .dir-locals.el with js2 mode local var decls
 * var -> let?
+* Jasmine plugins
+- (node)-jasmine-jquery
+- jasmine-expect
+- jasmine-as-promised
+* Emacs setup
+- beefy + live reload script
+- skewer mode (see also: jss, swank-js)
+- create special html template to set debug variables and load main js
+- tern, lintnode
+* webrtc notes
+https://www.webrtc-experiment.com/DataChannel/
+https://github.com/erbbysam/webRTCCopy
+http://bloggeek.me/send-file-webrtc-data-api/
+https://github.com/Peer5/Sharefest
+* jsgit
+https://github.com/creationix/js-git
+* other
+http://www.lucaongaro.eu/blog/2012/12/02/easy-two-way-data-binding-in-javascript/
+http://ericbidelman.tumblr.com/post/23615290220/data-binding-using-data-attributes
+list of resources realted to web components: https://gist.github.com/ebidel/6314025
+resumable uploads: http://resumablejs.com/
