@@ -4,12 +4,22 @@ module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
         browserify: {
+            external: {
+                src: ['bower_components/jquery/jquery.js'
+                      ,'bower_components/vex/js/vex.combined.min.js'],
+                dest: 'webapp/js/build/ext.js',
+                options: {
+                    alias: ['bower_components/jquery/jquery.js:jquery',
+                            'bower_components/vex/js/vex.combined.min.js:vex']
+                }
+            },
             dist: {
                 src: ['webapp/js/main.js'],
-                dest: 'webapp/js/build/web-bundle.js',
+                dest: 'webapp/js/build/web.js',
                 options: {
                     debug: true,
-                    standalone: "annotald"
+                    standalone: "annotald",
+                    external: ["jquery","vex"]
                 }
             },
             test: {

@@ -30,14 +30,5 @@
         "email": "ingason@babel.ling.upenn.edu",
         "homepage": "http://linguist.is"
     }],
-    "homepage": "http://annotald.github.io",
-    "browserify": {
-        "transform": ["browserify-shim"]
-    },
-    "broswerify-shim": {
-        "./bower_components/jquery/jquery.js": "$"
-    },
-    "browser": {
-        "jquery": "./bower_components/jquery/jquery.js"
-    }
+    "homepage": "http://annotald.github.io"
 }
