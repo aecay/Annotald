@@ -7,19 +7,16 @@
         "q-io": "latest"
     },
     "devDependencies": {
-        "beefy": "latest",
         "browserify": "latest",
         "browserify-shim": "latest",
         "grunt": "latest",
         "grunt-browserify": "latest",
         "grunt-contrib-jasmine": "latest",
+        "grunt-contrib-watch": "latest",
+        "grunt-contrib-concat": "latest",
         "grunt-jasmine-node": "latest",
         "grunt-node-webkit-builder": "latest",
-        "grunt-tslint": "latest",
-        "grunt-typescript": "latest",
-        "jasmine-node": "latest",
-        "tslint": "latest",
-        "typescript": "latest"
+        "jasmine-node": "latest"
     },
     "license": "GPL v3+",
     "private": true,
