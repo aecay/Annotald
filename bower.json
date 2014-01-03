@@ -3,6 +3,7 @@
     "private": true,
     "dependencies": {
         "jquery": "latest",
-        "jquery-mousewheel": "latest"
+        "jquery-mousewheel": "latest",
+        "vex": "latest"
     }
 }
