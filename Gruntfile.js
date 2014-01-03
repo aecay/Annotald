@@ -25,11 +25,21 @@ module.exports = function (grunt) {
             options: {
                 specs: "test/build/spec-entry.js"
             }
+        },
+        watch: {
+            dist: {
+                files: ['webapp/js/*.js'],
+                tasks: ['browserify:dist'],
+                options: {
+                    livereload: true
+                }
+            }
         }
     });
 
     grunt.loadNpmTasks('grunt-browserify');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
+    grunt.loadNpmTasks('grunt-contrib-watch');
 
     grunt.registerTask('build', ['browserify']);
     grunt.registerTask('test', ['build', 'jasmine']);
