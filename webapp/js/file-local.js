@@ -33,7 +33,7 @@ exports.readFile = function readFileLocal (path) {
                    var file = document.getElementById("local-file-input").files[0],
                        fr = new FileReader();
                    fr.onload = function (event) {
-                       deferred.fulfill(event.target.result);
+                       deferred.fulfill({ content: event.target.result });
                    };
                    // TODO: error handling
                    fr.readAsText(file);

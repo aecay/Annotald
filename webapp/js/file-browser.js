@@ -16,9 +16,9 @@ exports.readFile = function readFileBrowser (path) {
         var deferred = Q.defer();
         var request = db.transaction("files").objectStore("files").get(path);
 
-        request.onerror = onError;
         request.onsuccess = function (event) {
-            deferred.resolve(event.target.result.content);
+            deferred.resolve({content: event.target.result.content,
+                              path: path });
         };
         // TODO: error handling
         return deferred.promise;
