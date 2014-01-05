@@ -34,15 +34,13 @@ exports.ConfigsList = React.createClass({
     },
     // Event handlers
 
-    doEdit: function () {
-        var name = this.refs.config.getDOMNode().value;
+    doEdit: function (name) {
         this.props.changeState({view: "editConfig", name: name});
         return false;
     },
 
-    doAdd: function () {
-        var name = this.refs.newName.getDOMNode().value,
-            that = this;
+    doAdd: function (name) {
+        var that = this;
         vex.dialog.open({ message: "Choose how to add the new config.",
                    buttons: [{ text: "Blank",
                                type: "button",
@@ -68,9 +66,8 @@ exports.ConfigsList = React.createClass({
         return false;
     },
 
-    doDelete: function () {
-        var that = this,
-            name = this.refs.config.getDOMNode().value;;
+    doDelete: function (name) {
+        var that = this;
         config_store.deleteConfig(name).then(function () {
             notify.notice("Config " + name + " deleted.");
             that.updateFromDb();
@@ -101,24 +98,39 @@ exports.ConfigsList = React.createClass({
                 {name}
                 </option>;
         }
+        function edit () {
+            that.doEdit(that.refs.config.getDOMNode().value);
+            return false;
+        }
+        function add () {
+            that.doAdd(that.refs.newName.getDOMNode().value);
+            return false;
+        }
+        function delet () {
+            that.doDelete(that.refs.config.getDOMNode().value);
+            return false;
+        }
         if (this.state.adding) {
-            addForm = <form onSubmit={this.doAdd}>
+            addForm = <form onSubmit={add}>
                 <input type="text" placeholder="New config name" ref="newName" />
                 <input type="submit" value="Add" />
+                <button onClick={function () {that.setState({adding:false});
+                                              return false;}}>
+                Cancel</button>
                 </form>;
         } else {
             addForm = <a onClick={function () {that.setState({adding: true});
                                                return false;}}
                 href="#">Add new</a>;
         }
-        return <div id="configs-list">
+        return (<div id="configs-list">
             <select ref="config">
             {this.state.names.map(renderConfig)}
-        </select>
-            <a href="#" onClick={that.doEdit}>edit</a>
-            <a href="#" onClick={that.doDelete}>delete</a><br />
+            </select><span> </span>
+            <a href="#" onClick={edit}>edit</a> <span> &ndash; </span>
+            <a href="#" onClick={delet}>delete</a><br />
             {addForm}
-            </div>;
+            </div>);
     }
 });
 
