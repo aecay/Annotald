@@ -1,33 +1,16 @@
 /*global exports: true, require: false */
 
-var Q = require("q");
-
-function onError (event) {
-    throw "IDB error: " + event.target.errorCode;
-}
+var Q = require("q"),
+    idb = require("./idb");
 
 function onUpgradeNeeded (event) {
     var db = event.target.result;
     db.createObjectStore("files", { keyPath: "path" });
 }
 
-function getDB () {
-    var deferred = Q.defer()
-    , idb = window.indexedDB
-    , db = idb.open("Annotald", 1);
-
-    db.onerror = onError;
-    db.onupgradeneeded = onUpgradeNeeded;
-    db.onsuccess = function (event) {
-        deferred.resolve(event.target.result);
-    };
-
-    return deferred.promise;
-}
-
 exports.readFile = function readFileBrowser (path) {
     // TODO: use file api where supported
-    var db = getDB();
+    var db = idb.getDB("Annotald Files", 1, onUpgradeNeeded);
 
     return db.then(function (db) {
         var deferred = Q.defer();

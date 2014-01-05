@@ -5,12 +5,24 @@ module.exports = function (grunt) {
         pkg: grunt.file.readJSON('package.json'),
         browserify: {
             external: {
-                src: ['bower_components/jquery/jquery.js'
-                      ,'bower_components/vex/js/vex.combined.min.js'],
+                src: [
+                    // We might wish for jquery to be handled through NPM,
+                    // since it's available there.  However, it is a
+                    // dependency of vex, and is not properly handled unless
+                    // we also include it here.
+                    'bower_components/jquery/jquery.js'
+                    ,'bower_components/vex/js/vex.dialog.js'
+                    ,'bower_components/vex/js/vex.js'
+                    ,'node_modules/react/react.js'
+                    ,'node_modules/brace/index.js'
+                ],
                 dest: 'webapp/js/build/ext.js',
                 options: {
                     alias: ['bower_components/jquery/jquery.js:jquery',
-                            'bower_components/vex/js/vex.combined.min.js:vex']
+                            'node_modules/react/react.js:react',
+                            'bower_components/vex/js/vex.dialog.js:vex-dialog',
+                            'bower_components/vex/js/vex.js:vex',
+                            'node_modules/brace/index.js:brace']
                 }
             },
             dist: {
@@ -19,7 +31,8 @@ module.exports = function (grunt) {
                 options: {
                     debug: true,
                     standalone: "annotald",
-                    external: ["jquery","vex"]
+                    external: ["jquery","vex","vex-dialog","react","brace"],
+                    transform:["reactify"]
                 }
             },
             test: {

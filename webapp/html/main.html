@@ -4,16 +4,19 @@
     <script src="../js/build/ext.js"></script>
     <script src="../js/build/web.js"></script>
     <script src="http://localhost:35729/livereload.js"></script>
+    <link rel="stylesheet" href="../css/growl.css" />
     <link rel="stylesheet" href="../css/vex.css" />
     <link rel="stylesheet" href="../css/vex-theme-default.css" />
+    <style>
+      #editor {
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      }
+    </style>
   </head>
   <body>
     <h1>Hi</h1>
-    <input type="file" id="fileInputDialog" />
-    <div style="display:none">
-      <div id="startpage">
-        <button>Load config file</button>
-      </div>
-    </div>
+    <div id="mainui"></div>
   </body>
 </html>
