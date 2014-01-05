@@ -27,10 +27,12 @@
         "email": "aaronecay@gmail.com",
         "homepage": "http://www.ling.upenn.edu/~ecay"
     },
-    "contributors": [{
-        "name": "Anton Karl Ingason",
-        "email": "ingason@babel.ling.upenn.edu",
-        "homepage": "http://linguist.is"
-    }],
+    "contributors": [
+        {
+            "name": "Anton Karl Ingason",
+            "email": "ingason@babel.ling.upenn.edu",
+            "homepage": "http://linguist.is"
+        }
+    ],
     "homepage": "http://annotald.github.io"
 }
