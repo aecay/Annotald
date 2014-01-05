@@ -2,9 +2,11 @@
     "name": "annotald",
     "version": "1.2.1-dev1",
     "dependencies": {
-        "underscore": "latest",
+        "lodash": "latest",
         "q": "latest",
-        "q-io": "latest"
+        "q-io": "latest",
+        "react": "latest",
+        "brace": "latest"
     },
     "devDependencies": {
         "browserify": "latest",
@@ -13,10 +15,10 @@
         "grunt-browserify": "latest",
         "grunt-contrib-jasmine": "latest",
         "grunt-contrib-watch": "latest",
-        "grunt-contrib-concat": "latest",
         "grunt-jasmine-node": "latest",
         "grunt-node-webkit-builder": "latest",
-        "jasmine-node": "latest"
+        "jasmine-node": "latest",
+        "reactify": "~0.5.0"
     },
     "license": "GPL v3+",
     "private": true,
