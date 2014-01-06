@@ -3,12 +3,13 @@
 /*global require: false, exports: true */
 
 var React = require("react"),
-    config_store = require("./config-store"),
+    configStore = require("./config-store"),
     ace = require("brace"),
     notify = require("./ui-log"),
-    file_local = require("./file-local"),
+    fileLocal = require("./file-local"),
     vex = require("vex"),
-    Q = require("q");
+    Q = require("q"),
+    FileChooser = require("./ui-file").FileChooser;
 require("brace/mode/javascript");
 require("brace/theme/xcode");
 
@@ -28,7 +29,7 @@ exports.ConfigsList = React.createClass({
 
     updateFromDb: function () {
         var that = this;
-        config_store.listConfigs().then(function (configs) {
+        configStore.listConfigs().then(function (configs) {
             that.setState({names: configs.map(function (x) { return x.name; })});
         });
     },
@@ -41,34 +42,29 @@ exports.ConfigsList = React.createClass({
 
     doAdd: function (name) {
         var that = this;
-        vex.dialog.open({ message: "Choose how to add the new config.",
-                   buttons: [{ text: "Blank",
-                               type: "button",
-                               click: vexSubmit("blank") },
-                             { text: "From file",
-                               type: "button",
-                               click: vexSubmit("file") }],
-                   callback: function (data) {
-                       var promise;
-                       if (data == "file") {
-                           promise = file_local.readFile(null);
-                       } else {
-                           promise = Q.fcall(function () { return ""; });
-                       }
-                       promise.then(function (result) {
-                           return config_store.setConfig(name, result.content);
-                       }).then(function () {
-                           that.doEdit(name);
-                       });
-                   }
-                 });
+        vex.dialog.open({ message: "Choose how to add the new config." +
+                          "<div id=\"file-chooser\"></div>",
+                          afterOpen:
+                          function ($vexContent) {
+                              React.renderComponent(FileChooser(
+                                  { callback:
+                                    function (content, path) {
+                                        configStore.setConfig(name, content).
+                                            then(function () {
+                                                that.doEdit(name);
+                                            });
+                                        vex.close($vexContent.data().vex.id);
+                                    }
+                                  }), document.getElementById("file-chooser"));
+                              }
+                        });
         this.setState({adding: false});
         return false;
     },
 
     doDelete: function (name) {
         var that = this;
-        config_store.deleteConfig(name).then(function () {
+        configStore.deleteConfig(name).then(function () {
             notify.notice("Config " + name + " deleted.");
             that.updateFromDb();
         }, function () {
@@ -151,7 +147,7 @@ exports.ConfigEditor = React.createClass({
      */
     doSave: function doSave () {
         var that = this;
-        config_store.setConfig(this.props.name, this.editor.getValue()).then(
+        configStore.setConfig(this.props.name, this.editor.getValue()).then(
             function () {
                 that.dirty = false;
                 notify.notice("Save success");
@@ -187,7 +183,7 @@ exports.ConfigEditor = React.createClass({
      * @method Export this config to a local file.
      */
     doExport: function () {
-        file_local.writeFile(null, this.editor.getValue());
+        fileLocal.writeFile(null, this.editor.getValue());
     },
 
     // React methods
@@ -196,15 +192,16 @@ exports.ConfigEditor = React.createClass({
      * @method
      */
     render: function () {
-        return <div id="code-editor-outer">
-            <div id="code-editor-buttons">
-            <button onClick={this.doSave}>Save</button>
-            <button onClick={this.doExit}>Exit</button>
-            <button onClick={this.doExport}>Export</button>
-            </div>
-            <div id="editor">
-            </div>
-            </div>;
+        return React.DOM.div(
+            {id: "code-editor-outer"},
+            React.DOM.span({style: {fontWeight: "bold",
+                                    fontSize: "150%"}},
+                          "Editing config: " + this.props.name),
+            React.DOM.div({id: "code-editor-buttons"},
+                          React.DOM.button({onClick: this.doSave}, "Save"),
+                          React.DOM.button({onClick: this.doExit}, "Exit"),
+                          React.DOM.button({onClick: this.doExport}, "Export")),
+            React.DOM.div({id: "editor"}));
     },
 
     /**
@@ -215,9 +212,11 @@ exports.ConfigEditor = React.createClass({
             that = this;
         editor.setTheme("ace/theme/xcode");
         editor.getSession().setMode("ace/mode/javascript");
-        config_store.getConfig(this.props.name).then(function (result) {
+        configStore.getConfig(this.props.name).then(function (result) {
             editor.setValue(result);
             editor.clearSelection();
+            editor.gotoLine(1,0);
+            editor.scrollToLine(0);
             editor.focus();
             this.dirty = false;
             editor.on("change", function () {
