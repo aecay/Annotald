@@ -5,7 +5,6 @@
     "eqeqeq": true,
     "forin": true,
     "latedef": true,
-    "newcap": true,
     "noarg": true,
     "quotmark": true,
     "undef": true,
