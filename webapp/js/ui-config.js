@@ -120,7 +120,7 @@ exports.ConfigsList = React.createClass({
                 href="#">Add new</a>;
         }
         return (<div id="configs-list">
-            <select ref="config">
+            <select ref="config" id="config-chooser">
             {this.state.names.map(renderConfig)}
             </select><span> </span>
             <a href="#" onClick={edit}>edit</a> <span> &ndash; </span>
