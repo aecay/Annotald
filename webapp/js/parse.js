@@ -1,4 +1,6 @@
-/*global DOMParser: false, exports: false, document: false */
+/*global DOMParser: false, exports: false */
+
+/*jshint browser: true */
 
 function makeWnode (xmlNode) {
     var wnode = document.createElement("span"),
@@ -15,9 +17,10 @@ function makeSnode (xmlNode) {
         atts = xmlNode.attributes,
         c, a, i;
     snode.className = "snode";
+    snode.appendChild(document.createTextNode(label + " "));
     for (i = 0; i < cn.length; i++) {
         c = cn[i];
-        if (c.nodeType === 3) {
+        if (c.nodeType === 3 && c.textContent.trim() !== "") {
             snode.appendChild(makeWnode(c));
         } else if (c.nodeType === 1) {
             snode.appendChild(makeSnode(c));
