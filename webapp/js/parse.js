@@ -1,8 +1,8 @@
-/*global require: false, DOMParser: false, exports: false*/
+/*global DOMParser: false, exports: false, document: false */
 
 function makeWnode (xmlNode) {
-    var wnode = document.createElement("span")
-      , tn = document.createTextNode(xmlNode.textContent);
+    var wnode = document.createElement("span"),
+        tn = document.createTextNode(xmlNode.textContent);
     wnode.className = "wnode";
     wnode.appendChild(tn);
     return wnode;

@@ -2285,14 +2285,14 @@ function nextValidationError() {
 
 function nextTree(e) {
     e = e || {};
-    var find = undefined;
+    var find;
     if (e.shiftKey) find = "-FLAG";
     advanceTree(find, false, 1);
 }
 
 function prevTree(e) {
     e = e || {};
-    var find = undefined;
+    var find;
     if (e.shiftKey) find = "-FLAG";
     advanceTree(find, false, -1);
 }
@@ -2310,10 +2310,10 @@ function advanceTree(find, async, offset) {
                             $("#editpane").html(res.tree);
                             documentReadyHandler();
                             nukeUndo();
-                            currentIndex = res['treeIndexStart'] + 1;
+                            currentIndex = res.treeIndexStart + 1;
                             displayInfo("Tree " + currentIndex + " fetched.");
                             displayTreeIndex("Editing tree #" + currentIndex +
-                                             " out of " + res['totalTrees']);
+                                             " out of " + res.totalTrees);
                         }
                     },
                     dataType: "json",
@@ -2896,10 +2896,12 @@ function resetLabelClasses(alertOnError) {
             if (alertOnError) {
                 var classes = node.prop("class").split(" ");
                 // This incantation removes a value from an array.
-                classes.indexOf("snode") >= 0 &&
+                if (classes.indexOf("snode") >= 0) {
                     classes.splice(classes.indexOf("snode"), 1);
-                classes.indexOf(label) >= 0 &&
+                }
+                if (classes.indexOf(label) >= 0) {
                     classes.splice(classes.indexOf(label), 1);
+                }
                 if (classes.length > 0) {
                     alert("Spurious classes '" + classes.join() +
                           "' detected on node id'" + node.prop("id") + "'");

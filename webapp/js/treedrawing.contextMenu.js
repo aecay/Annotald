@@ -93,7 +93,7 @@ function getSuggestions(label) {
     }
     label = labelRemoveCase(label);
 
-    var suggestions = new Array();
+    var suggestions = [];
     var menuitems = defaultsPhrases;
     if (conmenus[label] !== null) {
         menuitems = conmenus[label].suggestions;

@@ -1,6 +1,6 @@
 /*global require: false, FileReader: false, exports: false */
 
-var $ = require('jquery'),
+var $ = require("jquery"),
     Q = require ("q"),
     vex = require("vex");
 

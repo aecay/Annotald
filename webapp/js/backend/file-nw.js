@@ -1,7 +1,7 @@
 /*global require: false, exports: false */
 
 var $ = require('jquery'),
-    fs = require("q-io/fs");
+    fs = require('q-io/fs');
 
 exports.readFile =  function readFileNw () {
     var dialog = $('#fileInputDialog');
@@ -13,6 +13,7 @@ exports.readFile =  function readFileNw () {
             return { data: data,
                      writeBack: function (dat) {
                          fs.writeFile(path, dat);
-                     }};
+                     }
+                   };
         });
 };

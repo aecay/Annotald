@@ -1,4 +1,4 @@
-/*global exports: true, require: false */
+/*global exports: true, require: false, window: false */
 
 var Q = require("q");
 

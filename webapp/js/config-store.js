@@ -37,7 +37,7 @@ exports.setConfig = function setConfig (name, value) {
         var trans = db.transaction("configs","readwrite").objectStore("configs").
             put({ name: name,
                   value: value });
-        trans.onsuccess = function (event) {
+        trans.onsuccess = function () {
             deferred.resolve(true);
         };
         trans.onerror = function (err) {

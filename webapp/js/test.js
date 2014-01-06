@@ -85,7 +85,7 @@ function loadTrees(trees) {
     $.ajax("/testLoadTrees",
            { async: false,
              success: function(res) {
-                 $("#editpane").html(res['trees']);
+                 $("#editpane").html(res.trees);
                  resetLabelClasses(false);
                  $("#editpane>.snode").attr("id", "sn0");
                  $("#sn0>.snode").map(function () {

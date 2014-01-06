@@ -423,8 +423,8 @@ function parseIndex (label) {
     if (lastindex == -1) {
         return -1;
     }
-    var lastpart = parseInt(label.substr(lastindex+1));
-    if(!isNaN(parseInt(lastpart))) {
+    var lastpart = parseInt(label.substr(lastindex+1), 10);
+    if(!isNaN(parseInt(lastpart, 10))) {
         index = Math.max(lastpart, index);
     }
     if (index === 0) {
