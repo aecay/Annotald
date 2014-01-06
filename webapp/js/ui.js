@@ -1,9 +1,6 @@
-/** @jsx React.DOM */
-
 /*global require: false, exports: true */
 
 var React = require("react"),
-    config_store = require("./config-store"),
     ConfigEditor = require("./ui-config").ConfigEditor,
     ConfigsList = require("./ui-config").ConfigsList,
     FileChooser = require("./ui-file").FileChooser,
@@ -17,24 +14,30 @@ exports.AnnotaldUI = React.createClass({
         return {view: "welcome"};
     },
     render: function () {
-        var pane;
-        if (this.state.view === 'welcome') {
-            pane = <div>
-                     <h1>Welcome to Annotald</h1>
-                     <div style={{width: "70%"}}>
-                       <FileChooser changeState={this.changeState}/>
-                     </div>
-                     <div style={{width: "30%", float: "right"}}>
-                       <ConfigsList changeState={this.changeState} />
-                     </div>
-                   </div>;
+        var that = this,
+            pane;
+        function fileChooserDone (content, path) {
+            that.changeState({ view: "editTrees",
+                               path: path,
+                               content: content });
+        }
+        if (this.state.view === "welcome") {
+            pane = React.DOM.div(
+                {},
+                React.DOM.h1({}, "Welcome to Annotald"),
+                React.DOM.div({style: { width: "70%" }},
+                              FileChooser({callback: fileChooserDone})),
+                React.DOM.div({style: { width: "30%",
+                                        float: "right" }},
+                              ConfigsList({changeState: this.changeState})));
         } else if (this.state.view === "editConfig") {
-            pane = <ConfigEditor
-            changeState={this.changeState}
-            name = {this.state.name} />;
+            pane = ConfigEditor({ changeState: this.changeState,
+                                  name: this.state.name });
 
         } else {
-            pane = <div>Unknown view: {this.state.view}</div>;
+            pane = React.DOM.div({},
+                                 "Unknown view: ",
+                                 this.state.view);
         }
         return pane;
     }
