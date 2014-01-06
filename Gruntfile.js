@@ -66,6 +66,11 @@ module.exports = function (grunt) {
                 specs: "test/build/spec-entry.js"
             }
         },
+        jshint: {
+            files: ["webapp/js/**/*.js",
+                    "!webapp/js/build/**",
+                    "!webapp/js/ext/**"]
+        },
         watch: {
             dist: {
                 files: ['webapp/js/*.js'],
@@ -81,6 +86,7 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jasmine');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-external-sourcemap');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
 
     grunt.registerTask('build', ['browserify']);
     grunt.registerTask('test', ['build', 'jasmine']);
