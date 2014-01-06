@@ -1,7 +1,8 @@
 /*global require: false, exports: true */
+/*jshint: broswer: true */
 
 var vex = require("vex");
-vex.defaultOptions.className = 'vex-theme-default';
+vex.defaultOptions.className = "vex-theme-default";
 vex.dialog = require("vex-dialog");
 
 exports.parse = require("./parse");
