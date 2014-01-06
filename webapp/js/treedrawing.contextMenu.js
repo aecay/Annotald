@@ -53,9 +53,6 @@ function addConMenuGroup(group) {
     }
 }
 
-// Load the custom context menu groups from user settings file
-customConMenuGroups();
-
 /**
  * Add a terminal node to the context menu.
  *
@@ -68,11 +65,6 @@ function addConLeafBefore(phrase, terminal) {
     addConLeaf("&lt; (" + phrase + " " + terminal + ")",
                true, phrase, terminal);
 }
-
-// Load the custom context menu "leaf before" items
-customConLeafBefore();
-
-var defaultsPhrases = defaultConMenuGroup;
 
 /**
  * Compute the suggested changes for the context menu for a label.
@@ -96,7 +88,7 @@ function getSuggestions(label) {
     label = labelRemoveCase(label);
 
     var suggestions = [];
-    var menuitems = defaultsPhrases;
+    var menuitems = customConMenuGroups;
     if (conmenus[label] !== null) {
         menuitems = conmenus[label].suggestions;
     }

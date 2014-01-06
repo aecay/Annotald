@@ -113,7 +113,7 @@ function assignEvents() {
     $("#butgototree").unbind("click").click(goToTree);
     $("#editpane").mousedown(clearSelection);
     $("#conMenu").mousedown(hideContextMenu);
-    $(document).mousewheel(handleMouseWheel);
+    // $(document).mousewheel(handleMouseWheel);
     window.onbeforeunload = navigationWarning;
     window.onunload = logUnload;
 }
@@ -137,6 +137,10 @@ function documentReadyHandler() {
     styleIpNodes();
     setupCommentTypes();
     globalStyle.appendTo("head");
+    // Load the custom context menu groups from user settings file
+    customConMenuGroups();
+    // Load the custom context menu "leaf before" items
+    customConLeafBefore();
 
     _.each(startuphooks, function (hook) {
         hook();
@@ -144,10 +148,6 @@ function documentReadyHandler() {
 
     lastsavedstate = $("#editpane").html();
 }
-
-$(document).ready(function () {
-    documentReadyHandler();
-});
 
 // * User configuration
 
