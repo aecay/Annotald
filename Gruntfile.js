@@ -96,7 +96,8 @@ module.exports = function (grunt) {
             annotald: {
                 src: ["webapp/css/growl.css", "webapp/css/vex.css",
                       "webapp/css/vex-theme-default.css",
-                      "webapp/css/main.css"],
+                      "webapp/css/main.css", "webapp/css/treedrawing.css"
+                     ],
                 dest: "webapp/build/min.css"
             }
         },
@@ -156,18 +157,20 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-connect');
 
     grunt.registerTask('build-external', ['browserify:external',
-                                          'uglify:external',
-                                          'clean:build']);
+                                          'uglify:external'
+                                          //, 'clean:build'
+                                         ]);
     grunt.registerTask('build-annotald', ['browserify:annotald',
                                           'external_sourcemap:annotald',
-                                          'uglify:annotald',
-                                          'clean:build']);
+                                          'uglify:annotald'
+                                          //, 'clean:build'
+                                         ]);
     grunt.registerTask('build-css', ['cssmin']);
     grunt.registerTask('build-html', ['copy:main','copy:oauth_receiver']);
 
     grunt.registerTask('build', ['build-external','build-annotald',
                                  'build-css','build-html']);
-    grunt.registerTask('test', ['build', 'jasmine']);
+    grunt.registerTask('test', ['build','jasmine']);
 
     grunt.registerTask('default', ['build','connect','watch']);
 };
