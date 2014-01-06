@@ -427,7 +427,7 @@ function parseIndex (label) {
     if(!isNaN(parseInt(lastpart))) {
         index = Math.max(lastpart, index);
     }
-    if (index == 0) {
+    if (index === 0) {
         return -1;
     }
     return index;
@@ -505,7 +505,7 @@ function shouldIndexLeaf(node) {
     // The below check bogusly returns true if the leftmost node in a tree is
     // a trace, even if it is not a direct daughter.  Only do the more
     // complicated check if we are at a POS label, otherwise short circuit
-    if (node.children(".wnode").size() == 0) return false;
+    if (node.children(".wnode").size() === 0) return false;
     var str = wnodeString(node);
     return (str.substring(0,3) == "*T*" ||
             str.substring(0,5) == "*ICH*" ||
@@ -590,7 +590,7 @@ function labelGetCase(label) {
     if (_.contains(caseTags, dashTags[0])) {
         dashTags = _.rest(dashTags);
         var cases = _.intersection(caseMarkers, dashTags);
-        if (cases.length == 0) {
+        if (cases.length === 0) {
             return "";
         } else if (cases.length == 1) {
             return cases[0];

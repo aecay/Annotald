@@ -16,8 +16,8 @@
 // License along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-var conmenus = new Object();
-var conleafs = new Array();
+var conmenus = {};
+var conleafs = [];
 
 function addConMenu(label, suggestions) {
     conmenus[label] = {
@@ -95,7 +95,7 @@ function getSuggestions(label) {
 
     var suggestions = new Array();
     var menuitems = defaultsPhrases;
-    if (conmenus[label] != null) {
+    if (conmenus[label] !== null) {
         menuitems = conmenus[label].suggestions;
     }
 

@@ -73,10 +73,10 @@ function failingTest() {
     nextTestFails = true;
 }
 
-function suite(name, suite) {
+function suite(name, suiteFn) {
     logTest("Beginning suite " + name);
     currentindent += 2;
-    suite.call();
+    suiteFn.call();
     currentindent -= 2;
     logTest("End suite " + name);
 }

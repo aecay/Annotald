@@ -9,11 +9,11 @@ function makeWnode (xmlNode) {
 }
 
 function makeSnode (xmlNode) {
-    var snode = document.createElement("div")
-    , label = xmlNode.getAttribute("label")
-    , cn = xmlNode.childNodes
-    , atts = xmlNode.attributes
-    , c, a, i;
+    var snode = document.createElement("div"),
+        label = xmlNode.getAttribute("label"),
+        cn = xmlNode.childNodes,
+        atts = xmlNode.attributes,
+        c, a, i;
     snode.className = "snode";
     for (i = 0; i < cn.length; i++) {
         c = cn[i];
@@ -31,11 +31,11 @@ function makeSnode (xmlNode) {
 }
 
 exports.parseXmlToHtml = function parseXmlToHtml (xml) {
-    var dom = new DOMParser().parseFromString(xml, "text/xml")
-    , sn0 = document.createElement("div")
-    , rootElement = dom.childNodes[0]
-    , cn =  rootElement.childNodes
-    , c;
+    var dom = new DOMParser().parseFromString(xml, "text/xml"),
+        sn0 = document.createElement("div"),
+        rootElement = dom.childNodes[0],
+        cn =  rootElement.childNodes,
+        c;
     sn0.className = "snode";
     sn0.id = "sn0";
     for (var i = 0; i < cn.length; i++) {

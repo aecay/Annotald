@@ -26,14 +26,14 @@ exports.readFile = function readFileBrowser (path) {
 };
 
 exports.writeFile = function writeFileBrowser (path, content) {
-    var db = getDB();
+    var db = idb.getDB();
 
     return db.then(function (db) {
         var deferred = Q.defer();
 
         var request = db.transaction("files", "readwrite").objectStore("files").put(
-            { path: path
-            , content: content });
+            { path: path,
+              content: content });
         request.onsuccess = function () {
             deferred.resolve(true);
         };

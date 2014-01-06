@@ -7,9 +7,9 @@ function onError (event) {
 }
 
 exports.getDB = function getDB (name, version, upgrade) {
-    var deferred = Q.defer()
-    , idb = window.indexedDB
-    , db = idb.open(name, version);
+    var deferred = Q.defer(),
+        idb = window.indexedDB,
+        db = idb.open(name, version);
 
     db.onerror = onError;
     db.onupgradeneeded = upgrade;
