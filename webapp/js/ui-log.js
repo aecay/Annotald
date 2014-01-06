@@ -1,6 +1,6 @@
 /*global require: false, exports: true */
 
-var notify = require("./growl").growl;
+var notify = require("./ext/growl").growl;
 
 exports.error = function (text) {
     notify.error({ title: "Error",
@@ -13,5 +13,6 @@ exports.warning = function (text) {
 };
 
 exports.notice = function (text) {
-    notify.notice({ message: text });
+    notify.notice({ message: text,
+                    title: ""});
 };
