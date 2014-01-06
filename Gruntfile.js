@@ -69,7 +69,10 @@ module.exports = function (grunt) {
         jshint: {
             files: ["webapp/js/**/*.js",
                     "!webapp/js/build/**",
-                    "!webapp/js/ext/**"]
+                    "!webapp/js/ext/**"],
+            options: {
+                jshintrc: "jshintrc"
+            }
         },
         watch: {
             dist: {

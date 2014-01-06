@@ -1,0 +1,15 @@
+{
+    "bitwise": true,
+    "camelcase": true,
+    "curly": true,
+    "eqeqeq": true,
+    "forin": true,
+    "latedef": true,
+    "newcap": true,
+    "noarg": true,
+    "quotmark": true,
+    "undef": true,
+    "unused": true,
+    "maxlen": 85,
+    "multistr": true
+}
