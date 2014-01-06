@@ -6,7 +6,8 @@
         "q": "latest",
         "q-io": "latest",
         "react": "latest",
-        "brace": "latest"
+        "brace": "latest",
+        "dropbox": "latest"
     },
     "devDependencies": {
         "browserify": "latest",
@@ -18,7 +19,9 @@
         "grunt-jasmine-node": "latest",
         "grunt-node-webkit-builder": "latest",
         "jasmine-node": "latest",
-        "reactify": "~0.5.0"
+        "reactify": "~0.5.0",
+        "http-server": "~0.6.1",
+        "grunt-external-sourcemap": "~0.1.6"
     },
     "license": "GPL v3+",
     "private": true,
