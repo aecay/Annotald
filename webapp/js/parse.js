@@ -17,9 +17,9 @@ function makeSnode (xmlNode) {
     snode.className = "snode";
     for (i = 0; i < cn.length; i++) {
         c = cn[i];
-        if (c.nodeType == 3) {
+        if (c.nodeType === 3) {
             snode.appendChild(makeWnode(c));
-        } else if (c.nodeType == 1) {
+        } else if (c.nodeType === 1) {
             snode.appendChild(makeSnode(c));
         }
     }
@@ -40,7 +40,7 @@ exports.parseXmlToHtml = function parseXmlToHtml (xml) {
     sn0.id = "sn0";
     for (var i = 0; i < cn.length; i++) {
         c = cn[i];
-        if (c.nodeType == 1) {
+        if (c.nodeType === 1) {
             sn0.appendChild(makeSnode(c));
         }
     }
