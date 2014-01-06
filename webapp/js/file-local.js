@@ -1,7 +1,8 @@
 /*global require: false, FileReader: false, exports: false */
 
-var $ = require("jquery"),
-    Q = require ("q"),
+/*jshint quotmark: false, browser: true */
+
+var Q = require ("q"),
     vex = require("vex");
 
 var saveMsg = "A new tab will open with the contents of the parsed file;" +
@@ -14,7 +15,8 @@ exports.writeFile = function writeFileLocal (path, content) {
                                  (path ? " to the file '" + path + "'" : "") +
                                  "."),
                        callback: function () {
-                           window.open('data:text/plain,' + encodeURIComponent(content));
+                           window.open('data:text/plain,' +
+                                       encodeURIComponent(content));
                            deferred.resolve(true);
                        }});
     return deferred.promise;
@@ -30,8 +32,9 @@ exports.readFile = function readFileLocal (path) {
                       ' for="file">File</label><div' +
                       ' class="vex-custom-input-wrapper"><input name="file"' +
                       ' type="file" id="local-file-input"/></div></div>',
-                      callback: function (data) {
-                          var file = document.getElementById("local-file-input").files[0],
+                      callback: function () {
+                          var file = document.getElementById("local-file-input").
+                                  files[0],
                               fr = new FileReader();
                           fr.onload = function (event) {
                               deferred.fulfill({ content: event.target.result });
