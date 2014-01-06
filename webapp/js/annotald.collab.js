@@ -3,7 +3,7 @@
 
 /* jshint camelcase: false, browser: true, jquery: true */
 
-/* set but unused variables */
+/* don't harass about set but unused variables */
 /* jshint -W098 */
 
 function annotaldCollabSelectionSend (event, sn, en) {
