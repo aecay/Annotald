@@ -1,5 +1,10 @@
 /*global TogetherJS: false, startnode: true, endnode: true, TJSroom: false,
-         displayError: false, updateSelection: false, $: false */
+         displayError: false, updateSelection: false */
+
+/* jshint camelcase: false, browser: true, jquery: true */
+
+/* set but unused variables */
+/* jshint -W098 */
 
 function annotaldCollabSelectionSend (event, sn, en) {
     var elementFinder = TogetherJS.require("elementFinder");
