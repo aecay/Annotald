@@ -1,13 +1,45 @@
-// add license
+/*global
 
-$(document).ready(function () {
-    $("#buttests").mousedown(runTests);
-    window.onbeforeunload = undefined;
-});
+ $: false,
+ JSON: false,
+ _: false,
+ basesAndDashes: false,
+ coIndex: false,
+ dictionaryToForm: false,
+ displayError: true,
+ displayInfo: true,
+ displayWarning: true,
+ document: false,
+ endnode: true,
+ formToDictionary: false,
+ getIndex: false,
+ getIndexType: false,
+ getLabel: false,
+ getLabel: false,
+ idNumber: false,
+ leafBefore: false,
+ makeNode: false,
+ pruneNode: false,
+ resetLabelClasses: false,
+ resetLabelClasses: false,
+ resetUndo: false,
+ showDialogBox: false,
+ startnode: true,
+ setLabel: false,
+ testValidLeafLabel: true,
+ toLabeledBrackets: false,
+ toggleExtension: false,
+ undo: false,
+ undoBarrier: false,
+ updateSelection: false,
+ window: false,
+ wnodeString: false
+ */
+
+/*jshint quotmark: false, camelcase: false */
 
 var numtests = 0,
     testfailures = 0,
-    tests = [],
     currentindent = 0,
     nextTestFails = false;
 
@@ -100,7 +132,7 @@ function loadTrees(trees) {
 
 function selectWord(word, end) {
     var selnode = $("#editpane").find(".wnode").parents().filter(function () {
-        return wnodeString($(this)) == word;
+        return wnodeString($(this)) === word;
     }).get(0);
     if (!end) {
         startnode = selnode;
@@ -121,7 +153,7 @@ function selectParent(end) {
 
 function selectNodeByLabel(label, end) {
     var selnode = $("#editpane").find(".snode").filter(function() {
-        return getLabel($(this)) == label;
+        return getLabel($(this)) === label;
     }).get(0);
     if (!end) {
         startnode = selnode;
@@ -274,8 +306,10 @@ test))) (ID test-01))\n\n");
 
     suite("Undo/redo", function () {
         // TODO: coverage is still not total
-        loadTrees("( (IP-MAT (NP-SBJ (D this) (BEP is) (NP-PRD (D a) (N test)))))\n\n" +
-                  "( (IP-MAT (NP-SBJ (D that) (BEP is) (NP-PRD (D an) (N other)))))");
+        loadTrees("( (IP-MAT (NP-SBJ (D this) (BEP is) (NP-PRD (D a)" +
+                  " (N test)))))\n\n" +
+                  "( (IP-MAT (NP-SBJ (D that) (BEP is) (NP-PRD (D an)" +
+                  " (N other)))))");
         var origHtml = $("#editpane").html();
 
         resetUndo();
@@ -329,14 +363,7 @@ test))) (ID test-01))\n\n");
             Math.round(100 * (numtests - testfailures) / numtests) + "%)");
 }
 
-
-// Local Variables:
-// js2-additional-externs: ("$" "JSON" "showDialogBox" "formToDictionary" "\
-// dictionaryToForm" "_" "toLabeledBrackets" "startnode" "endnode" "\
-// wnodeString" "updateSelection" "leafBefore" "resetIds" "\
-// resetLabelClasses" "getLabel" "testValidLeafLabel" "basesAndDashes" "\
-// getIndex" "coIndex" "getIndexType" "makeNode" "undo" "pruneNode" "\
-// undoBarrier" "idNumber" "displayInfo" "displayWarning" "displayError" "\
-// setLabel" "toggleExtension" "resetUndo")
-// indent-tabs-mode: nil
-// End:
+$(document).ready(function () {
+    $("#buttests").mousedown(runTests);
+    window.onbeforeunload = undefined;
+});
