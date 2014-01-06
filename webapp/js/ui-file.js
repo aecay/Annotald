@@ -1,27 +1,31 @@
-/** @jsx React.DOM */
-
 /*global require: false, exports: true */
 
 var React = require("react"),
-    file_local = require("./file-local"),
-    file_dropbox = require("./file-dropbox");
+    fileLocal = require("./file-local"),
+    fileDropbox = require("./file-dropbox");
 
 exports.FileChooser = React.createClass({
     open: function (readFn) {
         var that = this;
         return function () {
             readFn().then(function (result) {
-                that.props.changeState({ view: "editTrees",
-                                         path: result.path,
-                                         content: result.content });
+                that.props.callback(result.content, result.path);
             });
             return false;
         };
     },
     render: function () {
-        return <ul>
-            <li><a href="#" onClick={this.open(file_local.readFile)}>Local file</a></li>
-            <li><a href="#" onClick={this.open(file_dropbox.readFile)}>Dropbox file</a></li>
-            </ul>;
+        return React.DOM.ul(
+            {},
+            React.DOM.li(
+                {},
+                React.DOM.a({ href: "#",
+                              onClick: this.open(fileLocal.readFile)},
+                            "Local file")),
+            React.DOM.li(
+                {},
+                React.DOM.a({ href: "#",
+                              onClick: this.open(fileDropbox.readFile)},
+                            "Dropbox file")));
     }
 });
