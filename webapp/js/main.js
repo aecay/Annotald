@@ -15,6 +15,3 @@ var React = exports.React = require("react");
 document.addEventListener("DOMContentLoaded", function () {
     React.renderComponent(ui.AnnotaldUI(), document.getElementById("mainui"));
 });
-// exports.$(
-// exports.React.renderComponent(exports.ui.AnnotaldUI(),
-//                               document.getElementById("mainui")));
