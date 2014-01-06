@@ -29,6 +29,8 @@
 // TODO: for unsaved ch warning: use tolabeledbrax, not html...html is
 // sensitive to search highlight, selection, etc
 
+/*jshint ignore:start */
+
 // * Initialization
 
 /**
