@@ -1,4 +1,4 @@
-* TODO Add a check-hash command to lovett CLI tool                  :feature:
+.* TODO Add a check-hash command to lovett CLI tool                  :feature:
 * Docs                                                                  :doc:
 ** TODO Convert docs to RST, host on readthedocs
 ** TODO Use ArgDoc
@@ -103,3 +103,7 @@ http://www.lucaongaro.eu/blog/2012/12/02/easy-two-way-data-binding-in-javascript
 http://ericbidelman.tumblr.com/post/23615290220/data-binding-using-data-attributes
 list of resources realted to web components: https://gist.github.com/ebidel/6314025
 resumable uploads: http://resumablejs.com/
+* things needed for deploying to website
+- minify and combine css
+- minify and combine js
+- do above with sourcemaps
