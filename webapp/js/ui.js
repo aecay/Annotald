@@ -1,5 +1,7 @@
 /*global require: false, exports: true */
 
+/*jshint browser: true, devel: true */
+
 var React = require("react"),
     ConfigEditor = require("./ui-config").ConfigEditor,
     ConfigsList = require("./ui-config").ConfigsList,
