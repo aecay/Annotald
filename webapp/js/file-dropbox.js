@@ -39,7 +39,7 @@ exports.readFile = function readFileDropbox (path) {
                 deferred.reject(error);
                 return;
             }
-            client.read(path, function (error, data) {
+            client.readFile(path, function (error, data) {
                 if (error) {
                     notify.error("Error reading file from Dropbox: " + error);
                     deferred.reject();
@@ -61,7 +61,7 @@ exports.readFile = function readFileDropbox (path) {
             cancel: function () {
                 deferred.reject("user canceled");
             },
-            linktype: "direct",
+            linkType: "direct",
             multiselect: false,
             extensions: [".psdx"]
         });
