@@ -1,5 +1,5 @@
 /*global require: false, exports: true */
-/*jshint: broswer: true */
+/*jshint browser: true */
 
 var vex = require("vex");
 vex.defaultOptions.className = "vex-theme-default";
