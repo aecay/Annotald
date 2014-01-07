@@ -3,7 +3,7 @@
 
 var React = require("react");
 
-exports.template = <div>
+exports.template = <div onContextMenu={function () {return false;}}>
     <div id="menus">
       <div id="floatMenu" className="menuPane">
         <div className="menuTitle">
