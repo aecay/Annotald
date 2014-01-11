@@ -3,13 +3,13 @@
 /*global require: false, exports: true */
 
 var React = require("react"),
-    configStore = require("./config-store"),
+    configStore = require("../config-store"),
     ace = require("brace"),
-    notify = require("./ui-log"),
-    fileLocal = require("./file-local"),
+    notify = require("./log"),
+    fileLocal = require("../file-local"),
     vex = require("vex"),
     Q = require("q"),
-    FileChooser = require("./ui-file").FileChooser;
+    FileChooser = require("./file").FileChooser;
 require("brace/mode/javascript");
 require("brace/theme/xcode");
 

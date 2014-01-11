@@ -3,9 +3,9 @@
 /*jshint browser: true, devel: true */
 
 var React = require("react"),
-    ConfigEditor = require("./ui-config").ConfigEditor,
-    ConfigsList = require("./ui-config").ConfigsList,
-    FileChooser = require("./ui-file").FileChooser,
+    ConfigEditor = require("./config").ConfigEditor,
+    ConfigsList = require("./config").ConfigsList,
+    FileChooser = require("./file").FileChooser,
     TreeEditor = require("./tree-editor").TreeEditor,
     $ = require("jquery");
 

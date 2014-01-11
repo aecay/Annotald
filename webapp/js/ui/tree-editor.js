@@ -6,10 +6,10 @@
 /*jshint browser: true */
 
 var React = require("react"),
-    parser = require("./parse"),
+    parser = require("../parse"),
     template = require("./tree-editor-template").template,
     $ = require("jquery"),
-    configStore = require("./config-store");
+    configStore = require("../config-store");
 
 exports.TreeEditor = React.createClass({
     exit: function () {

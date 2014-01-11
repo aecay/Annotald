@@ -11,7 +11,7 @@ exports.parse = require("./parse");
 window.$ = exports.$ = require("jquery");
 window._ = require("lodash");
 
-var ui = exports.ui = require("./ui");
+var ui = exports.ui = require("./ui/ui");
 
 var React = exports.React = require("react");
 

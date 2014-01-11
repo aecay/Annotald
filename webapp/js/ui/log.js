@@ -1,6 +1,6 @@
 /*global require: false, exports: true */
 
-var notify = require("./ext/growl").growl;
+var notify = require("../ext/growl").growl;
 
 exports.error = function (text) {
     notify.error({ title: "Error",

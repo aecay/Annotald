@@ -1,8 +1,8 @@
 /*global require: false, exports: true */
 
 var React = require("react"),
-    fileLocal = require("./file-local"),
-    fileDropbox = require("./file-dropbox");
+    fileLocal = require("../file-local"),
+    fileDropbox = require("../file-dropbox");
 
 exports.FileChooser = React.createClass({
     open: function (readFn) {

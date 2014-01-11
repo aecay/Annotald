@@ -2,7 +2,7 @@
 
 var Q = require ("q"),
     DropboxCore = require("./ext/dropbox"),
-    notify = require("./ui-log"),
+    notify = require("./ui/log"),
     $ = require("jquery");
 
 var client = new DropboxCore.Client({ key: "rw6m6r2gi34luhp" });
