@@ -107,3 +107,10 @@ resumable uploads: http://resumablejs.com/
 - minify and combine css
 - minify and combine js
 - do above with sourcemaps
+* idea for download fn
+http://www.phpied.com/files/react/src/table2.js
+* intro.js
+* for github file browser
+use jqtree http://mbraak.github.io/jqTree/
+https://stackoverflow.com/questions/14731459/github-api-fetch-all-folders-and-files-in-single-get-request
+also: google drive file picker https://gist.github.com/Daniel15/5994054
