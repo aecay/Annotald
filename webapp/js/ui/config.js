@@ -9,7 +9,8 @@ var React = require("react"),
     fileLocal = require("../file-local"),
     vex = require("vex"),
     Q = require("q"),
-    FileChooser = require("./file").FileChooser;
+    FileChooser = require("./file").FileChooser,
+    $ = require("jquery");
 require("brace/mode/javascript");
 require("brace/theme/xcode");
 
@@ -36,7 +37,7 @@ exports.ConfigsList = React.createClass({
     // Event handlers
 
     doEdit: function (name) {
-        this.props.changeState({view: "editConfig", name: name});
+        $.trigger("ChangeView", { view: "EditConfig", name: name });
         return false;
     },
 
@@ -73,17 +74,25 @@ exports.ConfigsList = React.createClass({
     },
 
     // React methods
-
     getInitialState: function () {
-        return {names: [], adding: false};
+        return { names: [], adding: false };
     },
 
     componentWillMount: function () {
         this.updateFromDb();
     },
+
     componentDidUpdate: function () {
         if (this.state.adding) {
             this.refs.newName.getDOMNode().focus();
+        }
+    },
+
+    componentDidMount: function () {
+        if (this.state.name) {
+            // TODO: does this even work? and can it be done without
+            // getDOMNode?
+            $(this.refs.config.getDOMNode()).val(this.state.name);
         }
     },
 
@@ -135,7 +144,7 @@ exports.ConfigsList = React.createClass({
  * @class
  * @classdesc An editor for configuration files
  */
-exports.ConfigEditor = React.createClass({
+var ConfigEditor = exports.ConfigEditor = React.createClass({
 
     /** @member {Boolean} Are there unsaved changes? */
     dirty: false,
@@ -166,7 +175,7 @@ exports.ConfigEditor = React.createClass({
     doExit: function () {
         var that = this;
         function doExitInner () {
-            that.props.changeState({view: "welcome"});
+            $.trigger("ChangeView", { view: "Welcome", name: this.props.name });
         }
         if (this.dirty) {
             vex.dialog.confirm({ message: "Discard unsaved changes?",

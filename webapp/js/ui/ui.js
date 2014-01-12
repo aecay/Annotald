@@ -9,50 +9,64 @@ var React = require("react"),
     TreeEditor = require("./tree-editor").TreeEditor,
     $ = require("jquery");
 
-// Idea: pass callback to child views.  They call the callback with a next
-// view, which we then return in render.  This avoids children having to pass
-// props for the next view on our state.
-
 exports.AnnotaldUI = React.createClass({
-    changeState: function (newState) {
-        this.setState($.extend(this.state, newState));
-    },
     getInitialState: function () {
-        return {view: "welcome"};
+        return { view: this.initialView() };
     },
     render: function () {
-        var that = this,
-            pane;
-        function fileChooserDone (content, path) {
-            that.changeState({ view: "editTrees",
-                               path: path,
-                               content: content });
+        return this.state.view;
+    },
+
+    componentDidMount: function () {
+        $(document).on("ChangeView", function (event, params) {
+            this.changeView(params);
+        });
+    },
+
+    /* TODO: we probably want to do this with some nicer sort of router
+     * technology, to bind the states together, check on each entry that the
+     * required params have been passed, and allow modularity (regustering of
+     * new views in child modules, without the parent needing to know about
+     * it...), as well as code reuse (since we might want something like this
+     * in the tree editor as well)
+     */
+    changeView: function (params) {
+        switch (params.view) {
+        case "Welcome":
+            this.setState({view : this.initialView(params)});
+            break;
+        case "EditTree":
+            this.setState({view: TreeEditor({ path: params.path,
+                                              content: params.content,
+                                              saveCallback: params.saveCallback,
+                                              // TODO: hackasaurus!!!
+                                              config: $("#config-chooser").val()
+                                            })});
+            break;
+        case "EditConfig":
+            this.setState({view: ConfigEditor({name: params.name})});
+            break;
+        default:
+            this.setState({view: React.DOM.div("Don't know about view: " +
+                                               params.view)});
         }
-        if (this.state.view === "welcome") {
-            // TODO: this may be an awful hack.
-            this.configList = ConfigsList({changeState: this.changeState});
-            pane = React.DOM.div(
-                {},
-                React.DOM.h1({}, "Welcome to Annotald"),
-                React.DOM.div({style: { width: "70%" }},
-                              FileChooser({callback: fileChooserDone})),
-                React.DOM.div({style: { width: "30%",
-                                        float: "right" }},
-                              this.configList));
-        } else if (this.state.view === "editConfig") {
-            pane = ConfigEditor({ changeState: this.changeState,
-                                  name: this.state.name });
-        } else if (this.state.view === "editTrees") {
-            console.log($("#config-chooser").val());
-            pane = TreeEditor({ path: this.state.path,
-                                content: this.state.content,
-                                // TODO: hackasaurus!!!
-                                config: $("#config-chooser").val() });
-        } else {
-            pane = React.DOM.div({},
-                                 "Unknown view: ",
-                                 this.state.view);
-        }
-        return pane;
+    },
+    initialView: function (params) {
+        return React.DOM.div(
+            {},
+            React.DOM.h1({}, "Welcome to Annotald"),
+            React.DOM.div(
+                {style: { width: "70%" }},
+                FileChooser({ callback:
+                              function (path, content, saveCallback) {
+                                  $(document).trigger("ChangeView",
+                                                      { view: "EditTree",
+                                                        path: path,
+                                                        saveCallback: saveCallback,
+                                                        content: content });
+                              } })),
+            React.DOM.div({style: { width: "30%",
+                                    float: "right" }},
+                          ConfigsList({name: params.name })));
     }
 });
