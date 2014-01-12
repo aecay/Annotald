@@ -4,7 +4,7 @@
     "curly": true,
     "eqeqeq": true,
     "forin": true,
-    "latedef": true,
+    "latedef": "nofunc",
     "noarg": true,
     "quotmark": true,
     "undef": true,
