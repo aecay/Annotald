@@ -1,5 +1,7 @@
 /*global exports: true, require: false */
 
+/*jshint browser: true */
+
 var parser = require("../parse"),
     logger = require("../ui/log"),
     lastSavedState = require("global").lastSavedState,
@@ -25,7 +27,8 @@ exports.save = function save(e, extraArgs) {
         saveInProgress = true;
         savePromise(parser.parseHtmlToXml($("#sn0"))).then(function () {
             logger.notice("Save success");
-            saveInProgress = true;
+            saveInProgress = false;
+            lastSavedState = $("#editpane").html();
         }, function (err) {
             logger.error("Save error: " + err);
             saveInProgress = false;

@@ -22,21 +22,32 @@
 
 var _ = require("lodash"),
     $ = require("jquery"),
-    selection = require("./selection");
+    selection = require("./selection"),
+    undo = require("./undo"),
+    utils = require("./utils"),
+    edit = require("./struc-edit"),
+    conf = require("./config");
 
 var conmenus = {},
     conleafs = [],
     caseMarkers = [],
     // TODO: setter for displayCaseMenu
-    displayCaseMenu = false;
+    displayCaseMenu = false,
+    extensions = conf.extensions;
 
-exports.addConMenu = function addConMenu (label, suggestions) {
+function hideContextMenu () {
+    $("#conMenu").css("visibility","hidden");
+}
+exports.hideContextMenu = hideContextMenu;
+
+function addConMenu (label, suggestions) {
     conmenus[label] = {
         suggestions : suggestions
     };
-};
+}
+exports.addConMenu = addConMenu;
 
-exports.addConLeaf = function addConLeaf (suggestion, before, label, word) {
+function addConLeaf (suggestion, before, label, word) {
     var conleaf = {
         suggestion : suggestion,
         before : before,
@@ -45,7 +56,8 @@ exports.addConLeaf = function addConLeaf (suggestion, before, label, word) {
     };
 
     conleafs.push(conleaf);
-};
+}
+exports.addConLeaf = addConLeaf;
 
 exports.addCaseMarker = function addCaseMarker (marker) {
     caseMarkers.push(marker);
@@ -64,10 +76,10 @@ exports.addCaseMarker = function addCaseMarker (marker) {
  */
 function doToggleExtension(node, extension) {
     return function() {
-        touchTree($(node));
+        undo.touchTree($(node));
         selection.clearSelection();
         selection.selectNode(node);
-        toggleExtension(extension);
+        edit.toggleExtension(extension);
         hideContextMenu();
         selection.clearSelection();
     };
@@ -87,9 +99,9 @@ function doToggleExtension(node, extension) {
  */
 function setCaseOnTag(node, theCase) {
     function doKids(n, override) {
-        if (isCaseNode(n)) {
-            setCase(n, theCase);
-        } else if (_.contains(caseBarriers, getLabel(n).split("-")[0]) &&
+        if (utils.isCaseNode(n)) {
+            utils.setCase(n, theCase);
+        } else if (_.contains(conf.caseBarriers, utils.getLabel(n).split("-")[0]) &&
                    !n.parent().is(".CONJP") &&
                    !override) {
             // nothing
@@ -101,7 +113,7 @@ function setCaseOnTag(node, theCase) {
     }
     return function() {
         var n = $(node);
-        touchTree(n);
+        undo.touchTree(n);
         doKids(n, true);
     };
 }
@@ -123,7 +135,7 @@ function setCaseOnTag(node, theCase) {
  */
 function doConLeaf(conleaf, node) {
     return function() {
-        makeLeaf(conleaf.before, conleaf.label, conleaf.word, node, true);
+        edit.makeLeaf(conleaf.before, conleaf.label, conleaf.word, node, true);
         hideContextMenu();
     };
 }
@@ -142,6 +154,7 @@ function addConMenuGroup(group) {
         addConMenu(group[i], group);
     }
 }
+exports.addConMenuGroup = addConMenuGroup;
 
 /**
  * Add a terminal node to the context menu.
@@ -155,6 +168,7 @@ function addConLeafBefore(phrase, terminal) {
     addConLeaf("&lt; (" + phrase + " " + terminal + ")",
                true, phrase, terminal);
 }
+exports.addConLeafBefore = addConLeafBefore;
 
 /**
  * Compute the suggested changes for the context menu for a label.
@@ -166,26 +180,26 @@ function getSuggestions(label) {
     var indstr = "",
         indtype = "",
         theCase = "";
-    if (parseIndex(label) > 0) {
-        indstr = parseIndex(label);
-        indtype = parseIndexType(label);
+    if (utils.parseIndex(label) > 0) {
+        indstr = utils.parseIndex(label);
+        indtype = utils.parseIndexType(label);
     }
-    label = parseLabel(label);
-    theCase = labelGetCase(label);
+    label = utils.parseLabel(label);
+    theCase = utils.labelGetCase(label);
     if (theCase !== "") {
         theCase = "-" + theCase;
     }
-    label = labelRemoveCase(label);
+    label = utils.labelRemoveCase(label);
 
     var suggestions = [];
-    var menuitems = customConMenuGroups;
+    var menuitems = conf.customConMenuGroups;
     if (conmenus[label] !== null) {
         menuitems = conmenus[label].suggestions;
     }
 
     for (var i = 0; i < menuitems.length; i++) {
         var menuitem = menuitems[i];
-        if (isCaseLabel(menuitem)) {
+        if (utils.isCaseLabel(menuitem)) {
             menuitem += theCase;
         }
         suggestions.push(menuitem + indtype + indstr);
@@ -203,24 +217,22 @@ function getSuggestions(label) {
  */
 function loadContextMenu(nodeOrig) {
     var nO = $(nodeOrig),
-        nodeIndex = getIndex(nO),
+        nodeIndex = utils.getIndex(nO),
         indexSep = "",
         indexString = "",
-        nodelabel = getLabel(nO),
+        nodelabel = utils.getLabel(nO),
         newnode,
         i;
     function loadConMenuMousedown () {
-        var e = window.event;
-        var elementId = (e.target || e.srcElement).id;
         var suggestion = "" + $(this).text();
-        setNodeLabel(nO, suggestion);
+        utils.setNodeLabel(nO, suggestion);
         hideContextMenu();
     }
 
     if (nodeIndex > -1) {
-        indexSep = parseIndexType(nodelabel);
-        indexString = indexSep + parseIndex(nodelabel);
-        nodelabel = parseLabel(nodelabel);
+        indexSep = utils.parseIndexType(nodelabel);
+        indexString = indexSep + utils.parseIndex(nodelabel);
+        nodelabel = utils.parseLabel(nodelabel);
     }
     $("#conLeft").empty();
     $("#conLeft").append($("<div class='conMenuHeading'>Label</div>"));
@@ -240,7 +252,7 @@ function loadContextMenu(nodeOrig) {
     $("#conRight").empty();
 
     if (displayCaseMenu) {
-        if (hasCase(nO) || isCasePhrase(nO)) {
+        if (utils.hasCase(nO) || utils.isCasePhrase(nO)) {
             $("#conRight").append($("<div class='conMenuHeading'>Case</div>"));
             caseMarkers.forEach(function(c) {
                 newnode = $("<div class='conMenuItem'><a href='#'>-" + c +
@@ -277,7 +289,7 @@ function loadContextMenu(nodeOrig) {
 exports.showContextMenu = function showContextMenu(e) {
     var element = e.target || e.srcElement;
     if (element === document.getElementById("sn0")) {
-        clearSelection();
+        selection.clearSelection();
         return;
     }
 
@@ -306,8 +318,4 @@ exports.showContextMenu = function showContextMenu(e) {
     conm.css("left",left);
     conm.css("top",top);
     conm.css("visibility","visible");
-};
-
-exports.hideContextMenu = function hideContextMenu() {
-    $("#conMenu").css("visibility","hidden");
 };

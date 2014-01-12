@@ -1,12 +1,20 @@
 /*global exports: true, require: false */
 
+/*jshint browser: true */
+
 var $ = require("jquery"),
     _ = require("lodash"),
     globals = require("./global"),
-    contextmenu = require("./contextmenu");
+    contextmenu = require("./contextmenu"),
+    bindings = require("./bindings"),
+    undo = require("./undo"),
+    selection = require("./selection"),
+    edit = require("./struc-edit"),
+    metadataEditor = require("./medtdata-editor"),
+    dialog = require("./dialog");
 
 exports.killTextSelection = function killTextSelection(e) {
-    if (dialogShowing ||
+    if (dialog.isDialogShowing() ||
         $(e.target).parents(".togetherjs,.togetherjs-modal").length > 0) {
         return;
     }
@@ -16,16 +24,16 @@ exports.killTextSelection = function killTextSelection(e) {
 
 var keyDownHooks = [];
 
-function addKeyDownHook(fn) {
+exports.addKeyDownHook = function addKeyDownHook(fn) {
     keyDownHooks.push(fn);
-}
+};
 
 exports.handleKeyDown = function handleKeyDown(e) {
     if ((e.ctrlKey && e.shiftKey) || e.metaKey || e.altKey) {
         // unsupported modifier combinations
         return true;
     }
-    if (e.keyCode == 16 || e.keyCode == 17 || e.keyCode == 18) {
+    if (e.keyCode === 16 || e.keyCode === 17 || e.keyCode === 18) {
         // Don't handle shift, ctrl, and meta presses
         return true;
     }
@@ -35,11 +43,11 @@ exports.handleKeyDown = function handleKeyDown(e) {
     }
     var commandMap;
     if (e.ctrlKey) {
-        commandMap = ctrlKeyMap;
+        commandMap = bindings.ctrlKeyMap;
     } else if (e.shiftKey) {
-        commandMap = shiftKeyMap;
+        commandMap = bindings.shiftKeyMap;
     } else {
-        commandMap = regularKeyMap;
+        commandMap = bindings.regularKeyMap;
     }
     globals.lastEventWasMouse = false;
     if (!commandMap[e.keyCode]) {
@@ -59,33 +67,33 @@ exports.handleKeyDown = function handleKeyDown(e) {
     });
     theFn.apply(undefined, theArgs);
     if (!theFn.async) {
-        undoBarrier();
+        undo.undoBarrier();
     }
     return false;
 };
 
 var clickHooks = [];
 
-function addClickHook(fn) {
+exports.addClickHook = function addClickHook(fn) {
     clickHooks.push(fn);
-}
+};
 
 exports.handleNodeClick = function handleNodeClick(e) {
     e = e || window.event;
     var element = (e.target || e.srcElement);
-    saveMetadata();
-    if (e.button == 2) {
+    metadataEditor.saveMetadata();
+    if (e.button === 2) {
         // rightclick
         if (globals.startnode && !globals.endnode) {
-            if (globals.startnode != element) {
+            if (globals.startnode !== element) {
                 e.stopPropagation();
-                moveNode(element);
+                edit.moveNode(element);
             } else {
                 contextmenu.showContextMenu(e);
             }
         } else if (globals.startnode && globals.endnode) {
             e.stopPropagation();
-            moveNodes(element);
+            edit.moveNodes(element);
         } else {
             contextmenu.showContextMenu(e);
         }
@@ -93,13 +101,13 @@ exports.handleNodeClick = function handleNodeClick(e) {
         // leftclick
         contextmenu.hideContextMenu();
         if (e.shiftKey && globals.startnode) {
-            selectNode(element, true);
+            selection.selectNode(element, true);
             e.preventDefault(); // Otherwise, this sets the text
                                 // selection in the browser...
         } else {
-            selectNode(element);
+            selection.selectNode(element);
             if (e.ctrlKey) {
-                makeNode("XP");
+                edit.makeNode("XP");
             }
         }
     }
@@ -108,5 +116,5 @@ exports.handleNodeClick = function handleNodeClick(e) {
     });
     e.stopPropagation();
     globals.lastEventWasMouse = true;
-    undoBarrier();
+    undo.undoBarrier();
 };

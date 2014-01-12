@@ -1,10 +1,45 @@
 /*global require: false, exports: true */
 
+/*jshint browser: true, devel: true */
+
 var $ = require("jquery"),
     globals = require("./global"),
-    startnode = globals..startnode,
+    startnode = globals.startnode,
     endnode = globals.endnode,
-    contextmenu = require("./contextmenu");
+    contextmenu = require("./contextmenu"),
+    metadataEditor = require("./metadata-editor");
+
+function updateSelection (remote) {
+    // update selection display
+    $(".snodesel").removeClass("snodesel");
+
+    if (startnode) {
+        $(startnode).addClass("snodesel");
+    }
+
+    if (endnode) {
+        $(endnode).addClass("snodesel");
+    }
+
+    metadataEditor.updateMetadataEditor();
+
+    if (!remote) {
+        $(document).trigger("set_selection", [startnode, endnode]);
+    }
+}
+exports.updateSelection = updateSelection;
+
+/**
+ * Remove any selection of nodes.
+ */
+function clearSelection () {
+    metadataEditor.saveMetadata();
+    window.event.preventDefault();
+    startnode = endnode = null;
+    updateSelection();
+    contextmenu.hideContextMenu();
+}
+exports.clearSelection = clearSelection;
 
 /**
  * Select a node, and update the GUI to reflect that.
@@ -14,7 +49,7 @@ var $ = require("jquery"),
  * selection, even if it wouldn't otherwise be
  * @param {Boolean} remote whether this request was triggered remotely
  */
-exports.selectNode = function selectNode(node, force) {
+function selectNode (node, force) {
     if (node) {
         if (!(node instanceof Node)) {
             try {
@@ -23,16 +58,16 @@ exports.selectNode = function selectNode(node, force) {
                 console.log("selecting a non-node: " + e.stack);
             }
         }
-        if (node == document.getElementById("sn0")) {
+        if (node === document.getElementById("sn0")) {
             clearSelection();
             return;
         }
 
-        while (!$(node).hasClass("snode") && node != document) {
+        while (!$(node).hasClass("snode") && node !== document) {
             node = node.parentNode;
         }
 
-        if (node == startnode) {
+        if (node === startnode) {
             startnode = null;
             if (endnode) {
                 startnode = endnode;
@@ -42,7 +77,7 @@ exports.selectNode = function selectNode(node, force) {
             startnode = node;
         } else {
             if (startnode && (globals.lastEventWasMouse || force)) {
-                if (node == endnode) {
+                if (node === endnode) {
                     endnode = null;
                 } else {
                     endnode = node;
@@ -60,37 +95,8 @@ exports.selectNode = function selectNode(node, force) {
             console.log("tried to select something falsey: " + e.stack);
         }
     }
-};
-
-/**
- * Remove any selection of nodes.
- */
-exports.clearSelection = function clearSelection() {
-    saveMetadata();
-    window.event.preventDefault();
-    startnode = endnode = null;
-    updateSelection();
-    contextmenu.hideContextMenu();
-};
-
-exports.updateSelection = function updateSelection(remote) {
-    // update selection display
-    $('.snodesel').removeClass('snodesel');
-
-    if (startnode) {
-        $(startnode).addClass('snodesel');
-    }
-
-    if (endnode) {
-        $(endnode).addClass('snodesel');
-    }
-
-    updateMetadataEditor();
-
-    if (!remote) {
-        $(document).trigger("set_selection", [startnode, endnode]);
-    }
-};
+}
+exports.selectNode = selectNode;
 
 /**
  * Scroll the page so that the first selected node is visible.

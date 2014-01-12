@@ -1,3 +1,5 @@
+/*jshint ignore:start */
+
 function quitServer(e, force) {
     unAutoIdle();
     if (!force && $("#editpane").html() != lastsavedstate) {

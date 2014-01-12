@@ -16,122 +16,24 @@
 // License along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/*jshint ignore:start */
+/*global require: false, exports: true */
+
+/*jshint browser: true */
+
+var $ = require("jquery"),
+    _ = require("lodash"),
+    globals = require("./global"),
+    startnode = globals.startnode,
+    endnode = globals.endnode,
+    strucEdit = require("./struc-edit"),
+    conf = require("./config"),
+    undo = require("./undo");
 
 /*
  * Utility functions for Annotald.
  */
 
 // TODOs: mark @privates appropriately, consider naming scheme for dom vs JQ args
-
-// * Javascript object manipulation
-
-function safeGet (obj, key, def) {
-    if (_.has(obj, key)) {
-        return obj[key];
-    } else {
-        return def;
-    }
-}
-
-// * Interconversion of different representations
-
-function jsonToTree(json) {
-    var d = JSON.parse(json);
-    return objectToTree(d);
-}
-
-function objectToTree(o) {
-    var res = "";
-    for (var p in o) {
-        if (o.hasOwnProperty(p)) {
-            res += "(" + p + " ";
-            if (typeof o[p] == "string") { // One of life's grosser hacks
-                res += o[p];
-            } else {
-                res += objectToTree(o[p]);
-            }
-            res += ")";
-        }
-    }
-    return res;
-}
-
-/**
- * Convert a JS disctionary to an HTML form.
- *
- * For the metadator editing code.
- * @private
- */
-function dictionaryToForm(dict, level) {
-    if (!level) {
-        level = 0;
-    }
-    var res = "";
-    if (dict) {
-        res = '<table class="metadataTable"><thead><tr><td>Key</td>' +
-            '<td>Value</td></tr></thead>';
-        for (var k in dict) {
-            if (dict.hasOwnProperty(k)) {
-                if (typeof dict[k] == "string") {
-                    res += '<tr class="strval" data-level="' + level +
-                        '"><td class="key">' + '<span style="width:"' +
-                        4*level + 'px;"></span>' + k +
-                        '</td><td class="val"><input class="metadataField" ' +
-                        'type="text" name="' + k + '" value="' + dict[k] +
-                        '" /></td></tr>';
-                } else if (typeof dict[k] == "object") {
-                    res += '<tr class="tabhead"><td colspan=2>' + k +
-                        '</td></tr>';
-                    res += dictionaryToForm(dict[k], level + 1);
-                }
-            }
-        }
-        res += '</table>';
-    }
-    return res;
-}
-
-/**
- * Convert an HTML form into a JS dictionary
- *
- * For the metadata editing code
- * @private
- */
-function formToDictionary(form) {
-    var d = {},
-        dstack = [],
-        curlevel = 0,
-        namestack = [];
-    form.find("tr").each(function() {
-        if ($(this).hasClass("strval")) {
-            var key = $(this).children(".key").text();
-            var val = $(this).find(".val>.metadataField").val();
-            d[key] = val;
-            if ($(this).prop("data-level") < curlevel) {
-                var new_d = dstack.pop();
-                var next_name = namestack.pop();
-                new_d[next_name] = d;
-                d = new_d;
-            }
-        } else if ($(this).hasClass("tabhead")) {
-            namestack.push($(this).text());
-            curlevel = $(this).prop("data-level");
-            dstack.push(d);
-            d = {};
-        }
-    });
-    if (dstack.length > 0) {
-        var len = dstack.length;
-        for (var i = 0; i < len; i++) {
-            var new_d = dstack.pop();
-            var next_name = namestack.pop();
-            new_d[next_name] = d;
-            d = new_d;
-        }
-    }
-    return d;
-}
 
 // * UI helper functions
 
@@ -149,36 +51,6 @@ function logMessage(msg) {
 }
 
 /**
- * Display a warning message in the Annotald UI.
- *
- * @param {String} html the html code of the warning to display
- */
-function displayWarning(html) {
-    logMessage(html);
-    $("#messageBoxInner").html(html).css("color", "orange");
-}
-
-/**
- * Display an informational message in the Annotald UI.
- *
- * @param {String} html the html code of the information to display
- */
-function displayInfo(html) {
-    logMessage(html);
-    $("#messageBoxInner").html(html).css("color", "#64C465");
-}
-
-/**
- * Display an error message in the Annotald UI.
- *
- * @param {String} html the html code of the error to display
- */
-function displayError(html) {
-    logMessage(html);
-    $("#messageBoxInner").html(html).css("color", "#C75C5C");
-}
-
-/**
  * Scroll to display the next place in the document matching a selector.
  *
  * If no matches, do nothing.
@@ -192,12 +64,36 @@ function scrollToNext(selector) {
             // Magic number alert!  Not sure if the +5 is needed...
             return $(this).offset().top > docViewTop + 5;
         }).first();
-    if (nextError.length == 1) {
+    if (nextError.length === 1) {
         window.scroll(0, nextError.offset().top);
         return nextError;
     }
     return undefined;
 }
+exports.scrollToNext = scrollToNext;
+
+/**
+ * Update the CSS class of a node to reflect its label.
+ *
+ * @param {JQuery} node
+ * @param {String} oldlabel (optional) the former label of this node
+ */
+function updateCssClass(node, oldlabel) {
+    if (!node.hasClass("snode")) {
+        return;
+    }
+    if (oldlabel) {
+        // should never be needed, but a bit of defensiveness can't hurt
+        oldlabel = parseLabel($.trim(oldlabel));
+    } else {
+        // oldlabel wasn't supplied -- try to guess
+        oldlabel = node.prop("class").split(" ");
+        oldlabel = _.find(oldlabel, function (s) { return (/[A-Z-]/).match(s); });
+    }
+    node.removeClass(oldlabel);
+    node.addClass(parseLabel(getLabel(node)));
+}
+exports.updateCssClass = updateCssClass;
 
 // * Functions on node representation
 
@@ -211,9 +107,19 @@ function scrollToNext(selector) {
  * @private
  */
 // TODO: is private right for this one?
-function hasLemma(node) {
-    return node.children(".wnode").children(".lemma").length == 1;
+exports.hasLemma = function hasLemma(node) {
+    return node.children(".wnode").children(".lemma").length === 1;
+};
+
+/**
+ * Test whether a node is a purely structural leaf.
+ *
+ * @param {Node} node the node to operate on
+ */
+function isLeafNode(node) {
+    return $(node).children(".wnode").size() > 0;
 }
+exports.isLeafNode = isLeafNode;
 
 /**
  * Test whether a given node is empty, i.e. a trace, comment, or other empty
@@ -226,15 +132,16 @@ function isEmptyNode(node) {
     if (!isLeafNode(node)) {
         return false;
     }
-    if (getLabel($(node)) == "CODE") {
+    if (getLabel($(node)) === "CODE") {
         return true;
     }
     var text = wnodeString(node);
-    if (text.startsWith("*") || text.split("-")[0] == "0") {
+    if (text.startsWith("*") || text.split("-")[0] === "0") {
         return true;
     }
     return false;
 }
+exports.isEmptyNode = isEmptyNode;
 
 /**
  * Test whether a string is empty, i.e. a trace, comment, or other empty
@@ -243,7 +150,7 @@ function isEmptyNode(node) {
  * @param {String} text the text to test
  * @returns {Boolean}
  */
-function isEmpty (text) {
+exports.isEmpty = function isEmpty (text) {
     // TODO(AWE): should this be passed a node instead of a string, and then
     // test whether the node is a leaf or not before giving a return value?  This
     // would simplify the check I had to put in shouldIndexLeafNode, and prevent
@@ -251,18 +158,18 @@ function isEmpty (text) {
 
     // TODO: use CODE-ness of a node, rather than starting with a bracket
     if (text.startsWith("*") || text.startsWith("{") ||
-        text.split("-")[0] == "0") {
+        text.split("-")[0] === "0") {
         return true;
     }
     return false;
-}
+};
 
 /**
  * Test whether a node is a possible target for movement.
  *
  * @param {Node} node the node to operate on
  */
-function isPossibleTarget(node) {
+exports.isPossibleTarget = function isPossibleTarget(node) {
     // cannot move under a tag node
     // TODO(AWE): what is the calling convention?  can we optimize this jquery
     // call?
@@ -270,25 +177,16 @@ function isPossibleTarget(node) {
         return false;
     }
     return true;
-}
+};
 
 /**
  * Test whether a node is the root node of a tree.
  *
  * @param {JQuery} node the node to operate on
  */
-function isRootNode(node) {
+exports.isRootNode = function isRootNode(node) {
     return node.filter("#sn0>.snode").size() > 0;
-}
-
-/**
- * Test whether a node is a purely structural leaf.
- *
- * @param {Node} node the node to operate on
- */
-function isLeafNode(node) {
-    return $(node).children(".wnode").size() > 0;
-}
+};
 
 /**
  * Test whether a node is a leaf using heuristics.
@@ -298,22 +196,23 @@ function isLeafNode(node) {
  *
  * @param {Node} node the node to operate on
  */
-function guessLeafNode(node) {
-    var label = getLabel($(node)).replace("-FLAG", "");
-    if (typeof testValidLeafLabel   !== "undefined" &&
-        typeof testValidPhraseLabel !== "undefined") {
-        if (testValidPhraseLabel(label)) {
-            return false;
-        } else if (testValidLeafLabel(label)) {
-            return true;
-        } else {
-            // not a valid label, fall back to structural check
-            return isLeafNode(node);
-        }
-    } else {
-        return isLeafNode(node);
-    }
-}
+// TODO: restore
+// exports.guessLeafNode = function guessLeafNode(node) {
+//     var label = getLabel($(node)).replace("-FLAG", "");
+//     if (typeof testValidLeafLabel   !== "undefined" &&
+//         typeof testValidPhraseLabel !== "undefined") {
+//         if (testValidPhraseLabel(label)) {
+//             return false;
+//         } else if (testValidLeafLabel(label)) {
+//             return true;
+//         } else {
+//             // not a valid label, fall back to structural check
+//             return isLeafNode(node);
+//         }
+//     } else {
+//         return isLeafNode(node);
+//     }
+// };
 
 // ** Accessor functions
 
@@ -322,9 +221,9 @@ function guessLeafNode(node) {
  *
  * @param {JQuery} node the node to operate on
  */
-function getTokenRoot(node) {
+exports.getTokenRoot = function getTokenRoot(node) {
     return node.parents().addBack().filter("#sn0>.snode").get(0);
-}
+};
 
 /**
  * Get the text dominated by a given node, without removing empty material.
@@ -332,9 +231,10 @@ function getTokenRoot(node) {
  * @param {Node} node the node to operate on
  */
 function wnodeString(node) {
-    var text = $(node).find('.wnode').text();
+    var text = $(node).find(".wnode").text();
     return text;
 }
+exports.wnodeString = wnodeString;
 
 /**
  * Get the ur-text dominated by a node.
@@ -344,7 +244,7 @@ function wnodeString(node) {
  *
  * @param {JQuery} root the node to operate on
  */
-function currentText(root) {
+exports.currentText = function currentText(root) {
     var nodes = root.get(0).getElementsByClassName("wnode");
     var text = "",
         nv;
@@ -355,7 +255,7 @@ function currentText(root) {
         }
     }
     return text;
-}
+};
 
 /**
  * Get the label of a node.
@@ -365,6 +265,7 @@ function currentText(root) {
 function getLabel(node) {
     return $.trim(textNode(node).text());
 }
+exports.getLabel = getLabel;
 
 /**
  * Get the first text node dominated by a node.
@@ -374,9 +275,10 @@ function getLabel(node) {
  */
 function textNode(node) {
     return node.contents().filter(function() {
-                                         return this.nodeType == 3;
+                                         return this.nodeType === 3;
                                      }).first();
 }
+exports.textNode = textNode;
 
 /**
  * Return the lemma of a node, or undefined if none.
@@ -384,20 +286,20 @@ function textNode(node) {
  * @param {JQuery} node
  * @returns {String}
  */
-function getLemma(node) {
+exports.getLemma = function getLemma(node) {
     return node.children(".wnode").children(".lemma").first().
         text().substring(1); // strip the dash
-}
+};
 
 // TODO: document
-function getMetadata(node) {
+exports.getMetadata = function getMetadata(node) {
     var m = node.prop("data-metadata");
     if (m) {
         return JSON.parse(m);
     } else {
         return undefined;
     }
-}
+};
 
 /**
  * Test whether a node has a certain dash tag.
@@ -405,11 +307,11 @@ function getMetadata(node) {
  * @param {JQuery} node the node to operate on
  * @param {String} tag the dash tag to look for, without any dashes
  */
-function hasDashTag(node, tag) {
+exports.hasDashTag = function hasDashTag(node, tag) {
     var label = getLabel(node);
     var tags = label.split("-").slice(1);
     return (tags.indexOf(tag) > -1);
-}
+};
 
 // ** Index-related functions
 
@@ -422,7 +324,7 @@ function hasDashTag(node, tag) {
 function parseIndex (label) {
     var index = -1;
     var lastindex = Math.max(label.lastIndexOf("-"),label.lastIndexOf("="));
-    if (lastindex == -1) {
+    if (lastindex === -1) {
         return -1;
     }
     var lastpart = parseInt(label.substr(lastindex+1), 10);
@@ -434,6 +336,7 @@ function parseIndex (label) {
     }
     return index;
 }
+exports.parseIndex = parseIndex;
 
 /**
  * Return the non-index portion of a label.
@@ -451,6 +354,7 @@ function parseLabel (label) {
     }
     return $.trim(label);
 }
+exports.parseLabel = parseLabel;
 
 /**
  * Return the type of index attached to a label, either `"-"` or `"="`.
@@ -464,6 +368,7 @@ function parseIndexType(label) {
     var lastindex = Math.max(label.lastIndexOf("-"), label.lastIndexOf("="));
     return label.charAt(lastindex);
 }
+exports.parseIndexType = parseIndexType;
 
 /**
  * Return the movement index associated with a node.
@@ -477,6 +382,7 @@ function getIndex(node) {
         return parseIndex(getLabel(node));
     }
 }
+exports.getIndex = getIndex;
 
 /**
  * Return the type of index associated with a node, either `"-"` or `"="`.
@@ -484,7 +390,7 @@ function getIndex(node) {
  * @param {JQuery} node the node to operate on
  */
 // TODO: only used once, eliminate?
-function getIndexType (node) {
+exports.getIndexType = function getIndexType (node) {
     if (getIndex(node) < 0) {
         return -1;
     }
@@ -496,7 +402,7 @@ function getIndexType (node) {
     }
     var lastpart = parseIndexType(label);
     return lastpart;
-}
+};
 
 /**
  * Determine whether to place a movement index on the node label or the text.
@@ -507,13 +413,16 @@ function shouldIndexLeaf(node) {
     // The below check bogusly returns true if the leftmost node in a tree is
     // a trace, even if it is not a direct daughter.  Only do the more
     // complicated check if we are at a POS label, otherwise short circuit
-    if (node.children(".wnode").size() === 0) return false;
+    if (node.children(".wnode").size() === 0) {
+        return false;
+    }
     var str = wnodeString(node);
-    return (str.substring(0,3) == "*T*" ||
-            str.substring(0,5) == "*ICH*" ||
-            str.substring(0,4) == "*CL*" ||
-            $.trim(str) == "*");
+    return (str.substring(0,3) === "*T*" ||
+            str.substring(0,5) === "*ICH*" ||
+            str.substring(0,4) === "*CL*" ||
+            $.trim(str) === "*");
 }
+exports.shouldIndexLeaf = shouldIndexLeaf;
 
 /**
  * Get the highest index attested in a token.
@@ -522,7 +431,6 @@ function shouldIndexLeaf(node) {
  */
 function maxIndex(token) {
     var allSNodes = $(token).find(".snode,.wnode");
-    var temp = "";
     var ind = 0;
     var label;
 
@@ -532,6 +440,7 @@ function maxIndex(token) {
     }
     return ind;
 }
+exports.maxIndex = maxIndex;
 
 /**
  * Increase the value of a tree's indices by an amount
@@ -540,11 +449,9 @@ function maxIndex(token) {
  * @param {JQuery} tokenRoot the token to operate on
  * @param {number} numberToAdd
  */
-function addToIndices(tokenRoot, numberToAdd) {
-    var ind = 1;
-    var maxindex = maxIndex(tokenRoot);
+exports.addToIndices = function addToIndices(tokenRoot, numberToAdd) {
     var nodes = tokenRoot.find(".snode,.wnode").addBack();
-    nodes.each(function(index) {
+    nodes.each(function() {
         var curNode = $(this);
         var nindex = getIndex(curNode);
         if (nindex > 0) {
@@ -561,6 +468,25 @@ function addToIndices(tokenRoot, numberToAdd) {
             }
         }
     });
+};
+
+function removeIndex(node) {
+    node = $(node);
+    if (getIndex(node) === -1) {
+        return;
+    }
+    var label, setLabelFn;
+    if (shouldIndexLeaf(node)) {
+        label = wnodeString(node);
+        setLabelFn = setLeafLabel;
+    } else {
+        label = getLabel(node);
+        setLabelFn = setNodeLabel;
+    }
+    setLabelFn(node,
+               label.substr(0, Math.max(label.lastIndexOf("-"),
+                                        label.lastIndexOf("="))),
+               true);
 }
 
 // ** Case-related functions
@@ -574,10 +500,10 @@ function addToIndices(tokenRoot, numberToAdd) {
  * @param {JQuery} node
  * @returns {String} the case on the node, or `""` if none
  */
-function getCase(node) {
+exports.getCase = function getCase(node) {
     var label = parseLabel(getLabel(node));
     return labelGetCase(label);
-}
+};
 
 /**
  * Find the case associated with a label.
@@ -589,12 +515,12 @@ function getCase(node) {
  */
 function labelGetCase(label) {
     var dashTags = label.split("-");
-    if (_.contains(caseTags, dashTags[0])) {
+    if (_.contains(conf.caseTags, dashTags[0])) {
         dashTags = _.rest(dashTags);
-        var cases = _.intersection(caseMarkers, dashTags);
+        var cases = _.intersection(conf.caseMarkers, dashTags);
         if (cases.length === 0) {
             return "";
-        } else if (cases.length == 1) {
+        } else if (cases.length === 1) {
             return cases[0];
         } else {
             throw "Tag has two cases: " + label;
@@ -603,6 +529,7 @@ function labelGetCase(label) {
         return "";
     }
 }
+exports.labelGetCase = labelGetCase;
 
 /**
  * Test if a node has case.
@@ -617,6 +544,7 @@ function hasCase(node) {
     var label = parseLabel(getLabel(node));
     return labelGetCase(label);
 }
+exports.hasCase = hasCase;
 
 /**
  * Test if a label has case.
@@ -630,6 +558,7 @@ function hasCase(node) {
 function labelHasCase(label) {
     return labelGetCase(label) !== "";
 }
+exports.labelHasCase = labelHasCase;
 
 /**
  * Test whether a node label corresponds to a case phrase.
@@ -639,9 +568,9 @@ function labelHasCase(label) {
  * @param {JQuery} nodeLabel
  * @returns {Boolean}
  */
-function isCasePhrase(node) {
-    return _.contains(casePhrases, getLabel(node).split("-")[0]);
-}
+exports.isCasePhrase = function isCasePhrase(node) {
+    return _.contains(conf.casePhrases, getLabel(node).split("-")[0]);
+};
 
 /**
  * Test whether a label can bear case.
@@ -653,8 +582,9 @@ function isCasePhrase(node) {
  */
 function isCaseLabel(label) {
     var dashTags = label.split("-");
-    return _.contains(caseTags, dashTags[0]);
+    return _.contains(conf.caseTags, dashTags[0]);
 }
+exports.isCaseLabel = isCaseLabel;
 
 /**
  * Test whether a node can bear case.
@@ -664,9 +594,9 @@ function isCaseLabel(label) {
  * @param {JQuery} node
  * @returns {Boolean}
  */
-function isCaseNode(node) {
+exports.isCaseNode = function isCaseNode(node) {
     return isCaseLabel(getLabel(node));
-}
+};
 
 /**
  * Remove the case from a string label.
@@ -681,6 +611,7 @@ function labelRemoveCase(label) {
     }
     return label;
 }
+exports.labelRemoveCase = labelRemoveCase;
 
 /**
  * Remove the case from a node.
@@ -696,6 +627,7 @@ function removeCase(node) {
     var label = getLabel(node);
     setNodeLabel(node, labelRemoveCase(label));
 }
+exports.removeCase = removeCase;
 
 /**
  * Set the case on a node.
@@ -704,13 +636,13 @@ function removeCase(node) {
  *
  * @param {JQuery} node
  */
-function setCase(node, theCase) {
+exports.setCase = function setCase(node, theCase) {
     removeCase(node);
     var osn = startnode;
     startnode = node;
-    toggleExtension(theCase, [theCase]);
+    strucEdit.toggleExtension(theCase, [theCase]);
     startnode = osn;
-}
+};
 
 // TODO: toggling the case requires intelligence about where the dash tag
 // should be put, which is only in toggleExtension
@@ -719,6 +651,47 @@ function setCase(node, theCase) {
 
 // }
 
+// ** Label-related functions
+/**
+ * Sets the label of a node
+ *
+ * Contains none of the heuristics of {@link setLabel}.
+ *
+ * @param {JQuery} node the target node
+ * @param {String} label the new label
+ */
+function setNodeLabel(node, label, noUndo) {
+    if (noUndo) {
+        undo.undoBeginTransaction();
+    }
+    if (node.hasClass("snode")) {
+        if (label[label.length - 1] !== " ") {
+            // Some other spots in the code depend on the label ending with a
+            // space...
+            label += " ";
+        }
+    } else if (node.hasClass("wnode")) {
+        // Words cannot have a trailing space, or CS barfs on save.
+        label = $.trim(label);
+    } else {
+        // should never happen
+        return;
+    }
+    var oldLabel = parseLabel(getLabel(node));
+    textNode(node).replaceWith(label);
+    updateCssClass(node, oldLabel);
+    if (noUndo) {
+        undo.undoAbortTransaction();
+    }
+}
+
+function setLeafLabel(node, label) {
+    if (!node.hasClass(".wnode")) {
+        // why do we do this?  We should be less fault-tolerant.
+        node = node.children(".wnode").first();
+    }
+    textNode(node).replaceWith($.trim(label));
+}
 // * Uncategorized
 
 
@@ -734,13 +707,16 @@ function changeJustLabel (oldlabel, newlabel) {
     }
     return newlabel;
 }
+exports.changeJustLabel = changeJustLabel;
 
 // This function takes 3 arguments: a node label with dash tags and possibly
 // indices, a dash tag to toggle (no dash), and a list of possible extensions
 // (in L-to-R order).  It returns a string, which is the label with
 // transformations applied
-function toggleStringExtension (oldlabel, extension, extensionList) {
-    if (extension[0] == "-") {
+exports.toggleStringExtension = function toggleStringExtension (oldlabel,
+                                                                extension,
+                                                                extensionList) {
+    if (extension[0] === "-") {
         // temporary compatibility hack for old configs
         extension = extension.substring(1);
         extensionList = extensionList.map(function(s) { return s.substring(1); });
@@ -787,22 +763,22 @@ function toggleStringExtension (oldlabel, extension, extensionList) {
         out += index;
     }
     return out;
-}
+};
 
-function lookupNextLabel(oldlabel, labels) {
+exports.lookupNextLabel = function lookupNextLabel(oldlabel, labels) {
     // labels is either: an array, an object
     var newlabel = null;
     // TODO(AWE): make this more robust!
     if (!(labels instanceof Array)) {
         var prefix = oldlabel.split("-")[0];
-        var new_labels = labels[prefix];
-        if (!new_labels) {
-            new_labels = _.values(labels)[0];
+        var newLabels = labels[prefix];
+        if (!newLabels) {
+            newLabels = _.values(labels)[0];
         }
-        labels = new_labels;
+        labels = newLabels;
     }
     for (var i = 0; i < labels.length; i++) {
-        if (labels[i] == parseLabel(oldlabel)) {
+        if (labels[i] === parseLabel(oldlabel)) {
             if (i < labels.length - 1) {
                 newlabel = labels[i + 1];
             } else {
@@ -816,7 +792,7 @@ function lookupNextLabel(oldlabel, labels) {
     newlabel = changeJustLabel(oldlabel,newlabel);
 
     return newlabel;
-}
+};
 
 // TODO(AWE): add getMetadataTU fn, to also do trickle-up of metadata.
 
@@ -833,7 +809,7 @@ function lookupNextLabel(oldlabel, labels) {
 //                   " .wnode").filter(
 //         function(index) {
 //             // TODO(AWE): is this below correct?  optimal?
-//             return getIndex($(this)) == ind;
+//             return getIndex($(this)) === ind;
 //         });
 //     return nodes;
 // }
@@ -886,9 +862,5 @@ function nextNodeSuchThat(node, pred) {
 */
 
 // Local Variables:
-// js2-additional-externs: ("$" "_" "JSON" "testValidLeafLabel" "\
-// testValidPhraseLabel" "caseMarkers" "casePhrases" "caseTags" "\
-// startnode")
-// indent-tabs-mode: nil
 // eval: (outline-minor-mode 1)
 // End:

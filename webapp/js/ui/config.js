@@ -1,5 +1,5 @@
 /** @jsx React.DOM */
-
+/*jshint ignore:start */
 /*global require: false, exports: true */
 
 var React = require("react"),

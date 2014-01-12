@@ -6,13 +6,33 @@ var lastSavedState = require("./global").lastSavedState,
     _ = require("lodash"),
     displayError = require("../ui/log").error,
     events = require("./events"),
-    save = require("./save");
+    save = require("./save"),
+    undo = require("./undo"),
+    selection = require("./selection"),
+    contextmenu = require("./contextmenu");
 
-var startuphooks = [],
+var startupHooks = [],
+    shutdownHooks = [],
     savedOnKeydown,
     savedOnMouseup,
     savedOnBeforeUnload,
     savedOnUnload;
+
+var quitTreeDrawing = exports.quitTreeDrawing = function quitTreedrawing (e, force) {
+    // unAutoIdle();
+    if (!force && $("#editpane").html() !== lastSavedState) {
+        displayError("Cannot exit, unsaved changes exist.  <a href='#' " +
+                     "onclick='quitServer(null, true);return false;'>Force</a>");
+    } else {
+        document.body.onmeydown = savedOnKeydown;
+        document.body.onmouseup = savedOnMouseup;
+        window.onunload = savedOnUnload;
+        window.onbeforeunlaod = savedOnBeforeUnload;
+        _.each(shutdownHooks, function (hook) {
+            hook();
+        });
+    }
+};
 
 function navigationWarning() {
     if ($("#editpane").html() !== lastSavedState) {
@@ -22,9 +42,6 @@ function navigationWarning() {
 }
 
 function assignEvents() {
-    // load custom commands from user settings file
-    customCommands();
-
     // Save global event handlers
     savedOnKeydown = document.body.onkeydown;
     savedOnMouseup = document.body.onmouseup;
@@ -35,65 +52,42 @@ function assignEvents() {
     document.body.onkeydown = events.handleKeyDown;
     document.body.onmouseup = events.killTextSelection;
     window.onbeforeunload = navigationWarning;
-    window.onunload = logUnload;
+    // window.onunload = logUnload;
 
     // Install element-specific event handlers
     $("#sn0").mousedown(events.handleNodeClick);
     $("#butsave").mousedown(save.save);
-    $("#butundo").mousedown(undo);
-    $("#butredo").mousedown(redo);
-    $("#butidle").mousedown(idle);
-    $("#butexit").unbind("click").click(quitServer);
-    $("#butvalidate").unbind("click").click(validateTrees);
-    $("#butnexterr").unbind("click").click(nextValidationError);
-    $("#butnexttree").unbind("click").click(nextTree);
-    $("#butprevtree").unbind("click").click(prevTree);
-    $("#butgototree").unbind("click").click(goToTree);
-    $("#editpane").mousedown(clearSelection);
-    $("#conMenu").mousedown(hideContextMenu);
+    $("#butundo").mousedown(undo.undo);
+    $("#butredo").mousedown(undo.redo);
+    $("#butexit").unbind("click").click(quitTreeDrawing);
+    // TODO
+    //$("#butidle").mousedown(idle);
+    //$("#butvalidate").unbind("click").click(validateTrees);
+    //$("#butnexterr").unbind("click").click(nextValidationError);
+    //$("#butnexttree").unbind("click").click(nextTree);
+    //$("#butprevtree").unbind("click").click(prevTree);
+    //$("#butgototree").unbind("click").click(goToTree);
+    $("#editpane").mousedown(selection.clearSelection);
+    $("#conMenu").mousedown(contextmenu.hideContextMenu);
     // $(document).mousewheel(handleMouseWheel);
 }
 
-function styleIpNodes() {
-    for (var i = 0; i < ipnodes.length; i++) {
-        styleTag(ipnodes[i], "border-top: 1px solid black;" +
-                 "border-bottom: 1px solid black;" +
-                 "background-color: #C5908E;");
-    }
-}
-
 exports.addStartupHook = function addStartupHook (fn) {
-    startuphooks.push(fn);
+    startupHooks.push(fn);
+};
+
+exports.addShutdownHook = function addShutdownHook (fn) {
+    shutdownHooks.push(fn);
 };
 
 exports.startupTreedrawing = function startupTreedrawing () {
     // TODO: something is very slow here; profile
     // TODO: move some of this into hooks
     assignEvents();
-    styleIpNodes();
-    setupCommentTypes();
-    globalStyle.appendTo("head");
-    // Load the custom context menu groups from user settings file
-    customConMenuGroups();
-    // Load the custom context menu "leaf before" items
-    customConLeafBefore();
 
-    _.each(startuphooks, function (hook) {
+    _.each(startupHooks, function (hook) {
         hook();
     });
 
     lastSavedState = $("#editpane").html();
-};
-
-exports.quitTreeDrawing = function quitTreedrawing (e, force) {
-    unAutoIdle();
-    if (!force && $("#editpane").html() !== lastSavedState) {
-        displayError("Cannot exit, unsaved changes exist.  <a href='#' " +
-                     "onclick='quitServer(null, true);return false;'>Force</a>");
-    } else {
-        document.body.onmeydown = savedOnKeydown;
-        document.body.onmouseup = savedOnMouseup;
-        window.onunload = savedOnUnload;
-        window.onbeforeunlaod = savedOnBeforeUnload;
-    }
 };
