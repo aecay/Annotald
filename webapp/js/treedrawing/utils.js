@@ -24,7 +24,6 @@ var $ = require("jquery"),
     _ = require("lodash"),
     globals = require("./global"),
     startnode = globals.startnode,
-    endnode = globals.endnode,
     strucEdit = require("./struc-edit"),
     conf = require("./config"),
     undo = require("./undo");
@@ -470,7 +469,7 @@ exports.addToIndices = function addToIndices(tokenRoot, numberToAdd) {
     });
 };
 
-function removeIndex(node) {
+exports.removeIndex = function removeIndex(node) {
     node = $(node);
     if (getIndex(node) === -1) {
         return;

@@ -29,7 +29,25 @@ module.exports = function (grunt) {
                             'node_modules/q/q.js:q',
                             'webapp/js/ext/dropbox.js:dropbox',
                             'webapp/js/ext/growl.js:growl'
-                           ]
+                            // Perversely, this bundle's require function will win,
+                            // even though the other one is loaded later.  So we need
+                            // these alias decls here, as well as the external
+                            // decls below, *and* the ones in the other
+                            // bundle.  ugh.
+                            // TODO: fix this
+                            // 'treedrawing/entry-points:treedrawing/entry-points',
+                            // 'treedrawing/bindings:treedrawing/bindings',
+                            // 'treedrawing/contextmenu:treedrawing/contextmenu',
+                            // 'treedrawing/user-style:treedrawing/user-style',
+                            // 'treedrawing/config:treedrawing/config'
+                           ]// ,
+                    // external: [
+                    //     'treedrawing/entry-points',
+                    //     'treedrawing/bindings',
+                    //     'treedrawing/contextmenu',
+                    //     'treedrawing/user-style',
+                    //     'treedrawing/config'
+                    // ]
                 }
             },
             annotald: {
@@ -37,11 +55,17 @@ module.exports = function (grunt) {
                 dest: 'webapp/build/web.js',
                 options: {
                     debug: true,
-                    standalone: "annotald",
                     external: ["jquery","vex","vex-dialog","react","brace",
                                "brace/theme/xcode","brace/mode/javascript",
                                "q","dropbox"],
-                    transform:["reactify"]
+                    transform:["reactify"],
+                    alias: [
+                        'webapp/js/treedrawing/entry-points.js:treedrawing/entry-points',
+                        'webapp/js/treedrawing/bindings.js:treedrawing/bindings',
+                        'webapp/js/treedrawing/contextmenu.js:treedrawing/contextmenu',
+                        'webapp/js/treedrawing/user-style.js:treedrawing/user-style',
+                        'webapp/js/treedrawing/config.js:treedrawing/config'
+                    ]
                 }
             },
             test: {
@@ -70,7 +94,8 @@ module.exports = function (grunt) {
                     "!webapp/js/ext/**",
                     "!webapp/js/ui/tree-editor-template.js"],
             options: {
-                jshintrc: "jshintrc"
+                jshintrc: "jshintrc",
+                "reporter": "jshint-reporter.js"
             }
         },
         uglify: {
@@ -104,7 +129,7 @@ module.exports = function (grunt) {
         },
         watch: {
             annotald: {
-                files: ['webapp/js/*.js'],
+                files: ['webapp/js/**/*.js'],
                 tasks: ['build-annotald']
             },
             css: {
@@ -162,8 +187,8 @@ module.exports = function (grunt) {
                                           //, 'clean:build'
                                          ]);
     grunt.registerTask('build-annotald', ['browserify:annotald',
-                                          'external_sourcemap:annotald',
-                                          'uglify:annotald'
+                                          'external_sourcemap:annotald'
+                                          // 'uglify:annotald'
                                           //, 'clean:build'
                                          ]);
     grunt.registerTask('build-css', ['cssmin']);

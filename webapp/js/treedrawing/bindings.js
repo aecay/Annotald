@@ -1,8 +1,8 @@
 /*global exports: true */
 
-var ctrlKeyMap = {};
-var shiftKeyMap = {};
-var regularKeyMap = {};
+exports.ctrlKeyMap = {};
+exports.shiftKeyMap = {};
+exports.regularKeyMap = {};
 
 // ** Key bindings
 
@@ -26,11 +26,11 @@ var regularKeyMap = {};
 exports.addCommand = function addCommand(dict, fn) {
     var commandMap;
     if (dict.ctrl) {
-        commandMap = ctrlKeyMap;
+        commandMap = exports.ctrlKeyMap;
     } else if (dict.shift) {
-        commandMap = shiftKeyMap;
+        commandMap = exports.shiftKeyMap;
     } else {
-        commandMap = regularKeyMap;
+        commandMap = exports.regularKeyMap;
     }
     commandMap[dict.keycode] = {
         func: fn,

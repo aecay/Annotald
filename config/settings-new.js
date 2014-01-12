@@ -102,7 +102,7 @@ b.addCommand({ keycode: 88 }, e.makeNode, "XP"); // x
 b.addCommand({ keycode: 88, shift: true }, e.setLabel, ["XP"]);
 b.addCommand({ keycode: 67 }, e.coIndex); // c
 b.addCommand({ keycode: 67, shift: true }, e.toggleCollapsed); // shift + c
-b.addCommand({ keycode: 82 }, setLabel, ["CP-REL","CP-FRL","CP-CAR",
+b.addCommand({ keycode: 82 }, e.setLabel, ["CP-REL","CP-FRL","CP-CAR",
                                          "CP-CLF"]); // r
 b.addCommand({ keycode: 83 }, e.setLabel, ["IP-SUB","IP-MAT","IP-IMP"]); // s
 b.addCommand({ keycode: 86 }, e.setLabel, ["IP-SMC","IP-INF",
@@ -115,7 +115,7 @@ b.addCommand({ keycode: 70 }, e.setLabel, ["PP","ADVP","ADVP-TMP","ADVP-LOC",
                                          "ADVP-DIR"]); // f
 b.addCommand({ keycode: 50 }, e.setLabel, ["NP","NP-PRN","NP-POS",
                                          "NP-COM"]); // 2
-b.addCommand({ keycode: 50, shift: true }, splitWord); // 2
+// b.addCommand({ keycode: 50, shift: true }, splitWord); // 2
 b.addCommand({ keycode: 52 }, e.toggleExtension, "PRN"); // 4
 b.addCommand({ keycode: 53 }, e.toggleExtension, "SPE"); // 5
 b.addCommand({ keycode: 81 }, e.setLabel, ["CONJP","ALSO","FP"]); // q

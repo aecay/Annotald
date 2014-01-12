@@ -37,7 +37,7 @@ exports.ConfigsList = React.createClass({
     // Event handlers
 
     doEdit: function (name) {
-        $.trigger("ChangeView", { view: "EditConfig", name: name });
+        $(document).trigger("ChangeView", { view: "EditConfig", name: name });
         return false;
     },
 
@@ -175,7 +175,8 @@ var ConfigEditor = exports.ConfigEditor = React.createClass({
     doExit: function () {
         var that = this;
         function doExitInner () {
-            $.trigger("ChangeView", { view: "Welcome", name: this.props.name });
+            $(document).trigger("ChangeView", { view: "Welcome",
+                                                name: that.props.name });
         }
         if (this.dirty) {
             vex.dialog.confirm({ message: "Discard unsaved changes?",

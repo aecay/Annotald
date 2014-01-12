@@ -1,21 +1,18 @@
 /*global require: false, exports: true */
 
-// These come from Annotald's undifferentiated pile
-/*global documentReadyHandler: false */
-
 /*jshint browser: true */
 
 var React = require("react"),
     parser = require("../parse"),
     template = require("./tree-editor-template").template,
     $ = require("jquery"),
-    configStore = require("../config-store");
+    configStore = require("../config-store"),
+    treedrawing = require("../treedrawing/startup");
 
 exports.TreeEditor = React.createClass({
     exit: function () {
-        // TODO: check for unsaved changes
-        // TODO: remove event handlers
-        // this.props.changeState({view: "welcome"});
+        $(document).trigger("ChangeView", { view: "Welcome",
+                                            name: this.props.config });
     },
     render: function () {
         return template;
@@ -25,7 +22,9 @@ exports.TreeEditor = React.createClass({
             var script = $("<script></script>");
             script.text(result);
             script.appendTo("head");
-            documentReadyHandler();
+            treedrawing.startupTreedrawing(this.stop);
+        }, function (err) {
+            console.log(err);
         });
         var html = parser.parseXmlToHtml(this.props.content);
         $("#editpane").html(html);

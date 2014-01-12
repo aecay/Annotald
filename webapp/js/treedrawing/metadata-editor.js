@@ -156,4 +156,4 @@ function updateMetadataEditor() {
     $("#metadata").find(".key").click(metadataKeyClick);
     $("#addMetadataButton").click(addMetadataDialog);
 }
-exports.updateMetadateEditor = updateMetadataEditor;
+exports.updateMetadataEditor = updateMetadataEditor;

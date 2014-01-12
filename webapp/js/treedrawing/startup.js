@@ -1,7 +1,28 @@
 /*global exports: true, require: false */
 /*jshint browser: true */
 
-var lastSavedState = require("./global").lastSavedState,
+/* These vars and functions need to be put before the requires, because of
+ * circular dependency issues.
+ */
+
+var startupHooks = [],
+    shutdownHooks = [],
+    savedOnKeydown,
+    savedOnMouseup,
+    savedOnBeforeUnload,
+    savedOnUnload,
+    shutdownCallback;
+
+exports.addStartupHook = function addStartupHook (fn) {
+    startupHooks.push(fn);
+};
+
+exports.addShutdownHook = function addShutdownHook (fn) {
+    shutdownHooks.push(fn);
+};
+
+var globals = require("./global"),
+    lastSavedState = globals.lastSavedState,
     $ = require("jquery"),
     _ = require("lodash"),
     displayError = require("../ui/log").error,
@@ -11,14 +32,9 @@ var lastSavedState = require("./global").lastSavedState,
     selection = require("./selection"),
     contextmenu = require("./contextmenu");
 
-var startupHooks = [],
-    shutdownHooks = [],
-    savedOnKeydown,
-    savedOnMouseup,
-    savedOnBeforeUnload,
-    savedOnUnload;
+require("./entry-points");      // TODO: is this necessary?
 
-var quitTreeDrawing = exports.quitTreeDrawing = function quitTreedrawing (e, force) {
+function quitTreeDrawing (e, force) {
     // unAutoIdle();
     if (!force && $("#editpane").html() !== lastSavedState) {
         displayError("Cannot exit, unsaved changes exist.  <a href='#' " +
@@ -31,8 +47,10 @@ var quitTreeDrawing = exports.quitTreeDrawing = function quitTreedrawing (e, for
         _.each(shutdownHooks, function (hook) {
             hook();
         });
+        shutdownCallback();
     }
-};
+}
+exports.quitTreeDrawing = quitTreeDrawing;
 
 function navigationWarning() {
     if ($("#editpane").html() !== lastSavedState) {
@@ -72,17 +90,8 @@ function assignEvents() {
     // $(document).mousewheel(handleMouseWheel);
 }
 
-exports.addStartupHook = function addStartupHook (fn) {
-    startupHooks.push(fn);
-};
-
-exports.addShutdownHook = function addShutdownHook (fn) {
-    shutdownHooks.push(fn);
-};
-
-exports.startupTreedrawing = function startupTreedrawing () {
+exports.startupTreedrawing = function startupTreedrawing (callback) {
     // TODO: something is very slow here; profile
-    // TODO: move some of this into hooks
     assignEvents();
 
     _.each(startupHooks, function (hook) {
@@ -90,4 +99,31 @@ exports.startupTreedrawing = function startupTreedrawing () {
     });
 
     lastSavedState = $("#editpane").html();
+    shutdownCallback = callback;
+};
+
+exports.resetGlobals = function resetGlobals () {
+    // TODO: encapsulation violation
+    globals = {
+        ipnodes: [],
+
+        commentTypes: [],
+
+        extensions: [],
+        clauseExtensions: [],
+        leafExtensions: [],
+
+        caseBarriers: [],
+
+        displayCaseMenu: false,
+        caseTags: [],
+        casePhrases: [],
+        caseMarkers: [],
+
+        defaultConMenuGroup: [],
+
+        logDetail: false
+
+    };
+    contextmenu.resetGlobals();
 };

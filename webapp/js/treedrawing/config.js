@@ -1,6 +1,6 @@
 /*global exports: true */
 
-exports = {
+var initialState = {
     ipnodes: [],
 
     commentTypes: [],
@@ -21,3 +21,5 @@ exports = {
     logDetail: false
 
 };
+
+exports = initialState;

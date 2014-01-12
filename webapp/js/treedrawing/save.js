@@ -4,7 +4,7 @@
 
 var parser = require("../parse"),
     logger = require("../ui/log"),
-    lastSavedState = require("global").lastSavedState,
+    lastSavedState = require("./global").lastSavedState,
     $ = require("jquery");
 
 var saveInProgress = false,

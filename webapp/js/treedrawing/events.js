@@ -10,7 +10,7 @@ var $ = require("jquery"),
     undo = require("./undo"),
     selection = require("./selection"),
     edit = require("./struc-edit"),
-    metadataEditor = require("./medtdata-editor"),
+    metadataEditor = require("./metadata-editor"),
     dialog = require("./dialog");
 
 exports.killTextSelection = function killTextSelection(e) {

@@ -11,15 +11,16 @@ var React = require("react"),
 
 exports.AnnotaldUI = React.createClass({
     getInitialState: function () {
-        return { view: this.initialView() };
+        return { view: this.initialView({}) };
     },
     render: function () {
         return this.state.view;
     },
 
     componentDidMount: function () {
+        var that = this;
         $(document).on("ChangeView", function (event, params) {
-            this.changeView(params);
+            that.changeView(params);
         });
     },
 
@@ -44,7 +45,7 @@ exports.AnnotaldUI = React.createClass({
                                             })});
             break;
         case "EditConfig":
-            this.setState({view: ConfigEditor({name: params.name})});
+            this.setState({view: ConfigEditor({ name: params.name })});
             break;
         default:
             this.setState({view: React.DOM.div("Don't know about view: " +
@@ -58,7 +59,7 @@ exports.AnnotaldUI = React.createClass({
             React.DOM.div(
                 {style: { width: "70%" }},
                 FileChooser({ callback:
-                              function (path, content, saveCallback) {
+                              function (content, path, saveCallback) {
                                   $(document).trigger("ChangeView",
                                                       { view: "EditTree",
                                                         path: path,

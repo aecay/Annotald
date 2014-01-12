@@ -30,10 +30,13 @@ var _ = require("lodash"),
 
 var conmenus = {},
     conleafs = [],
-    caseMarkers = [],
-    // TODO: setter for displayCaseMenu
-    displayCaseMenu = false,
-    extensions = conf.extensions;
+    caseMarkers = [];
+
+exports.resetGlobals = function () {
+    conmenus = {};
+    conleafs = [];
+    caseMarkers = [];
+};
 
 function hideContextMenu () {
     $("#conMenu").css("visibility","hidden");
@@ -251,7 +254,7 @@ function loadContextMenu(nodeOrig) {
     // do the right side context menu
     $("#conRight").empty();
 
-    if (displayCaseMenu) {
+    if (conf.displayCaseMenu) {
         if (utils.hasCase(nO) || utils.isCasePhrase(nO)) {
             $("#conRight").append($("<div class='conMenuHeading'>Case</div>"));
             caseMarkers.forEach(function(c) {
@@ -277,11 +280,11 @@ function loadContextMenu(nodeOrig) {
 
     // TODO: make only a subset of the extensions togglable, i.e. introduce a
     // new variable togglableExtensions
-    for (i = 0; i < extensions.length; i++) {
+    for (i = 0; i < conf.extensions.length; i++) {
         // do the right side context menu
         newnode = $("<div class='conMenuItem'><a href='#'>" +
-                        extensions[i] + "</a></div>");
-        $(newnode).mousedown(doToggleExtension(nodeOrig, extensions[i]));
+                        conf.extensions[i] + "</a></div>");
+        $(newnode).mousedown(doToggleExtension(nodeOrig, conf.extensions[i]));
         $("#conRightest").append(newnode);
     }
 }

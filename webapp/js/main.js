@@ -5,15 +5,9 @@ var vex = require("vex");
 vex.defaultOptions.className = "vex-theme-default";
 vex.dialog = require("vex-dialog");
 
-exports.parse = require("./parse");
+var ui = require("./ui/ui");
 
-// TODO: hacktacular; a temp solution until treedrawing.js is commonjs-ified
-window.$ = exports.$ = require("jquery");
-window._ = require("lodash");
-
-var ui = exports.ui = require("./ui/ui");
-
-var React = exports.React = require("react");
+var React = require("react");
 
 document.addEventListener("DOMContentLoaded", function () {
     React.renderComponent(ui.AnnotaldUI(), document.getElementById("mainui"));

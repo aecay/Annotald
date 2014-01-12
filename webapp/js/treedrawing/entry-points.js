@@ -1,4 +1,4 @@
-/*global exports: true, require: false */
+/*global module: true, require: false */
 
 var s = require("./struc-edit"),
     undo = require("./undo"),
@@ -6,7 +6,7 @@ var s = require("./struc-edit"),
     selection = require("./selection"),
     search = require("./search");
 
-exports = {
+module.exports = {
     leafAfter: s.leafAfter,
     leafBefore: s.leafBefore,
     setLabel: s.setLabel,
