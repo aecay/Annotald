@@ -67,7 +67,8 @@ module.exports = function (grunt) {
         },
         jshint: {
             files: ["webapp/js/**/*.js",
-                    "!webapp/js/ext/**"],
+                    "!webapp/js/ext/**",
+                    "!webapp/js/ui/tree-editor-template.js"],
             options: {
                 jshintrc: "jshintrc"
             }
