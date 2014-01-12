@@ -33,29 +33,6 @@
 
 // * Initialization
 
-/**
- * This variable holds the selected node, or "start" node if multiple
- * selection is in effect.  Otherwise undefined.
- *
- * @type Node
- */
-var startnode = null;
-/**
- * This variable holds the "end" node if multiple selection is in effect.
- * Otherwise undefined.
- *
- * @type Node
- */
-var endnode = null;
-var ctrlKeyMap = {};
-var shiftKeyMap = {};
-var regularKeyMap = {};
-
-var startuphooks = [];
-
-var last_event_was_mouse = false;
-var lastsavedstate = "";
-
 var globalStyle = $('<style type="text/css"></style>');
 
 var lemmataStyleNode, lemmataHidden = true;
@@ -80,13 +57,6 @@ if (typeof String.prototype.endsWith !== 'function') {
     };
 }
 
-function navigationWarning() {
-    if ($("#editpane").html() != lastsavedstate) {
-        return "Unsaved changes exist, are you sure you want to leave the page?";
-    }
-    return undefined;
-}
-
 function logUnload() {
     logEvent("page-unload");
 }
@@ -94,60 +64,6 @@ function logUnload() {
 addStartupHook(function() {
     logEvent("page-load");
 });
-
-function assignEvents() {
-    // load custom commands from user settings file
-    customCommands();
-    document.body.onkeydown = handleKeyDown;
-    $("#sn0").mousedown(handleNodeClick);
-    document.body.onmouseup = killTextSelection;
-    $("#butsave").mousedown(save);
-    $("#butundo").mousedown(undo);
-    $("#butredo").mousedown(redo);
-    $("#butidle").mousedown(idle);
-    $("#butexit").unbind("click").click(quitServer);
-    $("#butvalidate").unbind("click").click(validateTrees);
-    $("#butnexterr").unbind("click").click(nextValidationError);
-    $("#butnexttree").unbind("click").click(nextTree);
-    $("#butprevtree").unbind("click").click(prevTree);
-    $("#butgototree").unbind("click").click(goToTree);
-    $("#editpane").mousedown(clearSelection);
-    $("#conMenu").mousedown(hideContextMenu);
-    // $(document).mousewheel(handleMouseWheel);
-    window.onbeforeunload = navigationWarning;
-    window.onunload = logUnload;
-}
-
-function styleIpNodes() {
-    for (var i = 0; i < ipnodes.length; i++) {
-        styleTag(ipnodes[i], "border-top: 1px solid black;" +
-                 "border-bottom: 1px solid black;" +
-                 "background-color: #C5908E;");
-    }
-}
-
-function addStartupHook(fn) {
-    startuphooks.push(fn);
-}
-
-function documentReadyHandler() {
-    // TODO: something is very slow here; profile
-    // TODO: move some of this into hooks
-    assignEvents();
-    styleIpNodes();
-    setupCommentTypes();
-    globalStyle.appendTo("head");
-    // Load the custom context menu groups from user settings file
-    customConMenuGroups();
-    // Load the custom context menu "leaf before" items
-    customConLeafBefore();
-
-    _.each(startuphooks, function (hook) {
-        hook();
-    });
-
-    lastsavedstate = $("#editpane").html();
-}
 
 // * User configuration
 
@@ -232,171 +148,6 @@ function addCommand(dict, fn) {
 
 // * UI functions
 
-// ** Event handlers
-
-function killTextSelection(e) {
-    if (dialogShowing ||
-        $(e.target).parents(".togetherjs,.togetherjs-modal").length > 0) {
-        return;
-    }
-    var sel = window.getSelection();
-    sel.removeAllRanges();
-}
-
-function handleMouseWheel(e, delta) {
-    if (e.shiftKey && startnode) {
-        var nextNode;
-        if (delta < 0) { // negative means scroll down, counterintuitively
-             nextNode = $(startnode).next().get(0);
-        } else {
-            nextNode = $(startnode).prev().get(0);
-        }
-        if (nextNode) {
-            selectNode(nextNode);
-            scrollToShowSel();
-        }
-    }
-}
-
-var keyDownHooks = [];
-
-function addKeyDownHook(fn) {
-    keyDownHooks.push(fn);
-}
-
-function handleKeyDown(e) {
-    if ((e.ctrlKey && e.shiftKey) || e.metaKey || e.altKey) {
-        // unsupported modifier combinations
-        return true;
-    }
-    if (e.keyCode == 16 || e.keyCode == 17 || e.keyCode == 18) {
-        // Don't handle shift, ctrl, and meta presses
-        return true;
-    }
-    if ($(e.target).parents(".togetherjs,.togetherjs-modal").length > 0) {
-        // Don't interfere with TogetherJS UI elements
-        return true;
-    }
-    var commandMap;
-    if (e.ctrlKey) {
-        commandMap = ctrlKeyMap;
-    } else if (e.shiftKey) {
-        commandMap = shiftKeyMap;
-    } else {
-        commandMap = regularKeyMap;
-    }
-    last_event_was_mouse = false;
-    if (!commandMap[e.keyCode]) {
-        return true;
-    }
-    e.preventDefault();
-    var theFn = commandMap[e.keyCode].func;
-    var theArgs = commandMap[e.keyCode].args;
-    _.each(keyDownHooks, function (fn) {
-        fn({
-            keyCode: e.keyCode,
-            shift: e.shiftKey,
-            ctrl: e.ctrlKey
-           },
-          theFn,
-          theArgs);
-    });
-    theFn.apply(undefined, theArgs);
-    if (!theFn.async) {
-        undoBarrier();
-    }
-    return false;
-}
-
-var clickHooks = [];
-
-function addClickHook(fn) {
-    clickHooks.push(fn);
-}
-
-function handleNodeClick(e) {
-    e = e || window.event;
-    var element = (e.target || e.srcElement);
-    saveMetadata();
-    if (e.button == 2) {
-        // rightclick
-        if (startnode && !endnode) {
-            if (startnode != element) {
-                e.stopPropagation();
-                moveNode(element);
-            } else {
-                showContextMenu(e);
-            }
-        } else if (startnode && endnode) {
-            e.stopPropagation();
-            moveNodes(element);
-        } else {
-            showContextMenu(e);
-        }
-    } else {
-        // leftclick
-        hideContextMenu();
-        if (e.shiftKey && startnode) {
-            selectNode(element, true);
-            e.preventDefault(); // Otherwise, this sets the text
-                                // selection in the browser...
-        } else {
-            selectNode(element);
-            if (e.ctrlKey) {
-                makeNode("XP");
-            }
-        }
-    }
-    _.each(clickHooks, function (fn) {
-        fn(e.button);
-    });
-    e.stopPropagation();
-    last_event_was_mouse = true;
-    undoBarrier();
-}
-
-// ** Context Menu
-
-function showContextMenu(e) {
-    var element = e.target || e.srcElement;
-    if (element == document.getElementById("sn0")) {
-        clearSelection();
-        return;
-    }
-
-    var left = e.pageX;
-    var top = e.pageY;
-    left = left + "px";
-    top = top + "px";
-
-    var conl = $("#conLeft"),
-        conr = $("#conRight"),
-        conrr = $("#conRightest"),
-        conm = $("#conMenu");
-
-    conl.empty();
-    loadContextMenu(element);
-
-    // Make the columns equally high
-    conl.height("auto");
-    conr.height("auto");
-    conrr.height("auto");
-    var h = _.max([conl,conr,conrr], function (x) { return x.height(); });
-    conl.height(h);
-    conr.height(h);
-    conrr.height(h);
-
-    conm.css("left",left);
-    conm.css("top",top);
-    conm.css("visibility","visible");
-}
-
-function hideContextMenu() {
-    $("#conMenu").css("visibility","hidden");
-}
-
-// ** Messages
-
 /**
  * Show the message history.
  */
@@ -469,107 +220,7 @@ function setInputFieldEnter(field, fn) {
 
 // ** Selection
 
-/**
- * Select a node, and update the GUI to reflect that.
- *
- * @param {Node} node the node to be selected
- * @param {Boolean} force if true, force this node to be a secondary
- * selection, even if it wouldn't otherwise be
- * @param {Boolean} remote whether this request was triggered remotely
- */
-function selectNode(node, force) {
-    if (node) {
-        if (!(node instanceof Node)) {
-            try {
-                throw Error("foo");
-            } catch (e) {
-                console.log("selecting a non-node: " + e.stack);
-            }
-        }
-        if (node == document.getElementById("sn0")) {
-            clearSelection();
-            return;
-        }
 
-        while (!$(node).hasClass("snode") && node != document) {
-            node = node.parentNode;
-        }
-
-        if (node == startnode) {
-            startnode = null;
-            if (endnode) {
-                startnode = endnode;
-                endnode = null;
-            }
-        } else if (startnode === null) {
-            startnode = node;
-        } else {
-            if (startnode && (last_event_was_mouse || force)) {
-                if (node == endnode) {
-                    endnode = null;
-                } else {
-                    endnode = node;
-                }
-            } else {
-                endnode = null;
-                startnode = node;
-            }
-        }
-        updateSelection();
-    } else {
-        try {
-            throw Error("foo");
-        } catch (e) {
-            console.log("tried to select something falsey: " + e.stack);
-        }
-    }
-}
-
-/**
- * Remove any selection of nodes.
- */
-function clearSelection() {
-    saveMetadata();
-    window.event.preventDefault();
-    startnode = endnode = null;
-    updateSelection();
-    hideContextMenu();
-}
-
-function updateSelection(remote) {
-    // update selection display
-    $('.snodesel').removeClass('snodesel');
-
-    if (startnode) {
-        $(startnode).addClass('snodesel');
-    }
-
-    if (endnode) {
-        $(endnode).addClass('snodesel');
-    }
-
-    updateMetadataEditor();
-
-    if (!remote) {
-        $(document).trigger("set_selection", [startnode, endnode]);
-    }
-}
-
-/**
- * Scroll the page so that the first selected node is visible.
- */
-function scrollToShowSel() {
-    function isTopVisible(elem) {
-        var docViewTop = $(window).scrollTop();
-        var docViewBottom = docViewTop + $(window).height();
-        var elemTop = $(elem).offset().top;
-
-        return ((elemTop <= docViewBottom) && (elemTop >= docViewTop));
-    }
-    if (!isTopVisible(startnode)) {
-        window.scroll(0, $(startnode).offset().top - $(window).height() * 0.25);
-    }
-}
 
 // ** Metadata editor
 
@@ -2450,24 +2101,6 @@ addStartupHook(function () {
         // TODO: what about mouse movement?
     }
 });
-
-// ** Quitting
-
-function quitServer(e, force) {
-    unAutoIdle();
-    if (!force && $("#editpane").html() != lastsavedstate) {
-        displayError("Cannot exit, unsaved changes exist.  <a href='#' " +
-                    "onclick='quitServer(null, true);return false;'>Force</a>");
-    } else {
-        $.post("/doExit");
-        window.onbeforeunload = undefined;
-        setTimeout(function(res) {
-                       // I have no idea why this works, but it does
-                       window.open('', '_self', '');
-                       window.close();
-               }, 100);
-    }
-}
 
 // * Undo/redo
 
