@@ -16,18 +16,27 @@
 // License along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/*jshint ignore:start */
+/*global exports: true, require: false */
 
-var conmenus = {};
-var conleafs = [];
+/*jshint browser: true */
 
-function addConMenu(label, suggestions) {
+var _ = require("lodash"),
+    $ = require("jquery"),
+    selection = require("./selection");
+
+var conmenus = {},
+    conleafs = [],
+    caseMarkers = [],
+    // TODO: setter for displayCaseMenu
+    displayCaseMenu = false;
+
+exports.addConMenu = function addConMenu (label, suggestions) {
     conmenus[label] = {
         suggestions : suggestions
     };
-}
+};
 
-function addConLeaf(suggestion, before, label, word) {
+exports.addConLeaf = function addConLeaf (suggestion, before, label, word) {
     var conleaf = {
         suggestion : suggestion,
         before : before,
@@ -36,6 +45,87 @@ function addConLeaf(suggestion, before, label, word) {
     };
 
     conleafs.push(conleaf);
+};
+
+exports.addCaseMarker = function addCaseMarker (marker) {
+    caseMarkers.push(marker);
+};
+// TODO: addCaseMarkers, plural
+
+/**
+ * Toggle the extension of a node.
+ *
+ * A context menu action function.
+ *
+ * @param {Node} node
+ * @param {String} extension the extension to toggle
+ * @returns {Function} A function which, when called, will execute the action.
+ * @private
+ */
+function doToggleExtension(node, extension) {
+    return function() {
+        touchTree($(node));
+        selection.clearSelection();
+        selection.selectNode(node);
+        toggleExtension(extension);
+        hideContextMenu();
+        selection.clearSelection();
+    };
+}
+
+/**
+ * Set the case of a node.
+ *
+ * A context menu action function.  Recurses into children of this node,
+ * stopping when a barrier (case node or explicitly defined barrier) is
+ * reached.
+ *
+ * @param {Node} node
+ * @param {String} theCase the case to assign
+ * @returns {Function} A function which, when called, will execute the action.
+ * @private
+ */
+function setCaseOnTag(node, theCase) {
+    function doKids(n, override) {
+        if (isCaseNode(n)) {
+            setCase(n, theCase);
+        } else if (_.contains(caseBarriers, getLabel(n).split("-")[0]) &&
+                   !n.parent().is(".CONJP") &&
+                   !override) {
+            // nothing
+        } else {
+            n.children(".snode").each(function() {
+                doKids($(this));
+            });
+        }
+    }
+    return function() {
+        var n = $(node);
+        touchTree(n);
+        doKids(n, true);
+    };
+}
+
+/**
+ * Insert a leaf node.
+ *
+ * A context menu action function.
+ *
+ * @param {Object} conleaf an object describing the leaf to be added.  Has the
+ * following keys:
+ *
+ * - `before` Boolean, insert this leaf beofre or fter the target
+ * - `label` String, the label of the node to insert
+ * - `word` String, the text of the node to insert
+ * @param {Node} node
+ * @returns {Function} A function which, when called, will execute the action.
+ * @private
+ */
+function doConLeaf(conleaf, node) {
+    return function() {
+        makeLeaf(conleaf.before, conleaf.label, conleaf.word, node, true);
+        hideContextMenu();
+    };
 }
 
 /**
@@ -48,7 +138,7 @@ function addConLeaf(suggestion, before, label, word) {
  * @param {String[]} group
  */
 function addConMenuGroup(group) {
-    for(var i = 0; i < group.length; i++){
+    for (var i = 0; i < group.length; i++) {
         addConMenu(group[i], group);
     }
 }
@@ -138,7 +228,7 @@ function loadContextMenu(nodeOrig) {
 
     var suggestions = getSuggestions(nodelabel);
     for (i = 0; i < suggestions.length; i++) {
-        if (suggestions[i] != nodelabel) {
+        if (suggestions[i] !== nodelabel) {
             newnode = $("<div class='conMenuItem'><a href='#'>" +
                             suggestions[i]+indexString+"</a></div>");
             $(newnode).mousedown(loadConMenuMousedown);
@@ -184,90 +274,40 @@ function loadContextMenu(nodeOrig) {
     }
 }
 
-/**
- * Toggle the extension of a node.
- *
- * A context menu action function.
- *
- * @param {Node} node
- * @param {String} extension the extension to toggle
- * @returns {Function} A function which, when called, will execute the action.
- * @private
- */
-function doToggleExtension(node, extension) {
-    return function() {
-        touchTree($(node));
+exports.showContextMenu = function showContextMenu(e) {
+    var element = e.target || e.srcElement;
+    if (element === document.getElementById("sn0")) {
         clearSelection();
-        selectNode(node);
-        toggleExtension(extension);
-        hideContextMenu();
-        clearSelection();
-    };
-}
-
-/**
- * Set the case of a node.
- *
- * A context menu action function.  Recurses into children of this node,
- * stopping when a barrier (case node or explicitly defined barrier) is
- * reached.
- *
- * @param {Node} node
- * @param {String} theCase the case to assign
- * @returns {Function} A function which, when called, will execute the action.
- * @private
- */
-function setCaseOnTag(node, theCase) {
-    function doKids(n, override) {
-        if (isCaseNode(n)) {
-            setCase(n, theCase);
-        } else if (_.contains(caseBarriers, getLabel(n).split("-")[0]) &&
-                   !n.parent().is(".CONJP") &&
-                   !override) {
-            // nothing
-        } else {
-            n.children(".snode").each(function() {
-                doKids($(this));
-            });
-        }
+        return;
     }
-    return function() {
-        var n = $(node);
-        touchTree(n);
-        doKids(n, true);
-    };
-}
 
-/**
- * Insert a leaf node.
- *
- * A context menu action function.
- *
- * @param {Object} conleaf an object describing the leaf to be added.  Has the
- * following keys:
- *
- * - `before` Boolean, insert this leaf beofre or fter the target
- * - `label` String, the label of the node to insert
- * - `word` String, the text of the node to insert
- * @param {Node} node
- * @returns {Function} A function which, when called, will execute the action.
- * @private
- */
-function doConLeaf(conleaf, node) {
-    return function() {
-        makeLeaf(conleaf.before, conleaf.label, conleaf.word, node, true);
-        hideContextMenu();
-    };
-}
+    var left = e.pageX;
+    var top = e.pageY;
+    left = left + "px";
+    top = top + "px";
 
-// Local Variables:
-// js2-additional-externs: ("$" "setTimeout" "customCommands\
-// " "customConLeafBefore" "customConMenuGroups" "extensions" "vextensions\
-// " "clause_extensions" "JSON" "makeLeaf" "stackTree" "getLabel" "setNodeLabel\
-// " "hideContextMenu" "clearSelection" "toggleExtension" "selectNode\
-// " "parseIndex" "parseLabel" "defaultConMenuGroup" "getIndex" "parseIndexType\
-// " "displayCaseMenu" "caseTags" "casePhrases" "hasCase" "touchTree\
-// " "startnode" "_" "setCase" "caseBarriers" "isCasePhrase" "isCaseNode\
-// " "isCaseLabel" "labelHasCase" "labelGetCase" "labelRemoveCase")
-// indent-tabs-mode: nil
-// End:
+    var conl = $("#conLeft"),
+        conr = $("#conRight"),
+        conrr = $("#conRightest"),
+        conm = $("#conMenu");
+
+    conl.empty();
+    loadContextMenu(element);
+
+    // Make the columns equally high
+    conl.height("auto");
+    conr.height("auto");
+    conrr.height("auto");
+    var h = _.max([conl,conr,conrr], function (x) { return x.height(); });
+    conl.height(h);
+    conr.height(h);
+    conrr.height(h);
+
+    conm.css("left",left);
+    conm.css("top",top);
+    conm.css("visibility","visible");
+};
+
+exports.hideContextMenu = function hideContextMenu() {
+    $("#conMenu").css("visibility","hidden");
+};
