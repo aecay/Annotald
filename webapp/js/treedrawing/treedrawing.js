@@ -218,10 +218,6 @@ function setInputFieldEnter(field, fn) {
     });
 }
 
-// ** Selection
-
-
-
 // ** Metadata editor
 
 function saveMetadata() {
@@ -1786,104 +1782,6 @@ function coIndex() {
 }
 
 // * Server-side operations
-
-// ** Saving
-
-// *** Save helper function
-
-// TODO: move to utils?
-// TODO: this is not very general, in fact only works when called with
-// #editpane as arg
-function toLabeledBrackets(node) {
-    var out = node.clone();
-
-    // The ZZZZZ is a placeholder; first we want to clean any
-    // double-linebreaks from the output (which will be spurious), then we
-    // will turn the Z's into double-linebreaks
-    out.find(".snode:not(#sn0)").each(function () {
-        this.insertBefore(document.createTextNode("("), this.firstChild);
-        this.appendChild(document.createTextNode(")"));
-    });
-
-    out.find("#sn0>.snode").each(function () {
-        $(this).append(jsonToTree(this.getAttribute("data-metadata")));
-        this.insertBefore(document.createTextNode("( "), this.firstChild);
-        this.appendChild(document.createTextNode(")ZZZZZ"));
-    });
-
-    out.find(".wnode").each(function () {
-        this.insertBefore(document.createTextNode(" "), this.firstChild);
-    });
-
-    out = out.text();
-    // Must use rx for string replace bc using a string doesn't get a
-    // global replace.
-    out = out.replace(/\)\(/g, ") (");
-    out = out.replace(/  +/g, " ");
-    out = out.replace(/\n\n+/g,"\n");
-    out = out.replace(/ZZZZZ/g, "\n\n");
-    // If there is a space after the word but before the closing paren, it
-    // will make CorpusSearch unhappy.
-    out = out.replace(/ +\)/g, ")");
-    // Ditto for spaces btw. word and lemma, in dash format
-    out = out.replace(/- +/g, "-");
-
-
-    return out;
-}
-
-var saveInProgress = false;
-
-function saveHandler (data) {
-    if (data.result == "success") {
-        displayInfo("Save success.");
-    } else {
-        lastsavedstate = "";
-        var extraInfo = "";
-        if (safeGet(data, 'reasonCode', 0) == 1) {
-            extraInfo = " <a href='#' id='forceSave' " +
-                "onclick='javascript:startTime=" + data.startTime +
-                ";save(null, {force:true});return false'>Force save</a>";
-        } else if (safeGet(data, 'reasonCode', 0) == 2) {
-            extraInfo = " <a href='#' id='forceSave' " +
-                "onclick='javascript:startTime=" + data.startTime +
-                ";save(null, {update_md5:true});return false'>Force save</a>";
-        }
-        displayError("Save FAILED!!!: " + data.reason + extraInfo);
-    }
-    saveInProgress = false;
-}
-
-function save(e, extraArgs) {
-    if (!extraArgs) {
-        extraArgs = {};
-    }
-    if (document.getElementById("leafphrasebox") ||
-        document.getElementById("labelbox")) {
-        // It should be impossible to trigger a save in these conditions, but
-        // it causes data corruption if the save happens,, so this functions
-        // as a last-ditch safety.
-        displayError("Cannot save while editing a node label.");
-        return;
-    }
-    if (!saveInProgress) {
-        displayInfo("Saving...");
-        saveInProgress = true;
-        setTimeout(function () {
-            var tosave = toLabeledBrackets($("#editpane"));
-            extraArgs.trees = tosave;
-            extraArgs.startTime = startTime;
-            $.post("/doSave", extraArgs, saveHandler).error(function () {
-                lastsavedstate = "";
-                saveInProgress = false;
-                displayError("Save failed, could not " +
-                             "communicate with server!");
-            });
-            unAutoIdle();
-            lastsavedstate = $("#editpane").html();
-        }, 0);
-    }
-}
 
 // ** Validating
 
