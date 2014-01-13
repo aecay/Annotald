@@ -21,3 +21,4 @@ doc/README.asciidoc
 node_modules/
 bower_components/
 cache/
+/types/all.d.ts
