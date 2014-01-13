@@ -17,10 +17,12 @@ exports.readFile = function readFileBrowser (path) {
         var request = db.transaction("files").objectStore("files").get(path);
 
         request.onsuccess = function (event) {
-            deferred.resolve({content: event.target.result.content,
-                              path: path });
+            deferred.resolve({ content: event.target.result.content,
+                               path: path });
         };
-        // TODO: error handling
+        request.onerror = function () {
+            deferred.reject();
+        };
         return deferred.promise;
     });
 };
@@ -37,7 +39,9 @@ exports.writeFile = function writeFileBrowser (path, content) {
         request.onsuccess = function () {
             deferred.resolve(true);
         };
-        // TODO: error handling
+        request.onerror = function () {
+            deferred.reject();
+        };
         return deferred.promise;
     });
 };
