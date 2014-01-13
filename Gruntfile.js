@@ -1,4 +1,13 @@
-/*global module: true */
+/*global module: true, require: false */
+
+var cacheify = require("cacheify"),
+    level = require("level"),
+    db = level("./cache"),
+    typeify = require("typeify"),
+    reactify = require("reactify");
+
+var typeifyCached = cacheify(typeify, db);
+var reactifyCached = cacheify(reactify, db);
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -29,25 +38,7 @@ module.exports = function (grunt) {
                             'node_modules/q/q.js:q',
                             'webapp/js/ext/dropbox.js:dropbox',
                             'webapp/js/ext/growl.js:growl'
-                            // Perversely, this bundle's require function will win,
-                            // even though the other one is loaded later.  So we need
-                            // these alias decls here, as well as the external
-                            // decls below, *and* the ones in the other
-                            // bundle.  ugh.
-                            // TODO: fix this
-                            // 'treedrawing/entry-points:treedrawing/entry-points',
-                            // 'treedrawing/bindings:treedrawing/bindings',
-                            // 'treedrawing/contextmenu:treedrawing/contextmenu',
-                            // 'treedrawing/user-style:treedrawing/user-style',
-                            // 'treedrawing/config:treedrawing/config'
-                           ]// ,
-                    // external: [
-                    //     'treedrawing/entry-points',
-                    //     'treedrawing/bindings',
-                    //     'treedrawing/contextmenu',
-                    //     'treedrawing/user-style',
-                    //     'treedrawing/config'
-                    // ]
+                           ]
                 }
             },
             annotald: {
@@ -58,7 +49,7 @@ module.exports = function (grunt) {
                     external: ["jquery","vex","vex-dialog","react","brace",
                                "brace/theme/xcode","brace/mode/javascript",
                                "q","dropbox"],
-                    transform:["reactify"],
+                    transform:[reactifyCached, typeifyCached],
                     alias: [
                         'webapp/js/treedrawing/entry-points.js:treedrawing/entry-points',
                         'webapp/js/treedrawing/bindings.js:treedrawing/bindings',
@@ -96,6 +87,14 @@ module.exports = function (grunt) {
             options: {
                 jshintrc: "jshintrc",
                 "reporter": "jshint-reporter.js"
+            }
+        },
+        tslint: {
+            options: {
+                configuration: grunt.file.readJSON("tslintrc")
+            },
+            all: {
+                src: "webapp/js/**/*.ts"
             }
         },
         uglify: {
@@ -168,6 +167,21 @@ module.exports = function (grunt) {
                     base: 'webapp/build'
                 }
             }
+        },
+        "tpm-install": {
+            options: {
+                dev: true
+            },
+            all: {
+                src: ["package.json","bower.json"],
+                dest: "types/"
+            }
+        },
+        "tpm-index": {
+            all: {
+                src: "types/**/*.d.ts",
+                dest: "types/all.d.ts"
+            }
         }
     });
 
@@ -181,6 +195,9 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('typescript-tpm');
+    grunt.loadNpmTasks('grunt-tslint');
 
     grunt.registerTask('build-external', ['browserify:external',
                                           'uglify:external'
