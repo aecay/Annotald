@@ -20,3 +20,4 @@ doc/README.asciidoc
 
 node_modules/
 bower_components/
+cache/
