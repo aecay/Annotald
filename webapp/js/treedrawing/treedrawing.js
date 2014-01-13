@@ -44,18 +44,6 @@ var lemmataStyleNode, lemmataHidden = true;
 
 var currentIndex = 1; // TODO: move to where it goes
 
-if (typeof String.prototype.startsWith !== 'function') {
-    String.prototype.startsWith = function(str) {
-        return (this.substr(0, str.length) === str);
-    };
-}
-
-if (typeof String.prototype.endsWith !== 'function') {
-    String.prototype.endsWith = function(str) {
-        return (this.substr(this.length - str.length) === str);
-    };
-}
-
 function logUnload() {
     logEvent("page-unload");
 }
@@ -471,22 +459,6 @@ function leafOrNot(leaf, not) {
 // TODO: move to utils?
 
 // TODO: need a setLemma function as well
-
-// TODO: only called from one place, with indices: possibly specialize name?
-function appendExtension(node, extension, type) {
-    if (!type) {
-        type="-";
-    }
-    if (shouldIndexLeaf(node) && !isNaN(extension)) {
-        // Adding an index to an empty category, and the EC is not an
-        // empty operator.  The final proviso is needed because of
-        // things like the empty WADJP in comparatives.
-        var oldLabel = textNode(node.children(".wnode").first()).text();
-        setLeafLabel(node, oldLabel + type + extension);
-    } else {
-        setNodeLabel(node, getLabel(node) + type + extension, true);
-    }
-}
 
 // * Obsolete/other
 
