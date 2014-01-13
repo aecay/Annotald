@@ -1,23 +1,23 @@
-/*global exports: true, require: false */
+///<reference path="./../../../types/all.d.ts" />
 
-/*jshint quotmark: false */
+/* tslint:disable:quotemark */
 
-var $ = require("jquery"),
-    startup = require("./startup");
+import $ = require("jquery");
+import startup = require("./startup");
 
 var globalStyle = $('<style type="text/css"></style>');
 
-startup.addStartupHook(function () {
+startup.addStartupHook(function () : void {
     globalStyle.appendTo("head");
 });
 
-startup.addShutdownHook(function () {
+startup.addShutdownHook(function () : void {
     globalStyle.remove();
     globalStyle = $('<style type="text/css"></style>');
 });
 
-function addStyle(string) {
-    var style = globalStyle.text() + "\n" + string;
+function addStyle(str : string) : void {
+    var style = globalStyle.text() + "\n" + str;
     globalStyle.text(style);
 }
 
@@ -28,18 +28,17 @@ function addStyle(string) {
  * the given tag with additional trailing dash tags.
  * @param {String} css The css style declarations to associate with the tag.
  */
-function styleTag (tagName, css) {
+export function styleTag (tagName : string, css : string) : void {
     addStyle('*[class*=" ' + tagName + '-"],*[class*=" ' + tagName +
              ' "],*[class$=" ' + tagName + '"],[class*=" ' + tagName +
              '="] { ' + css + ' }');
 }
-exports.styleTag = styleTag;
 
-exports.styleIpNode = function styleIpNode(node) {
+export function styleIpNode(node : string) : void {
     styleTag(node, "border-top: 1px solid black;" +
              "border-bottom: 1px solid black;" +
              "background-color: #C5908E;");
-};
+}
 
 /**
  * Add a css style for a certain dash tag.
@@ -48,7 +47,7 @@ exports.styleIpNode = function styleIpNode(node) {
  * this dash tag.  Should not itself have leading or trailing dashes.
  * @param {String} css The css style declarations to associate with the tag.
  */
-exports.styleDashTag = function styleDashTag(tagName, css) {
+export function styleDashTag(tagName : string, css : string) : void {
     addStyle('*[class*="-' + tagName + '-"],*[class*="-' + tagName +
              ' "],*[class$="-' + tagName + '"],[class*="-' + tagName +
              '="] { ' + css + ' }');
@@ -60,7 +59,7 @@ exports.styleDashTag = function styleDashTag(tagName, css) {
  * @param {Array} tagNames Tags to style.
  * @param {String} css The css style declarations to associate with the tags.
  */
-exports.styleTags = function styleTags(tagNames, css) {
+export function styleTags(tagNames : string[], css : string) : void {
     for (var i = 0; i < tagNames.length; i++) {
         styleTag(tagNames[i], css);
     }

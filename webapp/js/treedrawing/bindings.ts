@@ -1,10 +1,19 @@
-/*global exports: true */
+export interface KeyBinding {
+    ctrl: boolean;
+    shift: boolean;
+    keycode: number;
+}
 
-exports.ctrlKeyMap = {};
-exports.shiftKeyMap = {};
-exports.regularKeyMap = {};
+export interface KeyMap {
+    [i : number] : {
+        func : Function;
+        args: any[];
+    }
+}
 
-// ** Key bindings
+export var ctrlKeyMap : KeyMap = {};
+export var shiftKeyMap : KeyMap = {};
+export var regularKeyMap : KeyMap = {};
 
 /**
  * Add a keybinding command.
@@ -23,17 +32,17 @@ exports.regularKeyMap = {};
  * further arguments to the `addCommand` function are passed to `fn` on each
  * invocation.
  */
-exports.addCommand = function addCommand(dict, fn) {
-    var commandMap;
+export function addCommand (dict : KeyBinding, fn : Function) : void {
+    var commandMap : KeyMap;
     if (dict.ctrl) {
-        commandMap = exports.ctrlKeyMap;
+        commandMap = ctrlKeyMap;
     } else if (dict.shift) {
-        commandMap = exports.shiftKeyMap;
+        commandMap = shiftKeyMap;
     } else {
-        commandMap = exports.regularKeyMap;
+        commandMap = regularKeyMap;
     }
     commandMap[dict.keycode] = {
         func: fn,
         args: Array.prototype.slice.call(arguments, 2)
     };
-};
+}

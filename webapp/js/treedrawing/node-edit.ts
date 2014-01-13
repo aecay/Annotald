@@ -1,29 +1,29 @@
-/*global require: false, exports: true, setTimeout: true */
+///<reference path="./../../../types/all.d.ts" />
 
-/*jshint browser: true, quotmark: false, devel: true */
+/* tslint:disable:quotemark */
 
-var $ = require("jquery"),
-    _ = require("lodash"),
-    utils = require("./utils"),
-    globals = require("./global"),
-    startnode = globals.startnode,
-    endnode = globals.endnode,
-    undo = require("./undo"),
-    logger = require("../ui/log"),
-    selection = require("./selection"),
-    events = require("./events"),
-    dialog = require("./dialog"),
-    startup = require("./startup"),
-    conf = require("./config");
+import $ = require("jquery");
+import _ = require("lodash");
+import utils = require("./utils");
+import globals = require("./global");
+var startnode = globals.startnode;
+var endnode = globals.endnode;
+import undo = require("./undo");
+var logger = require("../ui/log");
+import selection = require("./selection");
+import events = require("./events");
+import dialog = require("./dialog");
+import startup = require("./startup");
+import conf = require("./config");
 
 // * Editing parts of the tree
 
 // TODO: document entry points better
 // DONE(?): split these fns up...they are monsters.
 
-var commentTypeCheckboxes ;
+var commentTypeCheckboxes;
 
-startup.addStartupHook(function setupCommentTypes() {
+startup.addStartupHook(function setupCommentTypes () : void {
     var commentTypes = conf.commentTypes;
     commentTypeCheckboxes = "Type of comment: ";
     for (var i = 0; i < commentTypes.length; i++) {
@@ -34,7 +34,7 @@ startup.addStartupHook(function setupCommentTypes() {
     }
 });
 
-function editComment() {
+export function editComment () : void {
     if (!startnode || endnode) {
         return;
     }
@@ -56,7 +56,7 @@ function editComment() {
     $("input:radio[name=commentType]").val([commentType]);
     $("#commentEditBox").focus().get(0).setSelectionRange(commentText.length,
                                                           commentText.length);
-    function editCommentDone (change) {
+    function editCommentDone (change : boolean) : void {
         if (change) {
             var newText = $.trim($("#commentEditBox").val());
             if (/_|\n|:|\}|\{|\(|\)/.test(newText)) {
@@ -75,7 +75,7 @@ function editComment() {
         dialog.hideDialogBox();
     }
     $("#commentEditButton").click(editCommentDone);
-    $("#commentEditBox").keydown(function (e) {
+    $("#commentEditBox").keydown(function (e : KeyboardEvent) : void {
         if (e.keyCode === 13) {
             // return
             editCommentDone(true);
@@ -89,13 +89,14 @@ function editComment() {
     });
 }
 editComment.async = true;
-exports.editComment = editComment;
 
 /**
  * Return the JQuery object with the editor for a leaf node.
  * @private
  */
-function leafEditorHtml(label, word, lemma) {
+function leafEditorHtml(label : string,
+                        word : string,
+                        lemma : string) : string {
     // Single quotes mess up the HTML code.
     if (lemma) {
         lemma = lemma.replace(/'/g, "&#39;");
@@ -122,16 +123,18 @@ function leafEditorHtml(label, word, lemma) {
  * Return the JQuery object with the replacement after editing a leaf node.
  * @private
  */
-function leafEditorReplacement(label, word, lemma) {
+function leafEditorReplacement(label : string,
+                               word : string,
+                               lemma : string) : string {
     if (lemma) {
-        lemma = lemma.replace(/</g,"&lt;");
-        lemma = lemma.replace(/>/g,"&gt;");
-        lemma = lemma.replace(/'/g,"&#39;");
+        lemma = lemma.replace(/</g, "&lt;");
+        lemma = lemma.replace(/>/g, "&gt;");
+        lemma = lemma.replace(/'/g, "&#39;");
     }
 
-    word = word.replace(/</g,"&lt;");
-    word = word.replace(/>/g,"&gt;");
-    word = word.replace(/'/g,"&#39;");
+    word = word.replace(/</g, "&lt;");
+    word = word.replace(/>/g, "&gt;");
+    word = word.replace(/'/g, "&#39;");
 
     // TODO: test for illegal chars in label
     label = label.toUpperCase();
@@ -153,14 +156,14 @@ function leafEditorReplacement(label, word, lemma) {
  * available for editing if it is an empty node (trace, comment, etc.).  If a
  * non-terminal, edit the node label.
  */
-function displayRename() {
+export function displayRename () : void {
     // Inner functions
-    function space(event) {
+    function space(event : KeyboardEvent) : void {
         var element = (event.target || event.srcElement);
         $(element).val($(element).val());
         event.preventDefault();
     }
-    function postChange(newNode) {
+    function postChange(newNode : JQuery) : void {
         if (newNode) {
             utils.updateCssClass(newNode, oldClass);
             selection.clearSelection();
@@ -206,7 +209,7 @@ function displayRename() {
         $(startnode).replaceWith(leafEditorHtml(label, word, lemma));
 
         $("#leafphrasebox,#leaftextbox,#leaflemmabox").keydown(
-            function(event) {
+            function(event : KeyboardEvent) : void {
                 var replNode;
                 if (event.keyCode === 32) {
                     space(event);
@@ -274,10 +277,10 @@ function displayRename() {
                     }
                     event.preventDefault();
                 }
-            }).mouseup(function editLeafClick(e) {
+            }).mouseup(function editLeafClick(e : MouseEvent) : void {
                 e.stopPropagation();
             });
-        setTimeout(function(){ $("#leafphrasebox").focus(); }, 10);
+        setTimeout(function () : void { $("#leafphrasebox").focus(); }, 10);
     } else {
         // this is not a terminal
         var editor = $("<input id='labelbox' class='labeledit' " +
@@ -289,7 +292,7 @@ function displayRename() {
         //         origNode.children(".CONJ") .size() > 0;
         utils.textNode(origNode).replaceWith(editor);
         $("#labelbox").keydown(
-            function(event) {
+            function(event : KeyboardEvent) : void {
                 if (event.keyCode === 9) {
                     event.preventDefault();
                 }
@@ -319,26 +322,25 @@ function displayRename() {
                     undo.undoEndTransaction();
                     undo.undoBarrier();
                 }
-            }).mouseup(function editNonLeafClick(e) {
+            }).mouseup(function editNonLeafClick (e : MouseEvent) : void {
                 e.stopPropagation();
             });
-        setTimeout(function(){ $("#labelbox").focus(); }, 10);
+        setTimeout(function () : void { $("#labelbox").focus(); }, 10);
     }
 }
 displayRename.async = true;
-exports.displayRename = displayRename;
 
 /**
  * Edit the lemma of a terminal node.
  */
-function editLemma() {
+export function editLemma () : void {
     // Inner functions
-    function space(event) {
+    function space (event : KeyboardEvent) : void {
         var element = (event.target || event.srcElement);
         $(element).val($(element).val());
         event.preventDefault();
     }
-    function postChange() {
+    function postChange () : void {
         selection.clearSelection();
         selection.updateSelection();
         document.body.onkeydown = events.handleKeyDown;
@@ -363,12 +365,12 @@ function editLemma() {
 
     var lemma = $(startnode).children(".wnode").children(".lemma").text();
     lemma = lemma.substring(1);
-    var editor=$("<span id='leafeditor' class='wnode'><input " +
-                 "id='leaflemmabox' class='labeledit' type='text' value='" +
-                 lemma + "' /></span>");
+    var editor = $("<span id='leafeditor' class='wnode'><input " +
+                   "id='leaflemmabox' class='labeledit' type='text' value='" +
+                   lemma + "' /></span>");
     $(startnode).children(".wnode").children(".lemma").replaceWith(editor);
     $("#leaflemmabox").keydown(
-        function(event) {
+        function (event : KeyboardEvent) : void {
             if (event.keyCode === 9) {
                 event.preventDefault();
             }
@@ -383,9 +385,9 @@ function editLemma() {
             }
             if (event.keyCode === 13) {
                 var newlemma = $("#leaflemmabox").val();
-                newlemma = newlemma.replace("<","&lt;");
-                newlemma = newlemma.replace(">","&gt;");
-                newlemma = newlemma.replace(/'/g,"&#39;");
+                newlemma = newlemma.replace("<", "&lt;");
+                newlemma = newlemma.replace(">", "&gt;");
+                newlemma = newlemma.replace(/'/g, "&#39;");
 
                 $("#leafeditor").replaceWith("<span class='lemma'>-" +
                                              newlemma + "</span>");
@@ -393,18 +395,17 @@ function editLemma() {
                 undo.undoEndTransaction();
                 undo.undoBarrier();
             }
-        }).mouseup(function editLemmaClick(e) {
+        }).mouseup(function editLemmaClick (e : MouseEvent) : void {
             e.stopPropagation();
         });
-    setTimeout(function(){ $("#leaflemmabox").focus(); }, 10);
+    setTimeout(function () { $("#leaflemmabox").focus(); }, 10);
 }
 editLemma.async = true;
-exports.editLemma = editLemma;
 
 /**
  * Perform an appropriate editing operation on the selected node.
  */
-function editNode() {
+export function editNode () : void{
     if (utils.getLabel($(startnode)) === "CODE" &&
         _.contains(conf.commentTypes,
                    // strip leading { and the : and everything after
@@ -416,4 +417,3 @@ function editNode() {
     }
 }
 editNode.async = true;
-exports.editNode = editNode;

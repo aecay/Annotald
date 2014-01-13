@@ -1,19 +1,17 @@
-/*global exports: true */
-
 /**
  * This variable holds the selected node, or "start" node if multiple
  * selection is in effect.  Otherwise undefined.
  *
  * @type Node
  */
-exports.startnode = null;
+export var startnode : Node = null;
 /**
  * This variable holds the "end" node if multiple selection is in effect.
  * Otherwise undefined.
  *
  * @type Node
  */
-exports.endnode = null;
+export var endnode : Node = null;
 
-exports.lastEventWasMouse = false;
-exports.lastSavedState = "";
+export var lastEventWasMouse : boolean = false;
+export var lastSavedState : string = "";

@@ -1,3 +1,5 @@
+///<reference path="./../../../types/all.d.ts" />
+
 // Copyright (c) 2011 Anton Karl Ingason, Aaron Ecay
 
 // This file is part of the Annotald program for annotating
@@ -16,41 +18,46 @@
 // License along with this program.  If not, see
 // <http://www.gnu.org/licenses/>.
 
-/*global exports: true, require: false */
+import _ = require("lodash");
+import $ = require("jquery");
+import selection = require("./selection");
+import undo = require("./undo");
+import utils = require("./utils");
+import edit = require("./struc-edit");
+import conf = require("./config");
 
-/*jshint browser: true */
+interface ConLeaf {
+    suggestion : string;
+    before : boolean;
+    label : string;
+    word : string;
+}
 
-var _ = require("lodash"),
-    $ = require("jquery"),
-    selection = require("./selection"),
-    undo = require("./undo"),
-    utils = require("./utils"),
-    edit = require("./struc-edit"),
-    conf = require("./config");
+var conmenus : { [index : string] : { suggestions : string[] } } = {},
+    conleafs : ConLeaf[] = [],
+    caseMarkers : string[] = [];
 
-var conmenus = {},
-    conleafs = [],
-    caseMarkers = [];
-
-exports.resetGlobals = function () {
+export function resetGlobals () : void {
     conmenus = {};
     conleafs = [];
     caseMarkers = [];
-};
-
-function hideContextMenu () {
-    $("#conMenu").css("visibility","hidden");
 }
-exports.hideContextMenu = hideContextMenu;
 
-function addConMenu (label, suggestions) {
+export function hideContextMenu () : void {
+    $("#conMenu").css("visibility", "hidden");
+}
+
+export function addConMenu (label : string,
+                     suggestions : string[]) : void {
     conmenus[label] = {
         suggestions : suggestions
     };
 }
-exports.addConMenu = addConMenu;
 
-function addConLeaf (suggestion, before, label, word) {
+export function addConLeaf (suggestion : string,
+                            before : boolean,
+                            label : string,
+                            word : string) : void {
     var conleaf = {
         suggestion : suggestion,
         before : before,
@@ -60,9 +67,8 @@ function addConLeaf (suggestion, before, label, word) {
 
     conleafs.push(conleaf);
 }
-exports.addConLeaf = addConLeaf;
 
-exports.addCaseMarker = function addCaseMarker (marker) {
+export function addCaseMarker (marker : string) : void {
     caseMarkers.push(marker);
 };
 // TODO: addCaseMarkers, plural
@@ -77,8 +83,8 @@ exports.addCaseMarker = function addCaseMarker (marker) {
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
-function doToggleExtension(node, extension) {
-    return function() {
+function doToggleExtension(node : Node, extension : string) : () => void {
+    return function () : void {
         undo.touchTree($(node));
         selection.clearSelection();
         selection.selectNode(node);
@@ -100,8 +106,8 @@ function doToggleExtension(node, extension) {
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
-function setCaseOnTag(node, theCase) {
-    function doKids(n, override) {
+function setCaseOnTag(node : JQuery, theCase : string) : (e : Event) => void {
+    function doKids(n : JQuery, override? : boolean) : void {
         if (utils.isCaseNode(n)) {
             utils.setCase(n, theCase);
         } else if (_.contains(conf.caseBarriers, utils.getLabel(n).split("-")[0]) &&
@@ -109,15 +115,14 @@ function setCaseOnTag(node, theCase) {
                    !override) {
             // nothing
         } else {
-            n.children(".snode").each(function() {
+            n.children(".snode").each(function () : void {
                 doKids($(this));
             });
         }
     }
-    return function() {
-        var n = $(node);
-        undo.touchTree(n);
-        doKids(n, true);
+    return function (e : Event) : void {
+        undo.touchTree(node);
+        doKids(node, true);
     };
 }
 
@@ -136,9 +141,9 @@ function setCaseOnTag(node, theCase) {
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
-function doConLeaf(conleaf, node) {
-    return function() {
-        edit.makeLeaf(conleaf.before, conleaf.label, conleaf.word, node, true);
+function doConLeaf(conleaf : ConLeaf, node : Node) : () => void {
+    return function () : void {
+        edit.makeLeaf(conleaf.before, conleaf.label, conleaf.word, node);
         hideContextMenu();
     };
 }
@@ -152,12 +157,11 @@ function doConLeaf(conleaf, node) {
  *
  * @param {String[]} group
  */
-function addConMenuGroup(group) {
+export function addConMenuGroup(group : string[]) : void {
     for (var i = 0; i < group.length; i++) {
         addConMenu(group[i], group);
     }
 }
-exports.addConMenuGroup = addConMenuGroup;
 
 /**
  * Add a terminal node to the context menu.
@@ -167,11 +171,10 @@ exports.addConMenuGroup = addConMenuGroup;
  * @param {String} phrase the label of the leaf
  * @param {String} terminal the text of the leaf
  */
-function addConLeafBefore(phrase, terminal) {
+export function addConLeafBefore(phrase : string, terminal : string) : void {
     addConLeaf("&lt; (" + phrase + " " + terminal + ")",
                true, phrase, terminal);
 }
-exports.addConLeafBefore = addConLeafBefore;
 
 /**
  * Compute the suggested changes for the context menu for a label.
@@ -179,12 +182,12 @@ exports.addConLeafBefore = addConLeafBefore;
  * @param {String} label
  * @private
  */
-function getSuggestions(label) {
+function getSuggestions(label : string) : string[] {
     var indstr = "",
         indtype = "",
         theCase = "";
     if (utils.parseIndex(label) > 0) {
-        indstr = utils.parseIndex(label);
+        indstr = utils.parseIndex(label) + "";
         indtype = utils.parseIndexType(label);
     }
     label = utils.parseLabel(label);
@@ -218,7 +221,7 @@ function getSuggestions(label) {
  * @param {Node} nodeOrig
  * @private
  */
-function loadContextMenu(nodeOrig) {
+function loadContextMenu(nodeOrig : Node) : void {
     var nO = $(nodeOrig),
         nodeIndex = utils.getIndex(nO),
         indexSep = "",
@@ -226,7 +229,7 @@ function loadContextMenu(nodeOrig) {
         nodelabel = utils.getLabel(nO),
         newnode,
         i;
-    function loadConMenuMousedown () {
+    function loadConMenuMousedown () : void {
         var suggestion = "" + $(this).text();
         utils.setNodeLabel(nO, suggestion);
         hideContextMenu();
@@ -240,12 +243,11 @@ function loadContextMenu(nodeOrig) {
     $("#conLeft").empty();
     $("#conLeft").append($("<div class='conMenuHeading'>Label</div>"));
 
-
     var suggestions = getSuggestions(nodelabel);
     for (i = 0; i < suggestions.length; i++) {
         if (suggestions[i] !== nodelabel) {
             newnode = $("<div class='conMenuItem'><a href='#'>" +
-                            suggestions[i]+indexString+"</a></div>");
+                            suggestions[i] + indexString + "</a></div>");
             $(newnode).mousedown(loadConMenuMousedown);
             $("#conLeft").append(newnode);
         }
@@ -257,10 +259,10 @@ function loadContextMenu(nodeOrig) {
     if (conf.displayCaseMenu) {
         if (utils.hasCase(nO) || utils.isCasePhrase(nO)) {
             $("#conRight").append($("<div class='conMenuHeading'>Case</div>"));
-            caseMarkers.forEach(function(c) {
+            caseMarkers.forEach(function(c : string) : void {
                 newnode = $("<div class='conMenuItem'><a href='#'>-" + c +
                                 "</a></div>");
-                $(newnode).mousedown(setCaseOnTag(nodeOrig, c));
+                $(newnode).mousedown(setCaseOnTag(nO, c));
                 $("#conRight").append(newnode);
             });
         }
@@ -289,17 +291,15 @@ function loadContextMenu(nodeOrig) {
     }
 }
 
-exports.showContextMenu = function showContextMenu(e) {
-    var element = e.target || e.srcElement;
+export function showContextMenu(e : JQueryMouseEventObject) : void {
+    var element = <Node>e.target; // TODO: needed? || e.srcElement;
     if (element === document.getElementById("sn0")) {
         selection.clearSelection();
         return;
     }
 
-    var left = e.pageX;
-    var top = e.pageY;
-    left = left + "px";
-    top = top + "px";
+    var left = e.pageX + "px";
+    var top = e.pageY + "px";
 
     var conl = $("#conLeft"),
         conr = $("#conRight"),
@@ -313,12 +313,14 @@ exports.showContextMenu = function showContextMenu(e) {
     conl.height("auto");
     conr.height("auto");
     conrr.height("auto");
-    var h = _.max([conl,conr,conrr], function (x) { return x.height(); });
+    var h : number = _.max([conl, conr, conrr], function (x : JQuery) : number {
+        return x.height();
+    });
     conl.height(h);
     conr.height(h);
     conrr.height(h);
 
-    conm.css("left",left);
-    conm.css("top",top);
-    conm.css("visibility","visible");
-};
+    conm.css("left", left);
+    conm.css("top", top);
+    conm.css("visibility", "visible");
+}

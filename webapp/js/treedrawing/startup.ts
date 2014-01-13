@@ -1,65 +1,65 @@
-/*global exports: true, require: false */
-/*jshint browser: true */
+///<reference path="./../../../types/all.d.ts" />
+
+export interface Hook { () : void; };
 
 /* These vars and functions need to be put before the requires, because of
  * circular dependency issues.
  */
 
-var startupHooks = [],
-    shutdownHooks = [],
+var startupHooks : Hook[] = [],
+    shutdownHooks : Hook[] = [],
     savedOnKeydown,
     savedOnMouseup,
     savedOnBeforeUnload,
     savedOnUnload,
     shutdownCallback;
 
-exports.addStartupHook = function addStartupHook (fn) {
+export function addStartupHook (fn : Hook) : void {
     startupHooks.push(fn);
-};
+}
 
-exports.addShutdownHook = function addShutdownHook (fn) {
+export function addShutdownHook (fn : Hook) : void {
     shutdownHooks.push(fn);
 };
 
-var globals = require("./global"),
-    lastSavedState = globals.lastSavedState,
-    $ = require("jquery"),
-    _ = require("lodash"),
-    displayError = require("../ui/log").error,
-    events = require("./events"),
-    save = require("./save"),
-    undo = require("./undo"),
-    selection = require("./selection"),
-    contextmenu = require("./contextmenu");
+import globals = require("./global");
+var lastSavedState = globals.lastSavedState;
+import $ = require("jquery");
+import _ = require("lodash");
+var displayError = require("../ui/log").error;
+import events = require("./events");
+import save = require("./save");
+import undo = require("./undo");
+import selection = require("./selection");
+import contextmenu = require("./contextmenu");
 
 require("./entry-points");      // TODO: is this necessary?
 
-function quitTreeDrawing (e, force) {
+export function quitTreeDrawing (e : Event, force : boolean) : void {
     // unAutoIdle();
     if (!force && $("#editpane").html() !== lastSavedState) {
         displayError("Cannot exit, unsaved changes exist.  <a href='#' " +
                      "onclick='quitServer(null, true);return false;'>Force</a>");
     } else {
-        document.body.onmeydown = savedOnKeydown;
+        document.body.onkeydown = savedOnKeydown;
         document.body.onmouseup = savedOnMouseup;
         window.onunload = savedOnUnload;
-        window.onbeforeunlaod = savedOnBeforeUnload;
-        _.each(shutdownHooks, function (hook) {
+        window.onbeforeunload = savedOnBeforeUnload;
+        _.each(shutdownHooks, function (hook : Hook) : void {
             hook();
         });
         shutdownCallback();
     }
 }
-exports.quitTreeDrawing = quitTreeDrawing;
 
-function navigationWarning() {
+function navigationWarning () : string {
     if ($("#editpane").html() !== lastSavedState) {
         return "Unsaved changes exist, are you sure you want to leave the page?";
     }
     return undefined;
 }
 
-function assignEvents() {
+function assignEvents () : void {
     // Save global event handlers
     savedOnKeydown = document.body.onkeydown;
     savedOnMouseup = document.body.onmouseup;
@@ -90,19 +90,19 @@ function assignEvents() {
     // $(document).mousewheel(handleMouseWheel);
 }
 
-exports.startupTreedrawing = function startupTreedrawing (callback) {
+export function startupTreedrawing (callback : Hook) : void {
     // TODO: something is very slow here; profile
     assignEvents();
 
-    _.each(startupHooks, function (hook) {
+    _.each(startupHooks, function (hook : Hook) : void {
         hook();
     });
 
     lastSavedState = $("#editpane").html();
     shutdownCallback = callback;
-};
+}
 
-exports.resetGlobals = function resetGlobals () {
+export function resetGlobals () : void {
     // TODO: encapsulation violation
     globals = {
         ipnodes: [],
@@ -126,4 +126,4 @@ exports.resetGlobals = function resetGlobals () {
 
     };
     contextmenu.resetGlobals();
-};
+}

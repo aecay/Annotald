@@ -1,19 +1,33 @@
-/*global require: false, exports: true */
+///<reference path="./../../../types/all.d.ts" />
 
-var $ = require("jquery"),
-    _ = require("lodash"),
-    logger = require("../ui/log"),
-    selection = require("./selection"),
-    startup = require("./startup"),
-    utils = require("./utils");
+import $ = require("jquery");
+import _ = require("lodash");
+import selection = require("./selection");
+import startup = require("./startup");
+import utils = require("./utils");
+
+var logger = require("../ui/log");
 
 // TODO: organize this code
 
+interface UndoStep {
+    map : { [index : string] : JQuery };
+    newTr: string[];
+    delTr: {
+        before : string;
+        tree : JQuery;
+    }[];
+}
+
+// TODO: type decls!
 var undoMap,
-    undoNewTrees,
-    undoDeletedTrees,
-    undoStack = [],
-    redoStack = [],
+    undoNewTrees : string[],
+    undoDeletedTrees : {
+        before : string;
+        tree : JQuery;
+    }[],
+    undoStack : UndoStep[] = [],
+    redoStack : UndoStep[] = [],
     undoTransactionStack = [];
 
 var idNumber = 1;
@@ -25,29 +39,29 @@ var idNumber = 1;
  * does not affect the undo history.
  * @private
  */
-var resetUndo = exports.resetUndo = function () {
+export function resetUndo () : void {
     undoMap = {};
     undoNewTrees = [];
     undoDeletedTrees = [];
     undoTransactionStack = [];
-};
+}
 
 /**
  * Reset the undo system entirely.
  *
  * This function zeroes out any undo history.
  */
-var nukeUndo = exports.nukeUndo = function () {
+export function nukeUndo () : void {
     resetUndo();
     undoStack = [];
     redoStack = [];
-};
+}
 
 /**
  * Record an undo step.
  * @private
  */
-exports.undoBarrier = function undoBarrier() {
+export function undoBarrier () : void {
     if (_.size(undoMap) === 0 &&
         _.size(undoNewTrees) === 0 &&
         _.size(undoDeletedTrees) === 0) {
@@ -60,7 +74,7 @@ exports.undoBarrier = function undoBarrier() {
     });
     resetUndo();
     redoStack = [];
-};
+}
 
 /**
  * Begin an undo transaction.
@@ -69,30 +83,30 @@ exports.undoBarrier = function undoBarrier() {
  * (which keeps all intermediate steps since the start call) or
  * `undoAbortTransaction` (which discards said steps).
  */
-var undoBeginTransaction = exports.undoBeginTransaction = function () {
+export function undoBeginTransaction () : void {
     undoTransactionStack.push({
         map: undoMap,
         newTr: undoNewTrees,
         delTr: undoDeletedTrees
     });
-};
+}
 
 /**
  * End an undo transaction, keeping its changes
  */
-exports.undoEndTransaction = function undoEndTransaction() {
+export function undoEndTransaction() : void {
     undoTransactionStack.pop();
-};
+}
 
 /**
  * End an undo transaction, discarding its changes
  */
-var undoAbortTransaction = exports.undoAbortTranscation = function () {
+export function undoAbortTransaction () : void {
     var t = undoTransactionStack.pop();
     undoMap = t.map;
     undoNewTrees = t.newTr;
     undoDeletedTrees = t.delTr;
-};
+}
 
 /**
  * Execute a function, discarding whatever effects it has on the undo system.
@@ -101,20 +115,20 @@ var undoAbortTransaction = exports.undoAbortTranscation = function () {
  *
  * @returns the result of `fn`
  */
-exports.ignoringUndo = function ignoringUndo(fn) {
+export function ignoringUndo(fn : Function) : void {
     // a bit of a grim hack, but it works
     undoBeginTransaction();
     var res = fn();
     undoAbortTransaction();
     return res;
-};
+}
 
 /**
  * Inform the undo system that changes are being made.
  *
  * @param {JQuery} node the node in which changes are being made
  */
-exports.touchTree = function touchTree(node) {
+export function touchTree(node : JQuery) : void {
     var root = $(utils.getTokenRoot(node));
     if (!undoMap[root.prop("id")]) {
         undoMap[root.prop("id")] = root.clone();
@@ -126,7 +140,7 @@ exports.touchTree = function touchTree(node) {
  *
  * @param {JQuery} tree the tree being added
  */
-exports.registerNewRootTree = function registerNewRootTree(tree) {
+export function registerNewRootTree(tree : JQuery) : void {
     var newid = "id" + idNumber;
     idNumber++;
     undoNewTrees.push(newid);
@@ -138,7 +152,7 @@ exports.registerNewRootTree = function registerNewRootTree(tree) {
  *
  * @param {JQuery} tree the tree being removed
  */
-exports.registerDeletedRootTree = function registerDeletedRootTree(tree) {
+export function registerDeletedRootTree(tree : JQuery) : void {
     var prev = tree.prev();
     if (prev.length === 0) {
         prev = null;
@@ -147,7 +161,7 @@ exports.registerDeletedRootTree = function registerDeletedRootTree(tree) {
         tree: tree,
         before: prev && prev.prop("id")
     });
-};
+}
 
 /**
  * Perform an undo operation.
@@ -155,12 +169,15 @@ exports.registerDeletedRootTree = function registerDeletedRootTree(tree) {
  * This is a worker function, wrapped by `undo` and `redo`.
  * @private
  */
-function doUndo(undoData) {
-    var map = {},
+// TODO: actual type
+function doUndo(undoData : UndoStep) : UndoStep {
+    // The following hint to the type of map is needed by the compiler,
+    // apparently
+    var map : { [index : string] : JQuery } = {},
         newTr = [],
         delTr = [];
 
-    _.each(undoData.map, function(v, k) {
+    _.forEach(undoData.map, function(v : JQuery, k : string) : void {
         var theNode = $("#" + k);
         map[k] = theNode.clone();
         theNode.replaceWith(v);
@@ -169,7 +186,9 @@ function doUndo(undoData) {
     // Add back the deleted trees before removing the new trees, just in case
     // the insertion point of one of these is going to get zapped.  This
     // shouldn't happen, though.
-    _.each(undoData.delTr, function(v) {
+    _.forEach(undoData.delTr, function(
+        v : { before : string; tree : JQuery; }
+    ) : void {
         var prev = v.before;
         if (prev) {
             v.tree.insertAfter($("#" + prev));
@@ -179,7 +198,7 @@ function doUndo(undoData) {
         newTr.push(v.tree.prop("id"));
     });
 
-    _.each(undoData.newTr, function(v) {
+    _.forEach(undoData.newTr, function(v : string) : void {
         var theNode = $("#" + v);
         var prev = theNode.prev();
         if (prev.length === 0) {
@@ -202,7 +221,7 @@ function doUndo(undoData) {
 /**
  * Perform undo.
  */
-exports.undo = function undo() {
+export function undo() : void {
     if (undoStack.length === 0) {
         logger.warning("No further undo information");
         return;
@@ -216,7 +235,7 @@ exports.undo = function undo() {
 /**
  * Perform redo.
  */
-exports.redo = function redo () {
+export function redo () : void {
     if (redoStack.length === 0) {
         logger.warning("No further redo information");
         return;
@@ -227,7 +246,7 @@ exports.redo = function redo () {
 };
 
 function prepareUndoIds() {
-    $("#sn0>.snode").map(function () {
+    $("#sn0>.snode").map(function () : void {
         $(this).prop("id", "id" + idNumber);
         idNumber++;
     });

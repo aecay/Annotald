@@ -1,19 +1,34 @@
-/*global exports: true, require: false */
+///<reference path="./../../../types/all.d.ts" />
 
-/*jshint browser: true */
+// export interface Event {
+//     // A pox on your mutually incompatible houses.
+//     keyCode : number;
+//     ctrlKey : boolean;
+//     shiftKey : boolean;
+//     pageX : number;
+//     pageY : number
+// }
 
-var $ = require("jquery"),
-    _ = require("lodash"),
-    globals = require("./global"),
-    contextmenu = require("./contextmenu"),
-    bindings = require("./bindings"),
-    undo = require("./undo"),
-    selection = require("./selection"),
-    edit = require("./struc-edit"),
-    metadataEditor = require("./metadata-editor"),
-    dialog = require("./dialog");
+import $ = require("jquery");
+import _ = require("lodash");
+import globals = require("./global");
+import contextmenu = require("./contextmenu");
+import bindings = require("./bindings");
+import undo = require("./undo");
+import selection = require("./selection");
+import edit = require("./struc-edit");
+import metadataEditor = require("./metadata-editor");
+import dialog = require("./dialog");
 
-exports.killTextSelection = function killTextSelection(e) {
+export interface ClickHook { (button : number) : void; }
+
+export interface KeyDownHook {
+    (x : { keyCode: number; shift: boolean; ctrl: boolean; },
+     y : Function,
+     z : any[]) : void;
+}
+
+export function killTextSelection(e : Event) : void {
     if (dialog.isDialogShowing() ||
         $(e.target).parents(".togetherjs,.togetherjs-modal").length > 0) {
         return;
@@ -22,13 +37,13 @@ exports.killTextSelection = function killTextSelection(e) {
     sel.removeAllRanges();
 };
 
-var keyDownHooks = [];
+var keyDownHooks : KeyDownHook[] = [];
 
-exports.addKeyDownHook = function addKeyDownHook(fn) {
+export function addKeyDownHook(fn : KeyDownHook) : void {
     keyDownHooks.push(fn);
 };
 
-exports.handleKeyDown = function handleKeyDown(e) {
+export function handleKeyDown(e : KeyboardEvent) : boolean {
     if ((e.ctrlKey && e.shiftKey) || e.metaKey || e.altKey) {
         // unsupported modifier combinations
         return true;
@@ -56,7 +71,7 @@ exports.handleKeyDown = function handleKeyDown(e) {
     e.preventDefault();
     var theFn = commandMap[e.keyCode].func;
     var theArgs = commandMap[e.keyCode].args;
-    _.each(keyDownHooks, function (fn) {
+    _.each(keyDownHooks, function (fn : KeyDownHook) : void {
         fn({
             keyCode: e.keyCode,
             shift: e.shiftKey,
@@ -72,15 +87,14 @@ exports.handleKeyDown = function handleKeyDown(e) {
     return false;
 };
 
-var clickHooks = [];
+var clickHooks : ClickHook[] = [];
 
-exports.addClickHook = function addClickHook(fn) {
+export function addClickHook(fn : ClickHook) : void {
     clickHooks.push(fn);
-};
+}
 
-exports.handleNodeClick = function handleNodeClick(e) {
-    e = e || window.event;
-    var element = (e.target || e.srcElement);
+export function handleNodeClick(e : JQueryMouseEventObject) : void {
+    var element = <Element>e.target; // TODO: e.srcEmement neded?
     metadataEditor.saveMetadata();
     if (e.button === 2) {
         // rightclick
@@ -111,10 +125,10 @@ exports.handleNodeClick = function handleNodeClick(e) {
             }
         }
     }
-    _.each(clickHooks, function (fn) {
+    _.each(clickHooks, function (fn : ClickHook) : void {
         fn(e.button);
     });
     e.stopPropagation();
     globals.lastEventWasMouse = true;
     undo.undoBarrier();
-};
+}

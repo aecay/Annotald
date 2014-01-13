@@ -1,10 +1,10 @@
-/*global require: false, exports: true */
+///<reference path="./../../../types/all.d.ts" />
 
-var $ = require("jquery"),
-    startup = require("./startup"),
-    utils = require("./utils"),
-    dialog = require("./dialog"),
-    logger = require("../ui/log");
+import $ = require("jquery");
+import startup = require("./startup");
+import utils = require("./utils");
+import dialog = require("./dialog");
+var logger = require("../ui/log");
 
 // TODO: anchor right end of string, so that NP does not match NPR, only NP or
 // NP-X (???)
@@ -106,7 +106,7 @@ var savedsearch = $(searchhtml);
  *
  * @param {Node} node the node to flag
  */
-function flagSearchMatch(node) {
+function flagSearchMatch (node: Node) : void {
     $(node).addClass("searchmatch");
     $("#matchcommands").show();
 }
@@ -114,7 +114,7 @@ function flagSearchMatch(node) {
 /**
  * Hook up event handlers after adding a node to the search dialog
  */
-function searchNodePostAdd(node) {
+function searchNodePostAdd (node : Node) : void {
     $(".searchnewnodebut").unbind("click").click(addSearchDaughter);
     $(".searchdelnodebut").unbind("click").click(searchDelNode);
     $(".searchdeepnodebut").unbind("click").click(searchDeepNode);
@@ -130,9 +130,9 @@ function searchNodePostAdd(node) {
  * Recalculate the position of nodes that add siblings in the search dialog.
  * @private
  */
-function rejiggerSearchSiblingAdd() {
+function rejiggerSearchSiblingAdd () : void {
     $(".newsearchnode").remove();
-    $(".searchnode").map(function() {
+    $(".searchnode").map(function () : void {
         $(this).children(".searchnode").last().after(addsearchnodehtml);
     });
     $(".newsearchnode").click(addSearchSibling);
@@ -142,11 +142,11 @@ function rejiggerSearchSiblingAdd() {
  * Remember the currently-entered search, in order to restore it subsequently.
  * @private
  */
-function saveSearch() {
+function saveSearch () : void {
     savedsearch = $("#searchnodes").clone();
     var savedselects = savedsearch.find("select");
     var origselects = $("#searchnodes").find("select");
-    savedselects.map(function (i) {
+    savedselects.map(function (i : number) : void {
         $(this).val(origselects.eq(i).val());
     });
 }
@@ -155,7 +155,7 @@ function saveSearch() {
  * Perform the search as entered in the dialog
  * @private
  */
-function doSearch () {
+function doSearch () : void {
     // TODO: need to save val of incremental across searches
     var searchnodes = $("#searchnodes");
     saveSearch();
@@ -193,7 +193,7 @@ function doSearch () {
  * Clear any previous search, reverting the dialog back to its default state.
  * @private
  */
-function clearSearch() {
+function clearSearch () : void {
     savedsearch = $(searchhtml);
     $("#searchnodes").replaceWith(savedsearch);
     searchNodePostAdd();
@@ -204,7 +204,7 @@ function clearSearch() {
 /**
  * Clear the highlighting from search matches.
  */
-function clearSearchMatches() {
+function clearSearchMatches () : void {
     $(".searchmatch").removeClass("searchmatch");
     $("#matchcommands").hide();
 }
@@ -212,7 +212,7 @@ function clearSearchMatches() {
 /**
  * Scroll down to the next node that matched a search.
  */
-function nextSearchMatch(e, fromSearch) {
+function nextSearchMatch(e : Event, fromSearch : boolean) : void {
     if (!fromSearch) {
         if ($("#searchInc").prop("checked")) {
             doSearch();
@@ -225,7 +225,7 @@ function nextSearchMatch(e, fromSearch) {
  * Add a sibling search node
  * @private
  */
-function addSearchDaughter(e) {
+function addSearchDaughter (e : Event) : void {
     var node = $(e.target).parents(".searchnode").first();
     var newnode = $(searchnodehtml);
     node.append(newnode);
@@ -236,7 +236,7 @@ function addSearchDaughter(e) {
  * Add a sibling search node
  * @private
  */
-function addSearchSibling(e) {
+function addSearchSibling(e : Event) : void {
     var node = $(e.target);
     var newnode = $(searchnodehtml);
     node.before(newnode);
@@ -247,7 +247,7 @@ function addSearchSibling(e) {
  * Delete a search node
  * @private
  */
-function searchDelNode(e) {
+function searchDelNode(e : Event) : void {
     var node = $(e.target).parents(".searchnode").first();
     var tmp = $("#searchnodes").children(".searchnode:not(.newsearchnode)");
     if (tmp.length === 1 && tmp.is(node) &&
@@ -269,7 +269,7 @@ function searchDelNode(e) {
  * Add an "or" search node
  * @private
  */
-function searchOrNode(e) {
+function searchOrNode(e : Event) : void {
     var node = $(e.target).parents(".searchnode").first();
     var newnode = $(searchornodehtml);
     node.replaceWith(newnode);
@@ -281,7 +281,7 @@ function searchOrNode(e) {
  * Add a "deep" search node
  * @private
  */
-function searchDeepNode(e) {
+function searchDeepNode(e : Event) : void {
     var node = $(e.target).parents(".searchnode").first();
     var newnode = $(searchdeepnodehtml);
     node.append(newnode);
@@ -292,7 +292,7 @@ function searchDeepNode(e) {
  * Add a "precedes" search node
  * @private
  */
-function searchPrecNode(e) {
+function searchPrecNode(e : Event) : void {
     var node = $(e.target).parents(".searchnode").first();
     var newnode = $(searchprecnodehtml);
     node.after(newnode);
@@ -315,7 +315,9 @@ function searchPrecNode(e) {
  * @returns {Node} `target` if it matched the query, otherwise `undefined`
  */
 
-function interpretSearchNode(node, target, options) {
+function interpretSearchNode(node : Node,
+                             target : Node,
+                             options : Object) : Node {
     // TODO: optimize to remove jquery calls, only use regex matching if needed
     // TODO: make case sensitivity an option?
     options = options || {};
@@ -393,7 +395,7 @@ function interpretSearchNode(node, target, options) {
 /**
  * Display a search dialog.
  */
-function search () {
+export function search () : void {
     var html = "<div id='searchnodes' />" +
             "<div id='dialogButtons'><label for='searchInc'>Incremental: " +
             "</label><input id='searchInc' name='searchInc' type='checkbox' />" +
@@ -409,10 +411,9 @@ function search () {
     $("#clearSearch").click(clearSearch);
     searchNodePostAdd();
 }
-exports.search = search;
 
 // * Startup hook
-startup.addStartupHook(function () {
+startup.addStartupHook(function () : void {
     $("#butsearch").click(search);
     $("#butnextmatch").click(nextSearchMatch);
     $("#butclearmatch").click(clearSearchMatches);

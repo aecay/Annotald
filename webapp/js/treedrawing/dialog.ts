@@ -1,28 +1,25 @@
-/*global exports: true, require: false */
-
-/*jshint quotmark: false, browser: true */
+///<reference path="./../../../types/all.d.ts" />
 
 // TODO: migrate to vex
 
-var $ = require("jquery"),
-    events = require("./events");
+import $ = require("jquery");
+import events = require("./events");
 
-var dialogShowing = false;
+var dialogShowing : boolean = false;
 
-exports.isDialogShowing = function () {
+export function isDialogShowing () : boolean {
     return dialogShowing;
 };
 
 /**
  * Hide the displayed dialog box.
  */
-function hideDialogBox () {
+export function hideDialogBox () : void {
     $("#dialogBox").get(0).style.visibility = "hidden";
     $("#dialogBackground").get(0).style.visibility = "hidden";
     document.body.onkeydown = events.handleKeyDown;
     dialogShowing = false;
 }
-exports.hideDialogBox = hideDialogBox;
 
 /**
  * Show a dialog box.
@@ -35,8 +32,11 @@ exports.hideDialogBox = hideDialogBox;
  * @param {Function} returnFn a function to call when return is pressed
  * @param {Function} hideHook a function to run when hiding the dialog box
  */
-exports.showDialogBox = function showDialogBox(title, html, returnFn, hideHook) {
-    document.body.onkeydown = function (e) {
+export function showDialogBox(title : string,
+                              html : string,
+                              returnFn? : () => void,
+                              hideHook? : () => void) : void {
+    document.body.onkeydown = function (e : KeyboardEvent)  : void{
         if (e.keyCode === 27) { // escape
             if (hideHook) {
                 hideHook();
@@ -46,20 +46,21 @@ exports.showDialogBox = function showDialogBox(title, html, returnFn, hideHook) 
             returnFn();
         }
     };
-    html = '<div class="menuTitle">' + title + '</div>' +
-        '<div id="dialogContent">' + html + '</div>';
+    html = "<div class=\"menuTitle\">" + title + "</div>" +
+        "<div id=\"dialogContent\">" + html + "</div>";
     $("#dialogBox").html(html).get(0).style.visibility = "visible";
     $("#dialogBackground").get(0).style.visibility = "visible";
     dialogShowing = true;
-};
+}
 
 // TODO: ideally we would not export this, but there is a caller...
 /**
  * Set a handler for the enter key in a text box.
  * @private
  */
-exports.setInputFieldEnter = function setInputFieldEnter(field, fn) {
-    field.keydown(function (e) {
+export function setInputFieldEnter(field : JQuery,
+                                   fn : () => void) {
+    field.keydown(function (e : KeyboardEvent) : boolean {
         if (e.keyCode === 13) {
             fn();
             return false;
@@ -67,4 +68,4 @@ exports.setInputFieldEnter = function setInputFieldEnter(field, fn) {
             return true;
         }
     });
-};
+}

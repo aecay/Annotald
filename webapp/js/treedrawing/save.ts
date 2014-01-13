@@ -1,16 +1,15 @@
-/*global exports: true, require: false */
+///<reference path="./../../../types/all.d.ts" />
 
-/*jshint browser: true */
+var parser = require("../parse");
+var logger = require("../ui/log");
+var lastSavedState : string = require("./global").lastSavedState;
+import $ = require("jquery");
 
-var parser = require("../parse"),
-    logger = require("../ui/log"),
-    lastSavedState = require("./global").lastSavedState,
-    $ = require("jquery");
+var saveInProgress : boolean = false;
+// TODO: get a proper promise type
+var savePromise : (x : string) => { then : Function };
 
-var saveInProgress = false,
-    savePromise;
-
-exports.save = function save(e, extraArgs) {
+export function save(e : Event, extraArgs? : any) : void {
     if (!extraArgs) {
         extraArgs = {};
     }
@@ -25,11 +24,11 @@ exports.save = function save(e, extraArgs) {
     if (!saveInProgress) {
         logger.notice("Saving...");
         saveInProgress = true;
-        savePromise(parser.parseHtmlToXml($("#sn0"))).then(function () {
+        savePromise(parser.parseHtmlToXml($("#sn0"))).then(function () : void {
             logger.notice("Save success");
             saveInProgress = false;
             lastSavedState = $("#editpane").html();
-        }, function (err) {
+        }, function (err : any) : void {
             logger.error("Save error: " + err);
             saveInProgress = false;
         });

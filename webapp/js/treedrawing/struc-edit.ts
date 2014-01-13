@@ -1,16 +1,17 @@
-/*global require: false, exports: true */
+///<reference path="./../../../types/all.d.ts" />
 
-/*jshint quotmark: false, camelcase: false, browser: true, devel: true */
+/* tslint:disable:variable-name no-bitwise */
 
-var $ = require("jquery"),
-    globals = require("./global"),
-    startnode = globals.startnode,
-    endnode = globals.endnode,
-    utils = require("./utils"),
-    selection = require("./selection"),
-    undo = require("./undo"),
-    events = require("./events"),
-    conf = require("./config");
+import $ = require("jquery");
+import globals = require("./global");
+import utils = require("./utils");
+import selection = require("./selection");
+import undo = require("./undo");
+import events = require("./events");
+import conf = require("./config");
+
+var startnode = globals.startnode;
+var endnode = globals.endnode;
 
 // * Coindexation
 
@@ -21,11 +22,11 @@ var $ = require("jquery"),
  * types of coindexation (normal -> gapping -> backwards gapping -> double
  * gapping -> no indices).  If only one node is selected, remove its index.
  */
-function coIndex() {
+export function coIndex() : void {
     if (startnode && !endnode) {
         if (utils.getIndex($(startnode)) > 0) {
             undo.touchTree($(startnode));
-            utils.removeIndex(startnode);
+            utils.removeIndex($(startnode));
         }
     } else if (startnode && endnode) {
         // don't do anything if different token roots
@@ -46,23 +47,23 @@ function coIndex() {
                 // remove it
 
                 if (types === "=-") {
-                    utils.removeIndex(startnode);
-                    utils.removeIndex(endnode);
+                    utils.removeIndex($(startnode));
+                    utils.removeIndex($(endnode));
                     utils.appendExtension($(startnode), theIndex, "=");
                     utils.appendExtension($(endnode), theIndex, "=");
-                } else if( types === "--" ){
-                    utils.removeIndex(endnode);
+                } else if (types === "--" ){
+                    utils.removeIndex($(endnode));
                     utils.appendExtension($(endnode),
                                           utils.getIndex($(startnode)),
                                           "=");
                 } else if (types === "-=") {
-                    utils.removeIndex(startnode);
-                    utils.removeIndex(endnode);
+                    utils.removeIndex($(startnode));
+                    utils.removeIndex($(endnode));
                     utils.appendExtension($(startnode), theIndex,"=");
                     utils.appendExtension($(endnode), theIndex,"-");
                 } else if (types === "==") {
-                    utils.removeIndex(startnode);
-                    utils.removeIndex(endnode);
+                    utils.removeIndex($(startnode));
+                    utils.removeIndex($(endnode));
                 }
             }
         } else if (utils.getIndex($(startnode)) > 0 &&
@@ -78,6 +79,7 @@ function coIndex() {
         }
     }
 }
+
 // * Movement
 
 /**
@@ -92,7 +94,7 @@ function coIndex() {
  *
  * @returns {Boolean} whether the operation was successful
  */
-function moveNode(parent) {
+export function moveNode(parent : Element) : boolean {
     var parent_ip = $(startnode).parents("#sn0>.snode,#sn0").first();
     var other_parent = $(parent).parents("#sn0>.snode,#sn0").first();
     if (parent === document.getElementById("sn0") ||
@@ -112,8 +114,8 @@ function moveNode(parent) {
     } else if ($(startnode).parents().is(parent)) {
         // move up if moving to a node that is already my parent
         if ($(startnode).parent().children().first().is(startnode)) {
-            if ($(startnode).parentsUntil(parent).slice(0,-1).
-                filter(":not(:first-child)").size() > 0) {
+            if ($(startnode).parentsUntil(parent).slice(0, -1).
+                filter(":not(:first-child)").length > 0) {
                 selection.clearSelection();
                 return false;
             }
@@ -130,7 +132,7 @@ function moveNode(parent) {
             }
         } else if ($(startnode).parent().children().last().is(startnode)) {
             if ($(startnode).parentsUntil(parent).slice(0,-1).
-                filter(":not(:last-child)").size() > 0) {
+                filter(":not(:last-child)").length > 0) {
                 selection.clearSelection();
                 return false;
             }
@@ -202,7 +204,7 @@ function moveNode(parent) {
             } else {
                 undo.undoEndTransaction();
             }
-        } else if ((parent.compareDocumentPosition(startnode) & 0x2)) { //jshint ignore:line
+        } else if ((parent.compareDocumentPosition(startnode) & 0x2)) {
             // &&
             // $(startnode).next().is(
             //     $(parent).parentsUntil(startnode.parentNode).last()) ||
@@ -222,7 +224,7 @@ function moveNode(parent) {
             if (utils.currentText(parent_ip) !== textbefore) {
                 undo.undoAbortTransaction();
                 parent_ip.replaceWith(parent_before);
-                if (parent_ip === "sn0") {
+                if (parent_ip.attr("id") === "sn0") {
                     $("#sn0").mousedown(events.handleNodeClick);
                 }
                 selection.clearSelection();
@@ -244,7 +246,7 @@ function moveNode(parent) {
  *
  * @param {Node} parent the parent to move the selection under
  */
-exports.moveNodes = function moveNodes(parent) {
+export function moveNodes(parent : Element) : boolean {
     if (!startnode || !endnode) {
         return;
     }
@@ -259,19 +261,18 @@ exports.moveNodes = function moveNodes(parent) {
     }
     if (startnode.parentNode === endnode.parentNode) {
         // collect startnode and its sister up until endnode
-        $(startnode).add($(startnode).nextUntil(endnode)).
-            add(endnode).
+        $(startnode).add($(startnode).nextUntil($(endnode))).
+            add($(endnode)).
             wrapAll('<div xxx="newnode" class="snode">XP</div>');
 
     } else {
         return; // they are not sisters
     }
     var toselect = $(".snode[xxx=newnode]").first();
-    toselect = toselect.get(0);
     // BUG when making XP and then use context menu: TODO XXX
 
-    startnode = toselect;
-    var res = undo.ignoringUndo(function () { moveNode(parent); });
+    startnode = toselect.get(0);
+    var res = undo.ignoringUndo(function () : void { moveNode(parent); });
     if (res) {
         undo.undoEndTransaction();
     } else {
@@ -281,7 +282,7 @@ exports.moveNodes = function moveNodes(parent) {
     endnode = undefined;
     pruneNode();
     selection.clearSelection();
-};
+}
 
 // * Deletion
 
@@ -291,7 +292,7 @@ exports.moveNodes = function moveNodes(parent) {
  * The node can only be deleted if doing so does not affect the text, i.e. it
  * directly dominates no non-empty terminals.
  */
-function pruneNode() {
+export function pruneNode() : void {
     if (startnode && !endnode) {
         if (utils.isLeafNode(startnode) && utils.isEmptyNode(startnode)) {
             // it is ok to delete leaf if it is empty/trace
@@ -305,7 +306,7 @@ function pruneNode() {
             var idx = utils.getIndex($(startnode));
             if (idx > 0) {
                 var root = $(utils.getTokenRoot($(startnode)));
-                var sameIdx = root.find('.snode').filter(function () {
+                var sameIdx = root.find('.snode').filter(function () : void {
                     return utils.getIndex($(this)) === idx;
                 }).not(startnode);
                 if (sameIdx.length === 1) {
@@ -351,18 +352,14 @@ function pruneNode() {
  * @param {String} word the text to give the new node
  * @param {Node} target where to put the new node (default: selected node)
  */
-function makeLeaf(before, label, word, target) {
+export function makeLeaf(before : boolean,
+                         label : string = "NP-SBJ",
+                         word : string = "*con",
+                         target? : Node) : void {
     if (!(target || startnode)) {
         return;
     }
-
-    if (!label) {
-        label = "NP-SBJ";
-    }
-    if (!word) {
-        word = "*con*";
-    }
-    if (!target) {
+    if (target === undefined) {
         target = startnode;
     }
 
@@ -374,7 +371,7 @@ function makeLeaf(before, label, word, target) {
         undo.touchTree($(target));
     }
 
-    var lemma = false;
+    var lemma = "";
     var temp = word.split("-");
     if (temp.length > 1) {
         lemma = temp.pop();
@@ -389,7 +386,7 @@ function makeLeaf(before, label, word, target) {
         if (startRoot === endRoot) {
             word = "*ICH*";
             label = utils.getLabel($(endnode));
-            if (label.startsWith("W")) {
+            if (utils.startsWith(label, "W")) {
                 word = "*T*";
                 label = label.substr(1).replace(/-[0-9]+$/, "");
             } else if (label.split("-").indexOf("CL") > -1) {
@@ -408,31 +405,30 @@ function makeLeaf(before, label, word, target) {
 
     var newleaf = "<div class='snode " + label + "'>" + label +
         "<span class='wnode'>" + word;
-    if (lemma) {
+    if (lemma != "") {
         newleaf += "<span class='lemma'>-" + lemma +
             "</span>";
     }
     newleaf += "</span></div>\n";
-    newleaf = $(newleaf);
+    var newleafJQ = $(newleaf);
     if (before) {
-        newleaf.insertBefore(target);
+        newleafJQ.insertBefore(target);
     } else {
-        newleaf.insertAfter(target);
+        newleafJQ.insertAfter(target);
     }
     if (doCoindex) {
-        startnode = newleaf.get(0);
+        startnode = newleafJQ.get(0);
         coIndex();
     }
     startnode = null;
     endnode = null;
-    selection.selectNode(newleaf.get(0));
+    selection.selectNode(newleafJQ.get(0));
     selection.updateSelection();
     if (isRootLevel) {
-        undo.registerNewRootTree(newleaf);
+        undo.registerNewRootTree(newleafJQ);
     }
     undo.undoEndTransaction();
 }
-exports.makeLeaf = makeLeaf;
 
 /**
  * Create a leaf node before the selected node.
@@ -440,9 +436,9 @@ exports.makeLeaf = makeLeaf;
  * Uses heuristic to determine whether the new leaf is to be a trace, empty
  * subject, etc.
  */
-exports.leafBefore = function leafBefore() {
+export function leafBefore() : void {
     makeLeaf(true);
-};
+}
 
 /**
  * Create a leaf node after the selected node.
@@ -450,7 +446,7 @@ exports.leafBefore = function leafBefore() {
  * Uses heuristic to determine whether the new leaf is to be a trace, empty
  * subject, etc.
  */
-exports.leafAfter = function leafAfter() {
+export function leafAfter() : void {
     makeLeaf(false);
 };
 
@@ -462,7 +458,7 @@ exports.leafAfter = function leafAfter() {
  *
  * @param {String} [label] the label to give the new node (default: XP)
  */
-function makeNode(label) {
+export function makeNode(label? : string) : void {
     // check if something is selected
     if (!startnode) {
         return;
@@ -496,8 +492,8 @@ function makeNode(label) {
         if ($(startnode).siblings().is(endnode)) {
             // then, collect startnode and its sister up until endnode
             var oldtext = utils.currentText(parent_ip);
-            $(startnode).add($(startnode).nextUntil(endnode)).add(
-                endnode).wrapAll(newnode);
+            $(startnode).add($(startnode).nextUntil($(endnode))).add(
+                $(endnode)).wrapAll(newnode);
             // undo if this messed up the text order
             if(utils.currentText(parent_ip) !== oldtext) {
                 // TODO: is this plausible? can we remove the check?
@@ -524,7 +520,6 @@ function makeNode(label) {
     selection.selectNode(toselect.get(0));
     selection.updateSelection();
 }
-exports.makeNode = makeNode;
 
 // * Label manipulation
 
@@ -540,19 +535,20 @@ exports.makeNode = makeNode;
  * @param {String[]} [extensionList] override the guess as to the
  * appropriate ordered list of possible extensions.
  */
-function toggleExtension(extension, extensionList) {
+export function toggleExtension(extension : string,
+                                extensionList? : string []) : boolean {
     if (!startnode || endnode) {
         return false;
     }
 
     if (!extensionList) {
         if (utils.guessLeafNode(startnode)) {
-            extensionList = conf.leaf_extensions;
+            extensionList = conf.leafExtensions;
         } else if (utils.getLabel($(startnode)).split("-")[0] === "IP" ||
                    utils.getLabel($(startnode)).split("-")[0] === "CP") {
             // TODO: should FRAG be a clause?
             // TODO: make configurable
-            extensionList = conf.clause_extensions;
+            extensionList = conf.clauseExtensions;
         } else {
             extensionList = conf.extensions;
         }
@@ -574,7 +570,6 @@ function toggleExtension(extension, extensionList) {
 
     return true;
 }
-exports.toggleExtension = toggleExtension;
 
 /**
  * Set the label of a node intelligently
@@ -590,7 +585,7 @@ exports.toggleExtension = toggleExtension;
  * key, and its corresponding value is used as the list.  If there is no value
  * for that key, the first value specified in the object is the default.
  */
-function setLabel(labels) {
+export function setLabel(labels : string[]) : void {
     if (!startnode || endnode) {
         return false;
     }
@@ -621,4 +616,3 @@ function setLabel(labels) {
 
     return true;
 }
-exports.setLabel = setLabel;

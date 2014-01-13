@@ -1,5 +1,6 @@
-/*global exports: true */
+///<reference path="./../../../types/all.d.ts" />
 
+// TODO: type decls
 var initialState = {
     ipnodes: [],
 
@@ -17,9 +18,10 @@ var initialState = {
     caseMarkers: [],
 
     defaultConMenuGroup: [],
+    customConMenuGroups: [],
 
     logDetail: false
 
 };
 
-exports = initialState;
+export = initialState;

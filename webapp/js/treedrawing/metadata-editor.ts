@@ -1,13 +1,14 @@
-/*global require: false, exports: true */
+///<reference path="./../../../types/all.d.ts" />
 
-/*jshint quotmark: false */
+/* tslint:disable:quotemark */
 
-var $ = require("jquery"),
-    globals = require("./global"),
-    startnode = globals.startnode,
-    endnode = globals.endnode,
-    utils = require("./utils"),
-    dialog = require("./dialog");
+import $ = require("jquery");
+import globals = require("./global");
+import utils = require("./utils");
+import dialog = require("./dialog");
+
+var startnode : Node = globals.startnode;
+var endnode : Node = globals.endnode;
 
 /**
  * Convert a JS disctionary to an HTML form.
@@ -15,7 +16,7 @@ var $ = require("jquery"),
  * For the metadata editing code.
  * @private
  */
-function dictionaryToForm(dict, level) {
+function dictionaryToForm (dict : Object, level? : number) : string {
     if (!level) {
         level = 0;
     }
@@ -28,7 +29,7 @@ function dictionaryToForm(dict, level) {
                 if (typeof dict[k] === "string") {
                     res += '<tr class="strval" data-level="' + level +
                         '"><td class="key">' + '<span style="width:"' +
-                        4*level + 'px;"></span>' + k +
+                        4 * level + 'px;"></span>' + k +
                         '</td><td class="val"><input class="metadataField" ' +
                         'type="text" name="' + k + '" value="' + dict[k] +
                         '" /></td></tr>';
@@ -50,12 +51,12 @@ function dictionaryToForm(dict, level) {
  * For the metadata editing code
  * @private
  */
-function formToDictionary(form) {
+function formToDictionary (form : JQuery) : Object {
     var d = {},
         dstack = [],
         curlevel = 0,
         namestack = [];
-    form.find("tr").each(function() {
+    form.find("tr").each(function () : void {
         if ($(this).hasClass("strval")) {
             var key = $(this).children(".key").text();
             var val = $(this).find(".val>.metadataField").val();
@@ -85,16 +86,15 @@ function formToDictionary(form) {
     return d;
 }
 
-function saveMetadata() {
+export function saveMetadata () : void {
     if ($("#metadata").html() !== "") {
         $(startnode).prop("data-metadata",
                           JSON.stringify(formToDictionary(
                               $("#metadata"))));
     }
 }
-exports.saveMetadata = saveMetadata;
 
-function metadataKeyClick(e) {
+function metadataKeyClick(e : Event) : boolean {
     var keyNode = e.target;
     var html = 'Name: <input type="text" ' +
             'id="metadataNewName" value="' + $(keyNode).text() +
@@ -104,12 +104,12 @@ function metadataKeyClick(e) {
     dialog.showDialogBox("Edit Metadata", html);
     // TODO: make focus go to end, or select whole thing?
     $("#metadataNewName").focus();
-    function saveMetadataInner() {
+    function saveMetadataInner () : void {
         $(keyNode).text($("#metadataNewName").val());
         dialog.hideDialogBox();
         saveMetadata();
     }
-    function deleteMetadata() {
+    function deleteMetadata() : void {
         $(keyNode).parent().remove();
         dialog.hideDialogBox();
         saveMetadata();
@@ -117,15 +117,16 @@ function metadataKeyClick(e) {
     $("#metadataKeySave").click(saveMetadataInner);
     dialog.setInputFieldEnter($("#metadataNewName"), saveMetadataInner);
     $("#metadataKeyDelete").click(deleteMetadata);
+    return false;
 }
 
-function addMetadataDialog() {
+function addMetadataDialog() : void {
     // TODO: allow specifying value too in initial dialog?
     var html = 'New Name: <input type="text" id="metadataNewName" value="NEW" />' +
             '<div id="dialogButtons"><input type="button" id="addMetadata" ' +
             'value="Add" /></div>';
     dialog.showDialogBox("Add Metatata", html);
-    function addMetadata() {
+    function addMetadata () : void {
         var oldMetadata = formToDictionary($("#metadata"));
         oldMetadata[$("#metadataNewName").val()] = "NEW";
         $(startnode).prop("data-metadata", JSON.stringify(oldMetadata));
@@ -136,7 +137,7 @@ function addMetadataDialog() {
     dialog.setInputFieldEnter($("#metadataNewName"), addMetadata);
 }
 
-function updateMetadataEditor() {
+export function updateMetadataEditor() : void {
     if (!startnode || endnode) {
         $("#metadata").html("");
         return;
@@ -146,7 +147,7 @@ function updateMetadataEditor() {
     $("#metadata").html(dictionaryToForm(utils.getMetadata($(startnode))) +
                         addButtonHtml);
     $("#metadata").find(".metadataField").change(saveMetadata).
-        focusout(saveMetadata).keydown(function (e) {
+        focusout(saveMetadata).keydown(function (e : KeyboardEvent) : void {
             if (e.keyCode === 13) {
                 $(e.target).blur();
             }
@@ -156,4 +157,3 @@ function updateMetadataEditor() {
     $("#metadata").find(".key").click(metadataKeyClick);
     $("#addMetadataButton").click(addMetadataDialog);
 }
-exports.updateMetadataEditor = updateMetadataEditor;

@@ -1,15 +1,14 @@
-/*global require: false, exports: true */
+///<reference path="./../../../types/all.d.ts" />
 
-/*jshint browser: true, devel: true */
+import $ = require("jquery");
+import globals = require("./global");
+import contextmenu = require("./contextmenu");
+import metadataEditor = require("./metadata-editor");
 
-var $ = require("jquery"),
-    globals = require("./global"),
-    startnode = globals.startnode,
-    endnode = globals.endnode,
-    contextmenu = require("./contextmenu"),
-    metadataEditor = require("./metadata-editor");
+var startnode = globals.startnode;
+var endnode = globals.endnode;
 
-function updateSelection (remote) {
+export function updateSelection (suppressRemote? : boolean) : void {
     // update selection display
     $(".snodesel").removeClass("snodesel");
 
@@ -23,23 +22,21 @@ function updateSelection (remote) {
 
     metadataEditor.updateMetadataEditor();
 
-    if (!remote) {
+    if (!suppressRemote) {
         $(document).trigger("set_selection", [startnode, endnode]);
     }
 }
-exports.updateSelection = updateSelection;
 
 /**
  * Remove any selection of nodes.
  */
-function clearSelection () {
+export function clearSelection () : void {
     metadataEditor.saveMetadata();
     window.event.preventDefault();
     startnode = endnode = null;
     updateSelection();
     contextmenu.hideContextMenu();
 }
-exports.clearSelection = clearSelection;
 
 /**
  * Select a node, and update the GUI to reflect that.
@@ -49,12 +46,12 @@ exports.clearSelection = clearSelection;
  * selection, even if it wouldn't otherwise be
  * @param {Boolean} remote whether this request was triggered remotely
  */
-function selectNode (node, force) {
+export function selectNode (node : Node, force? : boolean) : void {
     if (node) {
         if (!(node instanceof Node)) {
             try {
                 throw Error("foo");
-            } catch (e) {
+            } catch (e : Error) {
                 console.log("selecting a non-node: " + e.stack);
             }
         }
@@ -91,18 +88,17 @@ function selectNode (node, force) {
     } else {
         try {
             throw Error("foo");
-        } catch (e) {
+        } catch (e : Error) {
             console.log("tried to select something falsey: " + e.stack);
         }
     }
 }
-exports.selectNode = selectNode;
 
 /**
  * Scroll the page so that the first selected node is visible.
  */
-exports.scrollToShowSel = function scrollToShowSel() {
-    function isTopVisible(elem) {
+export function scrollToShowSel() : void {
+    function isTopVisible (elem : Node) : boolean {
         var docViewTop = $(window).scrollTop();
         var docViewBottom = docViewTop + $(window).height();
         var elemTop = $(elem).offset().top;
