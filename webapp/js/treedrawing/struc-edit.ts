@@ -51,7 +51,7 @@ export function coIndex() : void {
                     utils.removeIndex($(endnode));
                     utils.appendExtension($(startnode), theIndex, "=");
                     utils.appendExtension($(endnode), theIndex, "=");
-                } else if (types === "--" ){
+                } else if (types === "--") {
                     utils.removeIndex($(endnode));
                     utils.appendExtension($(endnode),
                                           utils.getIndex($(startnode)),
@@ -59,8 +59,8 @@ export function coIndex() : void {
                 } else if (types === "-=") {
                     utils.removeIndex($(startnode));
                     utils.removeIndex($(endnode));
-                    utils.appendExtension($(startnode), theIndex,"=");
-                    utils.appendExtension($(endnode), theIndex,"-");
+                    utils.appendExtension($(startnode), theIndex, "=");
+                    utils.appendExtension($(endnode), theIndex, "-");
                 } else if (types === "==") {
                     utils.removeIndex($(startnode));
                     utils.removeIndex($(endnode));
@@ -107,8 +107,7 @@ export function moveNode(parent : Element) : boolean {
         $(startnode).parent().children().length === 1 || // can't move an only child
         $(parent).parents().is(startnode) || // can't move under one's own child
         utils.isEmptyNode(startnode) // can't move an empty leaf node by itself
-       )
-    {
+       ) {
         selection.clearSelection();
         return false;
     } else if ($(startnode).parents().is(parent)) {
@@ -131,7 +130,7 @@ export function moveNode(parent : Element) : boolean {
                 alert("failed what should have been a strict test");
             }
         } else if ($(startnode).parent().children().last().is(startnode)) {
-            if ($(startnode).parentsUntil(parent).slice(0,-1).
+            if ($(startnode).parentsUntil(parent).slice(0, -1).
                 filter(":not(:last-child)").length > 0) {
                 selection.clearSelection();
                 return false;
@@ -306,7 +305,7 @@ export function pruneNode() : void {
             var idx = utils.getIndex($(startnode));
             if (idx > 0) {
                 var root = $(utils.getTokenRoot($(startnode)));
-                var sameIdx = root.find('.snode').filter(function () : void {
+                var sameIdx = root.find('.snode').filter(function () : boolean {
                     return utils.getIndex($(this)) === idx;
                 }).not(startnode);
                 if (sameIdx.length === 1) {
@@ -392,7 +391,7 @@ export function makeLeaf(before : boolean,
             } else if (label.split("-").indexOf("CL") > -1) {
                 word = "*CL*";
                 label = utils.getLabel($(endnode)).replace("-CL", "");
-                if (label.substring(0,3) === "PRO") {
+                if (label.substring(0, 3) === "PRO") {
                     label = "NP";
                 }
             }
@@ -405,7 +404,7 @@ export function makeLeaf(before : boolean,
 
     var newleaf = "<div class='snode " + label + "'>" + label +
         "<span class='wnode'>" + word;
-    if (lemma != "") {
+    if (lemma !== "") {
         newleaf += "<span class='lemma'>-" + lemma +
             "</span>";
     }
@@ -495,7 +494,7 @@ export function makeNode(label? : string) : void {
             $(startnode).add($(startnode).nextUntil($(endnode))).add(
                 $(endnode)).wrapAll(newnode);
             // undo if this messed up the text order
-            if(utils.currentText(parent_ip) !== oldtext) {
+            if (utils.currentText(parent_ip) !== oldtext) {
                 // TODO: is this plausible? can we remove the check?
                 parent_ip.replaceWith(parent_before);
                 undo.undoAbortTransaction();
@@ -585,7 +584,7 @@ export function toggleExtension(extension : string,
  * key, and its corresponding value is used as the list.  If there is no value
  * for that key, the first value specified in the object is the default.
  */
-export function setLabel(labels : string[]) : void {
+export function setLabel(labels : string[]) : boolean {
     if (!startnode || endnode) {
         return false;
     }

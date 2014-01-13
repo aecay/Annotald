@@ -59,7 +59,7 @@ export function showDialogBox(title : string,
  * @private
  */
 export function setInputFieldEnter(field : JQuery,
-                                   fn : () => void) {
+                                   fn : () => void) : void {
     field.keydown(function (e : KeyboardEvent) : boolean {
         if (e.keyCode === 13) {
             fn();

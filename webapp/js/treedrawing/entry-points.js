@@ -1,26 +1,24 @@
-/*global module: true, require: false */
+///<reference path="./../../../types/all.d.ts" />
+var s = require("./struc-edit");
 
-var s = require("./struc-edit"),
-    undo = require("./undo"),
-    n = require("./node-edit"),
-    selection = require("./selection"),
-    search = require("./search");
+var n = require("./node-edit");
+var selection = require("./selection");
 
-module.exports = {
-    leafAfter: s.leafAfter,
-    leafBefore: s.leafBefore,
-    setLabel: s.setLabel,
-    makeNode: s.makeNode,
-    coIndex: s.coIndex,
-    toggleCollapsed: false, // TODO
-    splitWord: false, // TODO
-    toggleExtension: s.toggleExtension,
-    pruneNode: s.pruneNode,
-    undo: undo.undo,
-    redo: undo.redo,
-    editNode: n.editNode,
-    clearSelection: selection.clearSelection,
-    toggleLemmata: false, // TODO
-    displayRename: false, // TODO
-    search: search.search
-};
+
+exports.leafAfter = s.leafAfter;
+exports.leafBefore = s.leafBefore;
+exports.setLabel = s.setLabel;
+exports.makeNode = s.makeNode;
+exports.coIndex = s.coIndex;
+exports.toggleCollapsed = false;
+exports.splitWord = false;
+exports.toggleExtension = s.toggleExtension;
+exports.pruneNode = s.pruneNode;
+exports.undo = undo.undo;
+exports.redo = undo.redo;
+exports.editNode = n.editNode;
+exports.clearSelection = selection.clearSelection;
+exports.toggleLemmata = false;
+exports.displayRename = false;
+exports.search = search.search;
+

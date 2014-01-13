@@ -25,7 +25,7 @@
         "radix": true,
         "semicolon": true,
         "triple-equals": true,
-        "typedef": [true, "callSignature","catchClause","indexSignature",
+        "typedef": [true, "callSignature","indexSignature",
                     "parameter","propertySignature"],
         "typedef-whitespace": [true, {
             "callSignature": "space",

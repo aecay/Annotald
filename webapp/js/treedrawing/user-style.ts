@@ -1,6 +1,6 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-/* tslint:disable:quotemark */
+/* tslint:disable */
 
 import $ = require("jquery");
 import startup = require("./startup");

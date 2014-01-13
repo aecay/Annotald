@@ -245,7 +245,7 @@ export function redo () : void {
     selection.updateSelection();
 };
 
-function prepareUndoIds() {
+function prepareUndoIds() : void {
     $("#sn0>.snode").map(function () : void {
         $(this).prop("id", "id" + idNumber);
         idNumber++;

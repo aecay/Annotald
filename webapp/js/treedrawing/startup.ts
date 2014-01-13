@@ -104,7 +104,7 @@ export function startupTreedrawing (callback : Hook) : void {
 
 export function resetGlobals () : void {
     // TODO: encapsulation violation
-    globals = {
+    var newGlobals = {
         ipnodes: [],
 
         commentTypes: [],
@@ -123,7 +123,9 @@ export function resetGlobals () : void {
         defaultConMenuGroup: [],
 
         logDetail: false
-
     };
+    _.forEach(newGlobals, function (v : any, k : string) : void {
+        globals[k] = v;
+    });
     contextmenu.resetGlobals();
 }

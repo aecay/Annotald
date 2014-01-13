@@ -39,7 +39,7 @@ export function editComment () : void {
         return;
     }
     undo.touchTree($(startnode));
-    var commentRaw = $.trim(utils.wnodeString($(startnode)));
+    var commentRaw = $.trim(utils.wnodeString(startnode));
     var commentType = commentRaw.split(":")[0];
     // remove the {
     commentType = commentType.substring(1);
@@ -75,7 +75,7 @@ export function editComment () : void {
         dialog.hideDialogBox();
     }
     $("#commentEditButton").click(editCommentDone);
-    $("#commentEditBox").keydown(function (e : KeyboardEvent) : void {
+    $("#commentEditBox").keydown(function (e : KeyboardEvent) : boolean {
         if (e.keyCode === 13) {
             // return
             editCommentDone(true);
@@ -88,7 +88,7 @@ export function editComment () : void {
         }
     });
 }
-editComment.async = true;
+editComment["async"] = true;
 
 /**
  * Return the JQuery object with the editor for a leaf node.
@@ -96,7 +96,7 @@ editComment.async = true;
  */
 function leafEditorHtml(label : string,
                         word : string,
-                        lemma : string) : string {
+                        lemma : string) : JQuery {
     // Single quotes mess up the HTML code.
     if (lemma) {
         lemma = lemma.replace(/'/g, "&#39;");
@@ -125,7 +125,7 @@ function leafEditorHtml(label : string,
  */
 function leafEditorReplacement(label : string,
                                word : string,
-                               lemma : string) : string {
+                               lemma : string) : JQuery {
     if (lemma) {
         lemma = lemma.replace(/</g, "&lt;");
         lemma = lemma.replace(/>/g, "&gt;");
@@ -192,14 +192,14 @@ export function displayRename () : void {
     var label = utils.getLabel($(startnode));
     var oldClass = utils.parseLabel(label);
 
-    if ($(startnode).children(".wnode").size() > 0) {
+    if ($(startnode).children(".wnode").length > 0) {
         // this is a terminal
         var word, lemma;
         // is this right? we still want to allow editing of index, maybe?
-        var isLeafNode = utils.guessLeafNode($(startnode));
-        if ($(startnode).children(".wnode").children(".lemma").size() > 0) {
-            var preword = $.trim($(startnode).children().first().text());
-            preword = preword.split("-");
+        var isLeafNode = utils.guessLeafNode(startnode);
+        if ($(startnode).children(".wnode").children(".lemma").length > 0) {
+            var preword = $.trim($(startnode).children().first().text()).
+                split("-");
             lemma = preword.pop();
             word = preword.join("-");
         } else {
@@ -277,7 +277,9 @@ export function displayRename () : void {
                     }
                     event.preventDefault();
                 }
-            }).mouseup(function editLeafClick(e : MouseEvent) : void {
+            }).mouseup(function editLeafClick(
+                e : JQueryMouseEventObject
+            ) : void {
                 e.stopPropagation();
             });
         setTimeout(function () : void { $("#leafphrasebox").focus(); }, 10);
@@ -322,13 +324,15 @@ export function displayRename () : void {
                     undo.undoEndTransaction();
                     undo.undoBarrier();
                 }
-            }).mouseup(function editNonLeafClick (e : MouseEvent) : void {
+            }).mouseup(function editNonLeafClick (
+                e : JQueryMouseEventObject
+            ) : void {
                 e.stopPropagation();
             });
         setTimeout(function () : void { $("#labelbox").focus(); }, 10);
     }
 }
-displayRename.async = true;
+displayRename["async"] = true;
 
 /**
  * Edit the lemma of a terminal node.
@@ -352,7 +356,7 @@ export function editLemma () : void {
 
     // Begin code
     var childLemmata = $(startnode).children(".wnode").children(".lemma");
-    if (!startnode || endnode || childLemmata.size() !== 1) {
+    if (!startnode || endnode || childLemmata.length !== 1) {
         return;
     }
     document.body.onkeydown = null;
@@ -395,25 +399,27 @@ export function editLemma () : void {
                 undo.undoEndTransaction();
                 undo.undoBarrier();
             }
-        }).mouseup(function editLemmaClick (e : MouseEvent) : void {
+        }).mouseup(function editLemmaClick (
+            e : JQueryMouseEventObject
+        ) : void {
             e.stopPropagation();
         });
-    setTimeout(function () { $("#leaflemmabox").focus(); }, 10);
+    setTimeout(function () : void { $("#leaflemmabox").focus(); }, 10);
 }
-editLemma.async = true;
+editLemma["async"] = true;
 
 /**
  * Perform an appropriate editing operation on the selected node.
  */
-export function editNode () : void{
+export function editNode () : void {
     if (utils.getLabel($(startnode)) === "CODE" &&
         _.contains(conf.commentTypes,
                    // strip leading { and the : and everything after
-                   utils.wnodeString($(startnode)).substr(1).split(":")[0])
+                   utils.wnodeString(startnode).substr(1).split(":")[0])
         ) {
         editComment();
     } else {
         displayRename();
     }
 }
-editNode.async = true;
+editNode["async"] = true;

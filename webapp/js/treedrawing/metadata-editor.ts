@@ -147,7 +147,7 @@ export function updateMetadataEditor() : void {
     $("#metadata").html(dictionaryToForm(utils.getMetadata($(startnode))) +
                         addButtonHtml);
     $("#metadata").find(".metadataField").change(saveMetadata).
-        focusout(saveMetadata).keydown(function (e : KeyboardEvent) : void {
+        focusout(saveMetadata).keydown(function (e : KeyboardEvent) : boolean {
             if (e.keyCode === 13) {
                 $(e.target).blur();
             }

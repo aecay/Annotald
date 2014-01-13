@@ -114,7 +114,7 @@ function flagSearchMatch (node: Node) : void {
 /**
  * Hook up event handlers after adding a node to the search dialog
  */
-function searchNodePostAdd (node : Node) : void {
+function searchNodePostAdd (node? : JQuery) : void {
     $(".searchnewnodebut").unbind("click").click(addSearchDaughter);
     $(".searchdelnodebut").unbind("click").click(searchDelNode);
     $(".searchdeepnodebut").unbind("click").click(searchDeepNode);
@@ -165,7 +165,7 @@ function doSearch () : void {
 
     if (incremental && $(".searchmatch").length > 0) {
         var lastMatchTop = $(".searchmatch").last().offset().top;
-        searchCtx = searchCtx.filter(function () {
+        searchCtx = searchCtx.filter(function () : boolean {
             // TODO: do this with faster document position dom call
             return $(this).offset().top > lastMatchTop;
         });
@@ -257,7 +257,7 @@ function searchDelNode(e : Event) : void {
     }
     var child = node.children(".searchnode").first();
     if (child.length === 1) {
-        node.contents(":not(.searchnode)").remove();
+        node.contents().filter(":not(.searchnode)").remove();
         child.unwrap();
     } else {
         node.remove();
@@ -315,12 +315,11 @@ function searchPrecNode(e : Event) : void {
  * @returns {Node} `target` if it matched the query, otherwise `undefined`
  */
 
-function interpretSearchNode(node : Node,
+function interpretSearchNode(node : JQuery,
                              target : Node,
-                             options : Object) : Node {
+                             options : { norecurse? : boolean; } = {}) : Node {
     // TODO: optimize to remove jquery calls, only use regex matching if needed
     // TODO: make case sensitivity an option?
-    options = options || {};
     var searchtype = $(node).children(".searchtype").val();
     var rx, hasMatch, i, j;
     var newTarget = $(target).children();
@@ -348,7 +347,7 @@ function interpretSearchNode(node : Node,
     } else if (searchtype === "Text") {
         rx = RegExp("^" + $(node).children(".searchtext").val(), "i");
         hasMatch = $(target).children(".wnode").length === 1 &&
-            rx.test(utils.wnodeString($(target)));
+            rx.test(utils.wnodeString(target));
         if (!hasMatch) {
             return undefined;
         }
@@ -363,7 +362,7 @@ function interpretSearchNode(node : Node,
         newTarget = $(target);
     } else if (searchtype === "Or") {
         for (i = 0; i < childSearches.length; i++) {
-            if (interpretSearchNode(childSearches[i], target)) {
+            if (interpretSearchNode($(childSearches[i]), target)) {
                 return target;
             }
         }
@@ -377,7 +376,7 @@ function interpretSearchNode(node : Node,
     for (i = 0; i < childSearches.length; i++) {
         var succ = false;
         for (j = 0; j < newTarget.length; j++) {
-            if (interpretSearchNode(childSearches[i], newTarget[j])) {
+            if (interpretSearchNode($(childSearches[i]), newTarget[j])) {
                 succ = true;
                 break;
             }

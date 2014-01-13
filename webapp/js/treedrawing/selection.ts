@@ -51,7 +51,7 @@ export function selectNode (node : Node, force? : boolean) : void {
         if (!(node instanceof Node)) {
             try {
                 throw Error("foo");
-            } catch (e : Error) {
+            } catch (e) {
                 console.log("selecting a non-node: " + e.stack);
             }
         }
@@ -88,7 +88,7 @@ export function selectNode (node : Node, force? : boolean) : void {
     } else {
         try {
             throw Error("foo");
-        } catch (e : Error) {
+        } catch (e) {
             console.log("tried to select something falsey: " + e.stack);
         }
     }
