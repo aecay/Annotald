@@ -1,4 +1,13 @@
-/*global module: true */
+/*global module: true, require: false */
+
+var cacheify = require("cacheify"),
+    level = require("level"),
+    db = level("./cache"),
+    typeify = require("typeify"),
+    reactify = require("reactify");
+
+var typeifyCached = cacheify(typeify, db);
+var reactifyCached = cacheify(reactify, db);
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -37,11 +46,17 @@ module.exports = function (grunt) {
                 dest: 'webapp/build/web.js',
                 options: {
                     debug: true,
-                    standalone: "annotald",
                     external: ["jquery","vex","vex-dialog","react","brace",
                                "brace/theme/xcode","brace/mode/javascript",
                                "q","dropbox"],
-                    transform:["reactify"]
+                    transform:[reactifyCached, typeifyCached],
+                    alias: [
+                        'webapp/js/treedrawing/entry-points.js:treedrawing/entry-points',
+                        'webapp/js/treedrawing/bindings.js:treedrawing/bindings',
+                        'webapp/js/treedrawing/contextmenu.js:treedrawing/contextmenu',
+                        'webapp/js/treedrawing/user-style.js:treedrawing/user-style',
+                        'webapp/js/treedrawing/config.js:treedrawing/config'
+                    ]
                 }
             },
             test: {
@@ -67,9 +82,19 @@ module.exports = function (grunt) {
         },
         jshint: {
             files: ["webapp/js/**/*.js",
-                    "!webapp/js/ext/**"],
+                    "!webapp/js/ext/**",
+                    "!webapp/js/ui/tree-editor-template.js"],
             options: {
-                jshintrc: "jshintrc"
+                jshintrc: "jshintrc",
+                "reporter": "jshint-reporter.js"
+            }
+        },
+        tslint: {
+            options: {
+                configuration: grunt.file.readJSON("tslintrc")
+            },
+            all: {
+                src: "webapp/js/**/*.ts"
             }
         },
         uglify: {
@@ -103,7 +128,7 @@ module.exports = function (grunt) {
         },
         watch: {
             annotald: {
-                files: ['webapp/js/*.js'],
+                files: ['webapp/js/**/*.js'],
                 tasks: ['build-annotald']
             },
             css: {
@@ -142,6 +167,21 @@ module.exports = function (grunt) {
                     base: 'webapp/build'
                 }
             }
+        },
+        "tpm-install": {
+            options: {
+                dev: true
+            },
+            all: {
+                src: ["package.json","bower.json"],
+                dest: "types/"
+            }
+        },
+        "tpm-index": {
+            all: {
+                src: "types/**/*.d.ts",
+                dest: "types/all.d.ts"
+            }
         }
     });
 
@@ -155,14 +195,17 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('grunt-contrib-connect');
+    grunt.loadNpmTasks('typescript-tpm');
+    grunt.loadNpmTasks('grunt-tslint');
 
     grunt.registerTask('build-external', ['browserify:external',
                                           'uglify:external'
                                           //, 'clean:build'
                                          ]);
     grunt.registerTask('build-annotald', ['browserify:annotald',
-                                          'external_sourcemap:annotald',
-                                          'uglify:annotald'
+                                          'external_sourcemap:annotald'
+                                          // 'uglify:annotald'
                                           //, 'clean:build'
                                          ]);
     grunt.registerTask('build-css', ['cssmin']);
