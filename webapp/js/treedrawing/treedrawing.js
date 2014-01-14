@@ -34,13 +34,7 @@
 // * Initialization
 
 
-var lemmataStyleNode, lemmataHidden = true;
-(function () {
-    lemmataStyleNode = document.createElement("style");
-    lemmataStyleNode.setAttribute("type", "text/css");
-    document.getElementsByTagName("head")[0].appendChild(lemmataStyleNode);
-    lemmataStyleNode.innerHTML = ".lemma { display: none; }";
-})();
+
 
 var currentIndex = 1; // TODO: move to where it goes
 
@@ -65,25 +59,6 @@ function showMessageHistory() {
 addStartupHook(function () {
     $("#messagesTitle").click(showMessageHistory);
 });
-
-
-
-// * Collapsing nodes
-
-/**
- * Toggle collapsing of a node.
- *
- * When a node is collapsed, its contents are displayed as continuous text,
- * without labels.  The node itself still functions normally with respect to
- * movement operations etc., but its contents are inaccessible.
- */
-function toggleCollapsed() {
-    if (!startnode || endnode) {
-        return false;
-    }
-    $(startnode).toggleClass("collapsed");
-    return true;
-}
 
 
 // * Server-side operations
@@ -308,18 +283,6 @@ addStartupHook(function () {
 
 // * Misc
 
-/**
- * Toggle display of lemmata.
- */
-function toggleLemmata() {
-    if (lemmataHidden) {
-        lemmataStyleNode.innerHTML = "";
-    } else {
-        lemmataStyleNode.innerHTML = ".lemma { display: none; }";
-    }
-    lemmataHidden = !lemmataHidden;
-}
-
 function fixError() {
     if (!startnode || endnode) return;
     var sn = $(startnode);
@@ -385,42 +348,6 @@ function leafOrNot(leaf, not) {
     }
     fn.apply(null, args);
 }
-
-// * Misc (candidates to move to utils)
-
-// TODO: move to utils?
-
-// TODO: need a setLemma function as well
-
-// * Obsolete/other
-
-// TODO(AWE): I think that updating labels on changing nodes works, but
-// this fn should be interactively called with debugging arg to test this
-// supposition.  When I am confident of the behavior of the code, this fn will
-// be removed.
-function resetLabelClasses(alertOnError) {
-    var nodes = $(".snode").each(
-        function() {
-            var node = $(this);
-            var label = $.trim(getLabel(node));
-            if (alertOnError) {
-                var classes = node.prop("class").split(" ");
-                // This incantation removes a value from an array.
-                if (classes.indexOf("snode") >= 0) {
-                    classes.splice(classes.indexOf("snode"), 1);
-                }
-                if (classes.indexOf(label) >= 0) {
-                    classes.splice(classes.indexOf(label), 1);
-                }
-                if (classes.length > 0) {
-                    alert("Spurious classes '" + classes.join() +
-                          "' detected on node id'" + node.prop("id") + "'");
-                }
-            }
-        node.prop("class", "snode " + label);
-        });
-}
-
 
 // TODO: badly need a DSL for forms
 
