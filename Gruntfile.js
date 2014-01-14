@@ -1,13 +1,13 @@
 /*global module: true, require: false */
 
-var cacheify = require("cacheify"),
-    level = require("level"),
-    db = level("./cache"),
-    typeify = require("typeify"),
-    reactify = require("reactify");
+// var cacheify = require("cacheify"),
+//     level = require("level"),
+//     db = level("./cache"),
+//     typescriptify = require("typescriptify"),
+//     reactify = require("reactify");
 
-var typeifyCached = cacheify(typeify, db);
-var reactifyCached = cacheify(reactify, db);
+// var typeifyCached = cacheify(typescriptify, db);
+// var reactifyCached = cacheify(reactify, db);
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -49,13 +49,13 @@ module.exports = function (grunt) {
                     external: ["jquery","vex","vex-dialog","react","brace",
                                "brace/theme/xcode","brace/mode/javascript",
                                "q","dropbox"],
-                    transform:[reactifyCached, typeifyCached],
+                    transform: ["reactify", "typescriptify"],
                     alias: [
-                        'webapp/js/treedrawing/entry-points.js:treedrawing/entry-points',
-                        'webapp/js/treedrawing/bindings.js:treedrawing/bindings',
-                        'webapp/js/treedrawing/contextmenu.js:treedrawing/contextmenu',
-                        'webapp/js/treedrawing/user-style.js:treedrawing/user-style',
-                        'webapp/js/treedrawing/config.js:treedrawing/config'
+                        'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points',
+                        'webapp/js/treedrawing/bindings.ts:treedrawing/bindings',
+                        'webapp/js/treedrawing/contextmenu.ts:treedrawing/contextmenu',
+                        'webapp/js/treedrawing/user-style.ts:treedrawing/user-style',
+                        'webapp/js/treedrawing/config.ts:treedrawing/config'
                     ]
                 }
             },

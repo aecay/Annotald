@@ -28,7 +28,7 @@
         "jasmine-node": "latest",
         "jshint": "~2.4.1",
         "reactify": "~0.5.0",
-        "typeify": "~0.1.1",
+        "typescriptify": "latest",
         "cacheify": "~0.3.1",
         "level": "~0.18.0",
         "typescript-tpm": "~0.1.7",
