@@ -1,7 +1,7 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-import globals = require("./global.ts");
-import startup = require("./startup.ts");
+import globals = require("./global");
+import startup = require("./startup");
 
 var startnode = globals.startnode;
 var endnode = globals.endnode;
@@ -21,7 +21,7 @@ export function toggleCollapsed () : boolean {
     return true;
 }
 
-var lemmataStyleNode : Element;
+var lemmataStyleNode : HTMLElement;
 var lemmataHidden : boolean = true;
 
 startup.addStartupHook(function () : void {

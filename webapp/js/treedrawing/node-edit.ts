@@ -15,6 +15,7 @@ import events = require("./events");
 import dialog = require("./dialog");
 import startup = require("./startup");
 import conf = require("./config");
+import strucEdit = require("./struc-edit");
 
 // * Editing parts of the tree
 
@@ -426,67 +427,89 @@ editNode["async"] = true;
 
 // * Splitting words
 
+export function addLemma(lemma : string) : void {
+    // TODO: This only makes sense for dash-format corpora
+    if (!startnode || endnode) {
+        return;
+    }
+    if (!utils.isLeafNode(startnode) ||
+        utils.isEmptyNode(startnode)) {
+        return;
+    }
+    undo.touchTree($(startnode));
+    var theLemma = $("<span class='lemma'>-" + lemma +
+                     "</span>");
+    $(startnode).children(".wnode").append(theLemma);
+}
+
 export function splitWord () : void {
-    if (!startnode || endnode) return;
-    if (!isLeafNode($(startnode)) || isEmptyNode(startnode)) return;
-    undoBeginTransaction();
-    touchTree($(startnode));
-    var wordSplit = wnodeString($(startnode)).split("-");
+    if (!startnode || endnode) {
+        return;
+    }
+    if (!utils.isLeafNode(startnode) ||
+        utils.isEmptyNode(startnode)) {
+        return;
+    }
+    undo.undoBeginTransaction();
+    undo.touchTree($(startnode));
+    var wordSplit = utils.wnodeString(startnode).split("-");
     var origWord = wordSplit[0];
     var startsWithAt = false, endsWithAt = false;
-    if (origWord[0] == "@") {
+    if (origWord[0] === "@") {
         startsWithAt = true;
         origWord = origWord.substr(1);
     }
-    if (origWord.substr(origWord.length - 1, 1) == "@") {
+    if (origWord.substr(origWord.length - 1, 1) === "@") {
         endsWithAt = true;
         origWord = origWord.substr(0, origWord.length - 1);
     }
     var origLemma = "XXX";
-    if (wordSplit.length == 2) {
+    if (wordSplit.length === 2) {
         origLemma = "@" + wordSplit[1] + "@";
     }
-    var origLabel = getLabel($(startnode));
-    function doSplit() {
+    var origLabel = utils.getLabel($(startnode));
+    function doSplit () : void {
         var words = $("#splitWordInput").val().split("@");
-        if (words.join("") != origWord) {
-            displayWarning("The two new words don't match the original.  Aborting");
-            undoAbortTransaction();
+        if (words.join("") !== origWord) {
+            logger.warning("The two new words don't match the original.  Aborting");
+            undo.undoAbortTransaction();
             return;
         }
         if (words.length < 0) {
-            displayWarning("You have not specified where to split the word.");
-            undoAbortTransaction();
+            logger.warning("You have not specified where to split the word.");
+            undo.undoAbortTransaction();
             return;
         }
         if (words.length > 2) {
-            displayWarning("You can only split in one place at a time.");
-            undoAbortTransaction();
+            logger.warning("You can only split in one place at a time.");
+            undo.undoAbortTransaction();
             return;
         }
         var labelSplit = origLabel.split("+");
         var secondLabel = "X";
-        if (labelSplit.length == 2) {
-            setLeafLabel($(startnode), labelSplit[0]);
+        if (labelSplit.length === 2) {
+            utils.setLeafLabel($(startnode), labelSplit[0]);
             secondLabel = labelSplit[1];
         }
-        setLeafLabel($(startnode), (startsWithAt ? "@" : "") + words[0] + "@");
-        var hasLemma = $(startnode).find(".lemma").size() > 0;
-        makeLeaf(false, secondLabel, "@" + words[1] + (endsWithAt ? "@" : ""));
+        utils.setLeafLabel($(startnode), (startsWithAt ? "@" : "") + words[0] + "@");
+        var hasLemma = $(startnode).find(".lemma").length > 0;
+        strucEdit.makeLeaf(false,
+                           secondLabel,
+                           "@" + words[1] + (endsWithAt ? "@" : ""));
         if (hasLemma) {
             // TODO: move to something like foo@1 and foo@2 for the two pieces
             // of the lemmata
             addLemma(origLemma);
         }
-        hideDialogBox();
-        undoEndTransaction();
-        undoBarrier();
+        dialog.hideDialogBox();
+        undo.undoEndTransaction();
+        undo.undoBarrier();
     }
     var html = "Enter an at-sign at the place to split the word: \
 <input type='text' id='splitWordInput' value='" + origWord +
 "' /><div id='dialogButtons'><input type='button' id='splitWordButton'\
  value='Split' /></div>";
-    showDialogBox("Split word", html, doSplit);
+    dialog.showDialogBox("Split word", html, doSplit);
     $("#splitWordButton").click(doSplit);
     $("#splitWordInput").focus();
 }

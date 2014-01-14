@@ -316,16 +316,6 @@ function basesAndDashes(bases, dashes) {
     return _basesAndDashes;
 }
 
-function addLemma(lemma) {
-    // TODO: This only makes sense for dash-format corpora
-    if (!startnode || endnode) return;
-    if (!isLeafNode($(startnode)) || isEmptyNode(startnode)) return;
-    touchTree($(startnode));
-    var theLemma = $("<span class='lemma'>-" + lemma +
-                     "</span>");
-    $(startnode).children(".wnode").append(theLemma);
-}
-
 function untilSuccess() {
     for (var i = 0; i < arguments.length; i++) {
         var fn = arguments[i][0],
