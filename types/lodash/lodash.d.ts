@@ -5,10 +5,6 @@
 
 declare var _: _.LoDashStatic;
 
-declare module "lodash" {
-    export = _;
-}
-
 declare module _ {
 	interface LoDashStatic {
 		/**
@@ -1923,27 +1919,27 @@ declare module _ {
 		**/
 		map<T, TResult>(
 			callback: ListIterator<T, TResult>,
-			thisArg?: any): LoDashArrayWrapper<T>;
+			thisArg?: any): LoDashArrayWrapper<TResult>;
 
 		/**
 		* @see _.map
 		* @param pluckValue _.pluck style callback
 		**/
 		map<T, TResult>(
-			pluckValue: string): LoDashArrayWrapper<T>;
+			pluckValue: string): LoDashArrayWrapper<TResult>;
 
 			/**
 			* @see _.map
 			**/
 			collect<T, TResult>(
 				callback: ListIterator<T, TResult>,
-				thisArg?: any): LoDashArrayWrapper<T>;
+				thisArg?: any): LoDashArrayWrapper<TResult>;
 
 			/**
 			* @see _.map
 			**/
 			collect<T, TResult>(
-				pluckValue: string): LoDashArrayWrapper<T>;
+				pluckValue: string): LoDashArrayWrapper<TResult>;
 	}
 
 	interface LoDashObjectWrapper<T> {
@@ -1952,14 +1948,14 @@ declare module _ {
 		**/
 		map<T extends {}, TResult>(
 			callback: ObjectIterator<T, TResult>,
-			thisArg?: any): LoDashObjectWrapper<T>;
+			thisArg?: any): LoDashObjectWrapper<TResult>;
 
 			/**
 			* @see _.map
 			**/
 			collect<T extends {}, TResult>(
 				callback: ObjectIterator<T, TResult>,
-				thisArg?: any): LoDashObjectWrapper<T>;
+				thisArg?: any): LoDashObjectWrapper<TResult>;
 	}
 
 	//_.max
@@ -1980,10 +1976,10 @@ declare module _ {
 		* @param thisArg The this binding of callback.
 		* @return Returns the maximum value.
 		**/
-	    max<T, U>(
+		max<T>(
 			collection: Collection<T>,
-			callback?: ListIterator<T, U>,
-			thisArg?: any): U;
+			callback?: ListIterator<T, any>,
+			thisArg?: any): T;
 
 		/**
 		* @see _.max
@@ -2584,10 +2580,10 @@ declare module _ {
 		* @param options.trailing Specify execution on the trailing edge of the timeout.
 		* @return The new debounced function.
 		**/
-		debounce(
-			func: Function,
+		debounce<T extends Function>(
+			func: T,
 			wait: number,
-			options?: DebounceSettings): Function;
+			options?: DebounceSettings): T;
 	}
 
 	interface LoDashObjectWrapper<T> {
@@ -2674,9 +2670,9 @@ declare module _ {
 		* @param resolver Hash function for storing the result of `fn`.
 		* @return Returns the new memoizing function.
 		**/
-		memoize(
-			func: Function,
-			resolver?: (n: any) => string): Function;
+        memoize<T extends Function>(
+			func: T,
+			resolver?: (n: any) => string): T;
 	}
 
 	//_.once
@@ -2688,7 +2684,7 @@ declare module _ {
 		* @param func Function to only execute once.
 		* @return The new restricted function.
 		**/
-		once(func: Function): Function;
+        once<T extends Function>(func: T): T;
 	}
 
 	//_.partial
@@ -2737,10 +2733,10 @@ declare module _ {
 		* @param options.trailing Specify execution on the trailing edge of the timeout.
 		* @return The new throttled function.
 		**/
-		throttle(
-			func: any,
+        throttle<T extends Function>(
+			func: T,
 			wait: number,
-			options?: ThrottleSettings): Function;
+			options?: ThrottleSettings): T;
 	}
 
 	interface ThrottleSettings {
@@ -2830,9 +2826,19 @@ declare module _ {
 		/**
 		* @see _.assign
 		**/
+	extend<P, T extends P, S1 extends P, Value, Result extends P>(
+            object: T,
+            s1: S1,
+			callback?: (objectValue: Value, sourceValue: Value) => Value,
+            thisArg?: any): Result;
+
+		/**
+		* @see _.assign
+		**/
         extend<P, T extends P, S1 extends P, S2 extends P, Value, Result extends P>(
             object: T,
             s1: S1,
+            s2: S2,
 			callback?: (objectValue: Value, sourceValue: Value) => Value,
             thisArg?: any): Result;
 
@@ -2843,6 +2849,7 @@ declare module _ {
             object: T,
             s1: S1,
             s2: S2,
+            s3: S3,
 			callback?: (objectValue: Value, sourceValue: Value) => Value,
             thisArg?: any): Result;
 
@@ -3304,6 +3311,11 @@ declare module _ {
 		* @see _.isEmpty
 		**/
 		isEmpty(value: string): boolean;
+
+		/**
+		* @see _.isEmpty
+		**/
+		isEmpty(value: any): boolean;
 	}
 
 	//_.isEqual
@@ -3768,7 +3780,7 @@ declare module _ {
 		**/
 		times<TResult>(
 			n: number,
-			callback: Function,
+			callback: (num: number) => TResult,
 			context?: any): TResult[];
 	}
 
@@ -3828,4 +3840,8 @@ declare module _ {
 	interface Dictionary<T> extends Collection<T> {
 		[index: string]: T;
 	}
+}
+
+declare module "lodash" {
+	export = _;
 }
