@@ -1,6 +1,6 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-/* tslint:disable:variable-name no-bitwise */
+/* tslint:disable:variable-name no-bitwise quotemark */
 
 import $ = require("jquery");
 import globals = require("./global");

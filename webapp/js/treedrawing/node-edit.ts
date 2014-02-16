@@ -1,6 +1,6 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-/* tslint:disable:quotemark */
+/* tslint:disable:quotemark no-string-literal */
 
 import $ = require("jquery");
 import _ = require("lodash");
@@ -158,6 +158,10 @@ function leafEditorReplacement(label : string,
  * non-terminal, edit the node label.
  */
 export function displayRename () : void {
+    // Lifted so we can close over it below
+    var label = utils.getLabel($(startnode));
+    var oldClass = utils.parseLabel(label);
+
     // Inner functions
     function space(event : KeyboardEvent) : void {
         var element = (event.target || event.srcElement);
@@ -190,8 +194,6 @@ export function displayRename () : void {
     $("#butundo").prop("disabled", true);
     $("#butredo").prop("disabled", true);
     $("#butsave").prop("disabled", true);
-    var label = utils.getLabel($(startnode));
-    var oldClass = utils.parseLabel(label);
 
     if ($(startnode).children(".wnode").length > 0) {
         // this is a terminal
