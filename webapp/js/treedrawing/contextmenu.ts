@@ -313,9 +313,9 @@ export function showContextMenu(e : JQueryMouseEventObject) : void {
     conl.height("auto");
     conr.height("auto");
     conrr.height("auto");
-    var h : number = _.max([conl, conr, conrr], function (x : JQuery) : number {
+    var h = _.max(_.map([conl, conr, conrr], function (x : JQuery) : number {
         return x.height();
-    });
+    }));
     conl.height(h);
     conr.height(h);
     conrr.height(h);
