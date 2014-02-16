@@ -7,7 +7,7 @@ var React = require("react"),
     template = require("./tree-editor-template").template,
     $ = require("jquery"),
     configStore = require("../config-store"),
-    treedrawing = require("../treedrawing/startup");
+    treedrawing = require("../treedrawing/startup.ts");
 
 exports.TreeEditor = React.createClass({
     exit: function () {
@@ -22,7 +22,7 @@ exports.TreeEditor = React.createClass({
             var script = $("<script></script>");
             script.text(result);
             script.appendTo("head");
-            treedrawing.startupTreedrawing(this.stop);
+            treedrawing.startupTreedrawing(this.exit);
         }, function (err) {
             console.log(err);
         });
