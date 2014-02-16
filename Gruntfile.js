@@ -214,7 +214,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', ['build-external','build-annotald',
                                  'build-css','build-html']);
-    grunt.registerTask('test', ['build','jasmine']);
+    grunt.registerTask('test', ['build-annotald','browserify:test','jasmine']);
 
     grunt.registerTask('default', ['build','connect','watch']);
 };
