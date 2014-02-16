@@ -264,7 +264,7 @@ export function currentText(root : JQuery) : string {
 /**
  * Get the label of a node.
  *
- *@param {JQuery} node the node to operate on
+ * @param {JQuery} node the node to operate on
  */
 export function getLabel(node : JQuery) : string {
     return $.trim(textNode(node).text());

@@ -36,7 +36,7 @@ export function showDialogBox(title : string,
                               html : string,
                               returnFn? : () => void,
                               hideHook? : () => void) : void {
-    document.body.onkeydown = function (e : KeyboardEvent)  : void{
+    document.body.onkeydown = function (e : KeyboardEvent)  : void {
         if (e.keyCode === 27) { // escape
             if (hideHook) {
                 hideHook();

@@ -48,7 +48,7 @@ export function hideContextMenu () : void {
 }
 
 export function addConMenu (label : string,
-                     suggestions : string[]) : void {
+                            suggestions : string[]) : void {
     conmenus[label] = {
         suggestions : suggestions
     };
