@@ -33,7 +33,8 @@ import undo = require("./undo");
 import selection = require("./selection");
 import contextmenu = require("./contextmenu");
 
-require("./entry-points");      // TODO: is this necessary?
+import unused = require("./entry-points");      // TODO: is this necessary?
+var foo = unused;
 
 export function quitTreeDrawing (e : Event, force : boolean) : void {
     // unAutoIdle();
@@ -104,7 +105,7 @@ export function startupTreedrawing (callback : Hook) : void {
 
 export function resetGlobals () : void {
     // TODO: encapsulation violation
-    var newGlobals = {
+    var newGlobals : { [key : string] : any; } = {
         ipnodes: [],
 
         commentTypes: [],
@@ -124,7 +125,7 @@ export function resetGlobals () : void {
 
         logDetail: false
     };
-    _.forEach(newGlobals, function (v : any, k : string) : void {
+    _.forOwn(newGlobals, function (v : any, k : string) : void {
         globals[k] = v;
     });
     contextmenu.resetGlobals();
