@@ -12,16 +12,15 @@ function makeWnode (xmlNode) {
 
 function makeSnode (xmlNode) {
     var snode = document.createElement("div"),
-        label = xmlNode.getAttribute("label"),
         cn = xmlNode.childNodes,
         atts = xmlNode.attributes,
         c, a, i;
     snode.className = "snode";
-    snode.appendChild(document.createTextNode(label + " "));
     for (i = 0; i < cn.length; i++) {
         c = cn[i];
         if (c.nodeType === 3 && c.textContent.trim() !== "") {
             snode.appendChild(makeWnode(c));
+            snode.setAttribute("data-nodetype", xmlNode.nodeName);
         } else if (c.nodeType === 1) {
             snode.appendChild(makeSnode(c));
         }
