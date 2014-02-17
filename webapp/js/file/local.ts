@@ -23,6 +23,7 @@ export class LocalFile implements file.File {
     static fileType = "Local";
 
     static prompt () : Q.Promise<LocalFile> {
+        var that = this;
         var deferred = Q.defer<LocalFile>();
         vex.dialog.open({ message: "Please choose a file",
                           input: '<div class="vex-custom-field-wrapper"><label' +
@@ -37,7 +38,7 @@ export class LocalFile implements file.File {
                               fr = new FileReader();
                               fr.onload = function (event : any) : void {
                                   // TODO: path
-                                  deferred.resolve(new this({
+                                  deferred.resolve(new that({
                                       content: event.target.result
                                   }));
                               };
@@ -69,7 +70,10 @@ export class LocalFile implements file.File {
 
     read () : Q.Promise<string> {
         var deferred = Q.defer<string>();
-        deferred.reject("Cannot read files in the web version");
+        if (!this.content) {
+            deferred.reject("Cannot read files in the web version");
+        }
+        deferred.resolve(this.content);
         return deferred.promise;
     }
 }
