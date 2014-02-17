@@ -1,4 +1,4 @@
-/*global DOMParser: false, exports: false */
+/*global DOMParser: false, exports: true */
 
 /*jshint browser: true */
 
