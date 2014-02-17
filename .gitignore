@@ -63,3 +63,5 @@ cache-react/
 /webapp/js/treedrawing/node-formatter.js.map
 /webapp/js/file/file.js
 /webapp/js/file/local.js
+/webapp/js/file/dropbox.js
+/webapp/js/file/recent.js
