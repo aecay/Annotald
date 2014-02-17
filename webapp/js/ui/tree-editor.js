@@ -7,7 +7,8 @@ var React = require("react"),
     template = require("./tree-editor-template").template,
     $ = require("jquery"),
     configStore = require("../config-store"),
-    treedrawing = require("../treedrawing/startup.ts");
+    treedrawing = require("../treedrawing/startup.ts"),
+    Q = require("q");
 
 exports.TreeEditor = React.createClass({
     exit: function () {
@@ -18,15 +19,19 @@ exports.TreeEditor = React.createClass({
         return template;
     },
     componentDidMount: function () {
-        configStore.getConfig(this.props.config).then(function (result) {
-            var script = $("<script></script>");
-            script.text(result);
-            script.appendTo("head");
-            treedrawing.startupTreedrawing(this.exit);
-        }, function (err) {
-            console.log(err);
-        });
-        var html = parser.parseXmlToHtml(this.props.content);
-        $("#editpane").html(html);
+        Q.all([
+            configStore.getConfig(this.props.config).then(function (result) {
+                var script = $("<script></script>");
+                script.text(result);
+                script.appendTo("head");
+            }),
+            this.props.file.read().then(function (content) {
+                var html = parser.parseXmlToHtml(this.props.content);
+                $("#editpane").html(html);
+            })]).then(function () {
+                treedrawing.startupTreedrawing(this.exit);
+            }, function (err) {
+                console.log(err);
+            });
     }
 });

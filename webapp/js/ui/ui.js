@@ -59,13 +59,11 @@ exports.AnnotaldUI = React.createClass({
             React.DOM.div(
                 {style: { width: "70%" }},
                 FileChooser({ callback:
-                              function (content, path, saveCallback) {
+                              function (file) {
                                   $(document).trigger("ChangeView",
                                                       { view: "EditTree",
-                                                        path: path,
-                                                        saveCallback: saveCallback,
-                                                        content: content });
-                              } })),
+                                                        file: file });
+                              }})),
             React.DOM.div({style: { width: "30%",
                                     float: "right" }},
                           ConfigsList({name: params.name })));

@@ -60,3 +60,5 @@ cache/
 /webapp/js/treedrawing/view.js.map
 /webapp/js/treedrawing/node-formatter.js
 /webapp/js/treedrawing/node-formatter.js.map
+/webapp/js/file/file.js
+/webapp/js/file/local.js

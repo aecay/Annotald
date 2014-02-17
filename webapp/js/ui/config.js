@@ -23,7 +23,7 @@ function vexSubmit(name) {
 
 /**
  * @class
- * @classdesc A lsit of all loaded configs
+ * @classdesc A list of all loaded configs
  */
 exports.ConfigsList = React.createClass({
     // Misc methods
@@ -49,11 +49,13 @@ exports.ConfigsList = React.createClass({
                           function ($vexContent) {
                               React.renderComponent(FileChooser(
                                   { callback:
-                                    function (content, path) {
-                                        configStore.setConfig(name, content).
-                                            then(function () {
-                                                that.doEdit(name);
-                                            });
+                                    function (file) {
+                                        file.read().then(function (content) {
+                                            configStore.setConfig(name, content).
+                                                then(function () {
+                                                    that.doEdit(name);
+                                                });
+                                        });
                                         vex.close($vexContent.data().vex.id);
                                     }
                                   }), document.getElementById("file-chooser"));
