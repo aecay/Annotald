@@ -7,7 +7,8 @@
         "q-io": "latest",
         "react": "latest",
         "brace": "latest",
-        "dropbox": "latest"
+        "dropbox": "latest",
+        "localforage": "0.0.1"
     },
     "devDependencies": {
         "browserify": "3.24.8",
