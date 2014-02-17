@@ -9,7 +9,7 @@ var DropboxCore = require("../ext/dropbox");
 var notify = require("../ui/log");
 import $ = require("jquery");
 
-var Dropbox;
+declare var Dropbox;
 
 var client = new DropboxCore.Client({ key: "rw6m6r2gi34luhp" });
 client.authDriver(new DropboxCore.AuthDriver.Popup(
@@ -28,12 +28,13 @@ export class DropboxFile implements file.File {
 
     static prompt (allowedExtensions : string[] = [".psdx"]) :
     Q.Promise<DropboxFile> {
+        var that = this;
         var deferred = Q.defer<DropboxFile>();
         Dropbox.choose({
             success: function (files : any) : void {
                 Q($.ajax(files[0].link)).then(
                     function (result : any) : void {
-                        deferred.resolve(new this({ content: result,
+                        deferred.resolve(new that({ content: result,
                                                     path: files[0].name }));
                     }, function (error : any) : void {
                         deferred.reject(error);
