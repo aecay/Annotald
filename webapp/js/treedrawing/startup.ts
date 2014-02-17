@@ -33,8 +33,7 @@ import undo = require("./undo");
 import selection = require("./selection");
 import contextmenu = require("./contextmenu");
 
-import unused = require("./entry-points");      // TODO: is this necessary?
-var foo = unused;
+require("./entry-points");      // TODO: is this necessary?
 
 export function quitTreeDrawing (e : Event, force : boolean) : void {
     // unAutoIdle();
