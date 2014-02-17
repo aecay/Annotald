@@ -98,14 +98,14 @@ export function handleNodeClick(e : JQueryMouseEventObject) : void {
     metadataEditor.saveMetadata();
     if (e.button === 2) {
         // rightclick
-        if (globals.startnode && !globals.endnode) {
-            if (globals.startnode !== element) {
+        if (selection.cardinality() === 1) {
+            if (selection.get() !== element) {
                 e.stopPropagation();
                 edit.moveNode(element);
             } else {
                 contextmenu.showContextMenu(e);
             }
-        } else if (globals.startnode && globals.endnode) {
+        } else if (selection.cardinality() === 2) {
             e.stopPropagation();
             edit.moveNodes(element);
         } else {
@@ -114,7 +114,7 @@ export function handleNodeClick(e : JQueryMouseEventObject) : void {
     } else {
         // leftclick
         contextmenu.hideContextMenu();
-        if (e.shiftKey && globals.startnode) {
+        if (e.shiftKey && selection.get()) {
             selection.selectNode(element, true);
             e.preventDefault(); // Otherwise, this sets the text
                                 // selection in the browser...

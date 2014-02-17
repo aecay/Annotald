@@ -20,12 +20,10 @@
 
 import $ = require("jquery");
 import _ = require("lodash");
-var strucEdit = require("./struc-edit");
-var conf = require("./config");
-var undo = require("./undo");
-import globals = require("./global");
-
-var startnode = globals.startnode;
+import strucEdit = require("./struc-edit");
+import conf = require("./config");
+import undo = require("./undo");
+import selection = require("./selection");
 
 export function startsWith (a : string, b : string) : boolean {
     return (a.substr(0, b.length) === b);
@@ -631,10 +629,10 @@ function removeCase(node : JQuery) : void {
  */
 export function setCase(node : JQuery, theCase : string) : void {
     removeCase(node);
-    var osn = startnode;
-    startnode = node.get(0);
+    var osn = selection.get();
+    selection.set(node.get(0));
     strucEdit.toggleExtension(theCase, [theCase]);
-    startnode = osn;
+    selection.set(osn);
 };
 
 // TODO: toggling the case requires intelligence about where the dash tag

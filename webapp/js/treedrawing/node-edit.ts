@@ -6,8 +6,6 @@ import $ = require("jquery");
 import _ = require("lodash");
 import utils = require("./utils");
 import globals = require("./global");
-var startnode = globals.startnode;
-var endnode = globals.endnode;
 import undo = require("./undo");
 var logger = require("../ui/log");
 import selection = require("./selection");
@@ -36,11 +34,11 @@ startup.addStartupHook(function setupCommentTypes () : void {
 });
 
 export function editComment () : void {
-    if (!startnode || endnode) {
+    if (selection.cardinality() !== 1) {
         return;
     }
-    undo.touchTree($(startnode));
-    var commentRaw = $.trim(utils.wnodeString(startnode));
+    undo.touchTree($(selection.get()));
+    var commentRaw = $.trim(utils.wnodeString(selection.get()));
     var commentType = commentRaw.split(":")[0];
     // remove the {
     commentType = commentType.substring(1);
@@ -70,7 +68,7 @@ export function editComment () : void {
             }
             newText = newText.replace(/ /g, "_");
             commentType = $("input:radio[name=commentType]:checked").val();
-            utils.setNodeLabel($(startnode).children(".wnode"),
+            utils.setNodeLabel($(selection.get()).children(".wnode"),
                                "{" + commentType + ":" + newText + "}");
         }
         dialog.hideDialogBox();
@@ -159,7 +157,7 @@ function leafEditorReplacement(label : string,
  */
 export function displayRename () : void {
     // Lifted so we can close over it below
-    var label = utils.getLabel($(startnode));
+    var label = utils.getLabel($(selection.get()));
     var oldClass = utils.parseLabel(label);
 
     // Inner functions
@@ -183,11 +181,11 @@ export function displayRename () : void {
     }
 
     // Begin code
-    if (!startnode || endnode) {
+    if (selection.cardinality() !== 1) {
         return;
     }
     undo.undoBeginTransaction();
-    undo.touchTree($(startnode));
+    undo.touchTree($(selection.get()));
     document.body.onkeydown = null;
     $("#sn0").unbind("mousedown");
     $("#editpane").unbind("mousedown");
@@ -195,21 +193,21 @@ export function displayRename () : void {
     $("#butredo").prop("disabled", true);
     $("#butsave").prop("disabled", true);
 
-    if ($(startnode).children(".wnode").length > 0) {
+    if ($(selection.get()).children(".wnode").length > 0) {
         // this is a terminal
         var word, lemma;
         // is this right? we still want to allow editing of index, maybe?
-        var isLeafNode = utils.guessLeafNode(startnode);
-        if ($(startnode).children(".wnode").children(".lemma").length > 0) {
-            var preword = $.trim($(startnode).children().first().text()).
+        var isLeafNode = utils.guessLeafNode(selection.get());
+        if ($(selection.get()).children(".wnode").children(".lemma").length > 0) {
+            var preword = $.trim($(selection.get()).children().first().text()).
                 split("-");
             lemma = preword.pop();
             word = preword.join("-");
         } else {
-            word = $.trim($(startnode).children().first().text());
+            word = $.trim($(selection.get()).children().first().text());
         }
 
-        $(startnode).replaceWith(leafEditorHtml(label, word, lemma));
+        $(selection.get()).replaceWith(leafEditorHtml(label, word, lemma));
 
         $("#leafphrasebox,#leaftextbox,#leaflemmabox").keydown(
             function(event : KeyboardEvent) : void {
@@ -290,7 +288,7 @@ export function displayRename () : void {
         // this is not a terminal
         var editor = $("<input id='labelbox' class='labeledit' " +
                        "type='text' value='" + label + "' />");
-        var origNode = $(startnode);
+        var origNode = $(selection.get());
         // var isWordLevelConj =
         //         origNode.children(".snode").children(".snode").size() === 0 &&
         //         // TODO: make configurable
@@ -358,24 +356,24 @@ export function editLemma () : void {
     }
 
     // Begin code
-    var childLemmata = $(startnode).children(".wnode").children(".lemma");
-    if (!startnode || endnode || childLemmata.length !== 1) {
+    var childLemmata = $(selection.get()).children(".wnode").children(".lemma");
+    if (selection.cardinality() !== 1 || childLemmata.length !== 1) {
         return;
     }
     document.body.onkeydown = null;
     $("#sn0").unbind("mousedown");
     undo.undoBeginTransaction();
-    undo.touchTree($(startnode));
+    undo.touchTree($(selection.get()));
     $("#butundo").prop("disabled", true);
     $("#butredo").prop("disabled", true);
     $("#butsave").prop("disabled", true);
 
-    var lemma = $(startnode).children(".wnode").children(".lemma").text();
+    var lemma = $(selection.get()).children(".wnode").children(".lemma").text();
     lemma = lemma.substring(1);
     var editor = $("<span id='leafeditor' class='wnode'><input " +
                    "id='leaflemmabox' class='labeledit' type='text' value='" +
                    lemma + "' /></span>");
-    $(startnode).children(".wnode").children(".lemma").replaceWith(editor);
+    $(selection.get()).children(".wnode").children(".lemma").replaceWith(editor);
     $("#leaflemmabox").keydown(
         function (event : KeyboardEvent) : void {
             if (event.keyCode === 9) {
@@ -415,10 +413,10 @@ editLemma["async"] = true;
  * Perform an appropriate editing operation on the selected node.
  */
 export function editNode () : void {
-    if (utils.getLabel($(startnode)) === "CODE" &&
+    if (utils.getLabel($(selection.get())) === "CODE" &&
         _.contains(conf.commentTypes,
                    // strip leading { and the : and everything after
-                   utils.wnodeString(startnode).substr(1).split(":")[0])
+                   utils.wnodeString(selection.get()).substr(1).split(":")[0])
         ) {
         editComment();
     } else {
@@ -431,30 +429,30 @@ editNode["async"] = true;
 
 export function addLemma(lemma : string) : void {
     // TODO: This only makes sense for dash-format corpora
-    if (!startnode || endnode) {
+    if (selection.cardinality() !== 1) {
         return;
     }
-    if (!utils.isLeafNode(startnode) ||
-        utils.isEmptyNode(startnode)) {
+    if (!utils.isLeafNode(selection.get()) ||
+        utils.isEmptyNode(selection.get())) {
         return;
     }
-    undo.touchTree($(startnode));
+    undo.touchTree($(selection.get()));
     var theLemma = $("<span class='lemma'>-" + lemma +
                      "</span>");
-    $(startnode).children(".wnode").append(theLemma);
+    $(selection.get()).children(".wnode").append(theLemma);
 }
 
 export function splitWord () : void {
-    if (!startnode || endnode) {
+    if (selection.cardinality() !== 1) {
         return;
     }
-    if (!utils.isLeafNode(startnode) ||
-        utils.isEmptyNode(startnode)) {
+    if (!utils.isLeafNode(selection.get()) ||
+        utils.isEmptyNode(selection.get())) {
         return;
     }
     undo.undoBeginTransaction();
-    undo.touchTree($(startnode));
-    var wordSplit = utils.wnodeString(startnode).split("-");
+    undo.touchTree($(selection.get()));
+    var wordSplit = utils.wnodeString(selection.get()).split("-");
     var origWord = wordSplit[0];
     var startsWithAt = false, endsWithAt = false;
     if (origWord[0] === "@") {
@@ -469,7 +467,7 @@ export function splitWord () : void {
     if (wordSplit.length === 2) {
         origLemma = "@" + wordSplit[1] + "@";
     }
-    var origLabel = utils.getLabel($(startnode));
+    var origLabel = utils.getLabel($(selection.get()));
     function doSplit () : void {
         var words = $("#splitWordInput").val().split("@");
         if (words.join("") !== origWord) {
@@ -490,11 +488,12 @@ export function splitWord () : void {
         var labelSplit = origLabel.split("+");
         var secondLabel = "X";
         if (labelSplit.length === 2) {
-            utils.setLeafLabel($(startnode), labelSplit[0]);
+            utils.setLeafLabel($(selection.get()), labelSplit[0]);
             secondLabel = labelSplit[1];
         }
-        utils.setLeafLabel($(startnode), (startsWithAt ? "@" : "") + words[0] + "@");
-        var hasLemma = $(startnode).find(".lemma").length > 0;
+        utils.setLeafLabel($(selection.get()),
+                           (startsWithAt ? "@" : "") + words[0] + "@");
+        var hasLemma = $(selection.get()).find(".lemma").length > 0;
         strucEdit.makeLeaf(false,
                            secondLabel,
                            "@" + words[1] + (endsWithAt ? "@" : ""));

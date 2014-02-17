@@ -6,9 +6,7 @@ import $ = require("jquery");
 import globals = require("./global");
 import utils = require("./utils");
 import dialog = require("./dialog");
-
-var startnode : Node = globals.startnode;
-var endnode : Node = globals.endnode;
+import selection = require("./selection");
 
 /**
  * Convert a JS disctionary to an HTML form.
@@ -88,9 +86,9 @@ function formToDictionary (form : JQuery) : Object {
 
 export function saveMetadata () : void {
     if ($("#metadata").html() !== "") {
-        $(startnode).prop("data-metadata",
-                          JSON.stringify(formToDictionary(
-                              $("#metadata"))));
+        $(selection.get()).prop("data-metadata",
+                                JSON.stringify(formToDictionary(
+                                    $("#metadata"))));
     }
 }
 
@@ -129,7 +127,7 @@ function addMetadataDialog() : void {
     function addMetadata () : void {
         var oldMetadata = formToDictionary($("#metadata"));
         oldMetadata[$("#metadataNewName").val()] = "NEW";
-        $(startnode).prop("data-metadata", JSON.stringify(oldMetadata));
+        $(selection.get()).prop("data-metadata", JSON.stringify(oldMetadata));
         updateMetadataEditor();
         dialog.hideDialogBox();
     }
@@ -138,13 +136,13 @@ function addMetadataDialog() : void {
 }
 
 export function updateMetadataEditor() : void {
-    if (!startnode || endnode) {
+    if (selection.cardinality() !== 1) {
         $("#metadata").html("");
         return;
     }
     var addButtonHtml = '<input type="button" id="addMetadataButton" ' +
             'value="Add" />';
-    $("#metadata").html(dictionaryToForm(utils.getMetadata($(startnode))) +
+    $("#metadata").html(dictionaryToForm(utils.getMetadata($(selection.get()))) +
                         addButtonHtml);
     $("#metadata").find(".metadataField").change(saveMetadata).
         focusout(saveMetadata).keydown(function (e : KeyboardEvent) : boolean {

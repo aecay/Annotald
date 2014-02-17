@@ -1,12 +1,24 @@
 ///<reference path="./../../../types/all.d.ts" />
 
 import $ = require("jquery");
-import globals = require("./global");
 import contextmenu = require("./contextmenu");
 import metadataEditor = require("./metadata-editor");
+import globals = require("./global");
 
-var startnode = globals.startnode;
-var endnode = globals.endnode;
+/**
+ * This variable holds the selected node, or "start" node if multiple
+ * selection is in effect.  Otherwise undefined.
+ *
+ * @type Node
+ */
+var startnode : Node = null;
+/**
+ * This variable holds the "end" node if multiple selection is in effect.
+ * Otherwise undefined.
+ *
+ * @type Node
+ */
+var endnode : Node = null;
 
 export function updateSelection (suppressRemote? : boolean) : void {
     // update selection display
@@ -97,7 +109,7 @@ export function selectNode (node : Node, force? : boolean) : void {
 /**
  * Scroll the page so that the first selected node is visible.
  */
-export function scrollToShowSel() : void {
+export function scrollToShowSel () : void {
     function isTopVisible (elem : Node) : boolean {
         var docViewTop = $(window).scrollTop();
         var docViewBottom = docViewTop + $(window).height();
@@ -109,3 +121,36 @@ export function scrollToShowSel() : void {
         window.scroll(0, $(startnode).offset().top - $(window).height() * 0.25);
     }
 };
+
+export function get (second? : boolean) : Node {
+    if (second) {
+        return endnode;
+    }
+    return startnode;
+}
+
+export function set (node: Node, second? : boolean) : void {
+    if (second) {
+        endnode = node;
+    } else {
+        startnode = node;
+    }
+}
+
+export function cardinality () : number {
+    if (startnode && endnode) {
+        return 2;
+    } else if (startnode) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+export function clear (second? : boolean) : void {
+    if (second) {
+        endnode = undefined;
+    } else {
+        startnode = undefined;
+    }
+}
