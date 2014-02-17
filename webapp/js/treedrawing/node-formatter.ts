@@ -19,7 +19,7 @@ function formatSnode (snode : Node) : void {
     if (snodeElement.getAttribute("data-subcategory")) {
         tv += "-" + snodeElement.getAttribute("data-subcategory");
     }
-    tv += " "
+    tv += " ";
     textNode.nodeValue = tv;
 }
 
