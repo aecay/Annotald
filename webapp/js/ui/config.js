@@ -10,7 +10,8 @@ var React = require("react"),
     vex = require("vex"),
     Q = require("q"),
     FileChooser = require("./file").FileChooser,
-    $ = require("jquery");
+    $ = require("jquery"),
+    _ = require("lodash");
 require("brace/mode/javascript");
 require("brace/theme/xcode");
 
@@ -31,7 +32,7 @@ exports.ConfigsList = React.createClass({
     updateFromDb: function () {
         var that = this;
         configStore.listConfigs().then(function (configs) {
-            that.setState({names: configs.map(function (x) { return x.name; })});
+            that.setState({ names: _.keys(configs) });
         });
     },
     // Event handlers
@@ -234,7 +235,7 @@ var ConfigEditor = exports.ConfigEditor = React.createClass({
             editor.on("change", function () {
                 that.dirty = true;
             });
-        }).fail(function (error) {
+        }).catch(function (error) {
             console.log("db error");
             console.log(error);
         });
