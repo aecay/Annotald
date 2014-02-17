@@ -37,9 +37,7 @@ exports.AnnotaldUI = React.createClass({
             this.setState({view : this.initialView(params)});
             break;
         case "EditTree":
-            this.setState({view: TreeEditor({ path: params.path,
-                                              content: params.content,
-                                              saveCallback: params.saveCallback,
+            this.setState({view: TreeEditor({ file: params.file,
                                               // TODO: hackasaurus!!!
                                               config: $("#config-chooser").val()
                                             })});
