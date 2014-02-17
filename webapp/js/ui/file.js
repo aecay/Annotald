@@ -24,7 +24,7 @@ exports.FileChooser = React.createClass({
     render: function () {
         return React.DOM.ul(
             {},
-            this.fileChoice(fileLocal.prompt, "Local file"),
-            this.fileChoice(fileDropbox.prompt, "Dropbox file"));
+            this.fileChoice(fileLocal.LocalFile, "Local file"),
+            this.fileChoice(fileDropbox.DropboxFile, "Dropbox file"));
     }
 });

@@ -43,7 +43,6 @@ export class LocalFile implements file.File {
                               };
                               // TODO: error handling
                               fr.readAsText(file);
-                              return deferred.promise;
                           },
                           buttons: [{text: "OK", type: "submit"}]});
         return deferred.promise;
