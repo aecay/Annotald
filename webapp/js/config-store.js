@@ -8,6 +8,7 @@ exports.listConfigs = function listConfigs () {
 
 exports.setConfig = function setConfig (name, value) {
     return localForage.getItem("configs").then(function (configs) {
+        configs = configs || {};
         configs[name] = value;
         return localForage.setItem("configs", configs);
     });
@@ -15,12 +16,13 @@ exports.setConfig = function setConfig (name, value) {
 
 exports.getConfig = function getConfig (name) {
     return localForage.getItem("configs").then(function (configs) {
-        return configs[name];
+        return configs && configs[name];
     });
 };
 
 exports.deleteConfig = function deleteConfig (name) {
     return localForage.getItem("configs").then(function (configs) {
+        configs = configs || {};
         configs[name] = undefined;
         return localForage.setItem("configs", configs);
     });
