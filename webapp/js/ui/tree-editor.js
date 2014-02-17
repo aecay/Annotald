@@ -19,6 +19,7 @@ exports.TreeEditor = React.createClass({
         return template;
     },
     componentDidMount: function () {
+        var that = this;
         Q.all([
             configStore.getConfig(this.props.config).then(function (result) {
                 var script = $("<script></script>");
@@ -26,10 +27,11 @@ exports.TreeEditor = React.createClass({
                 script.appendTo("head");
             }),
             this.props.file.read().then(function (content) {
-                var html = parser.parseXmlToHtml(this.props.content);
+                var html = parser.parseXmlToHtml(content);
                 $("#editpane").html(html);
             })]).then(function () {
-                treedrawing.startupTreedrawing(this.exit);
+                treedrawing.startupTreedrawing(that.exit,
+                                               that.props.file.write);
             }, function (err) {
                 console.log(err);
             });
