@@ -90,7 +90,9 @@ function assignEvents () : void {
     // $(document).mousewheel(handleMouseWheel);
 }
 
-export function startupTreedrawing (callback : Hook) : void {
+export function startupTreedrawing (exitFn : Hook,
+                                    saveFn : (s: string) => Q.Promise<boolean>)
+: void {
     // TODO: something is very slow here; profile
     assignEvents();
 
@@ -99,7 +101,8 @@ export function startupTreedrawing (callback : Hook) : void {
     });
 
     lastSavedState = $("#editpane").html();
-    shutdownCallback = callback;
+    shutdownCallback = exitFn;
+    save.saveFn = saveFn;
 }
 
 export function resetGlobals () : void {
