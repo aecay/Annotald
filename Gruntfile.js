@@ -1,13 +1,14 @@
 /*global module: true, require: false */
 
-// var cacheify = require("cacheify"),
-//     level = require("level"),
-//     db = level("./cache"),
-//     typescriptify = require("typescriptify"),
-//     reactify = require("reactify");
+var cacheify = require("cacheify"),
+    level = require("level"),
+    dbr = level("./cache-react"),
+    dbt = level("./cache-ts"),
+    typescriptify = require("typescriptify"),
+    reactify = require("reactify");
 
-// var typeifyCached = cacheify(typescriptify, db);
-// var reactifyCached = cacheify(reactify, db);
+var reactifyCached = cacheify(reactify, dbr);
+var typescriptifyCached = cacheify(typescriptify, dbt);
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -49,7 +50,7 @@ module.exports = function (grunt) {
                     external: ["jquery","vex","vex-dialog","react","brace",
                                "brace/theme/xcode","brace/mode/javascript",
                                "q","dropbox"],
-                    transform: ["browserify-shim", "reactify", "typescriptify"],
+                    transform: [typescriptifyCached, reactifyCached, "browserify-shim"],
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points',
                         'webapp/js/treedrawing/bindings.ts:treedrawing/bindings',

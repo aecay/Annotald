@@ -20,7 +20,8 @@ doc/README.asciidoc
 
 node_modules/
 bower_components/
-cache/
+cache-ts/
+cache-react/
 /types/all.d.ts
 /webapp/js/treedrawing/bindings.js
 /webapp/js/treedrawing/bindings.js.map
