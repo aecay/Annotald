@@ -7,8 +7,7 @@
         "q-io": "latest",
         "react": "latest",
         "brace": "latest",
-        "dropbox": "latest",
-        "localforage": "0.0.1"
+        "dropbox": "latest"
     },
     "devDependencies": {
         "browserify": "3.24.8",
@@ -34,6 +33,12 @@
         "level": "~0.18.0",
         "typescript-tpm": "~0.1.7",
         "grunt-tslint": "~0.4.0"
+    },
+    "browser": {
+        "localforage": "./bower_components/localforage/dist/localforage.js"
+    },
+    "browserify-shim": {
+        "localforage": "localforage"
     },
     "license": "GPL v3+",
     "private": true,

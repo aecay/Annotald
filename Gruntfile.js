@@ -49,7 +49,7 @@ module.exports = function (grunt) {
                     external: ["jquery","vex","vex-dialog","react","brace",
                                "brace/theme/xcode","brace/mode/javascript",
                                "q","dropbox"],
-                    transform: ["reactify", "typescriptify"],
+                    transform: ["browserify-shim", "reactify", "typescriptify"],
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points',
                         'webapp/js/treedrawing/bindings.ts:treedrawing/bindings',
