@@ -114,5 +114,5 @@ http://www.phpied.com/files/react/src/table2.js
 use jqtree http://mbraak.github.io/jqTree/
 https://stackoverflow.com/questions/14731459/github-api-fetch-all-folders-and-files-in-single-get-request
 also: google drive file picker https://gist.github.com/Daniel15/5994054
-* localforage
-https://github.com/mozilla/localForage
+* router
+https://github.com/andreypopp/react-router-component
