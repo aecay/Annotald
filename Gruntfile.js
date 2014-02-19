@@ -10,6 +10,10 @@ var cacheify = require("cacheify"),
 var reactifyCached = cacheify(reactify, dbr);
 var typescriptifyCached = cacheify(typescriptify, dbt);
 
+var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
+                               "brace/theme/xcode","brace/mode/javascript",
+                               "q","dropbox"];
+
 module.exports = function (grunt) {
     grunt.initConfig({
         pkg: grunt.file.readJSON('package.json'),
@@ -47,9 +51,7 @@ module.exports = function (grunt) {
                 dest: 'webapp/build/web.js',
                 options: {
                     debug: true,
-                    external: ["jquery","vex","vex-dialog","react","brace",
-                               "brace/theme/xcode","brace/mode/javascript",
-                               "q","dropbox"],
+                    external: annotaldBrowserifyExternal,
                     transform: [typescriptifyCached, reactifyCached, "browserify-shim"],
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points',
@@ -64,7 +66,8 @@ module.exports = function (grunt) {
                 src: 'test/spec/*.js',
                 dest: 'test/build/spec-entry.js',
                 options: {
-                    external: 'webapp/js/**/*.js'
+                    transform: [typescriptifyCached, reactifyCached, "browserify-shim"],
+                    external: annotaldBrowserifyExternal
                 }
             }
         },
@@ -76,9 +79,12 @@ module.exports = function (grunt) {
             }
         },
         jasmine: {
-            src: "webapp/build/web-bundle.js",
+            src: [],
             options: {
-                specs: "test/build/spec-entry.js"
+                vendor: ["test/ace-polyfill-fix.js", "webapp/build/ext.js"],
+                specs: "test/build/spec-entry.js",
+                outfile: "test/runner.html",
+                keepRunner: true
             }
         },
         jshint: {
