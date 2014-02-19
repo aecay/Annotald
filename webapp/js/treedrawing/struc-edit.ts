@@ -20,63 +20,52 @@ import conf = require("./config");
  * gapping -> no indices).  If only one node is selected, remove its index.
  */
 export function coIndex() : void {
+    var sel = selection.get();
+    var sel2 = selection.get(true);
     if (selection.cardinality() === 1) {
-        if (utils.getIndex($(selection.get())) > 0) {
-            undo.touchTree($(selection.get()));
-            utils.removeIndex($(selection.get()));
+        if (utils.getIndex(sel)) {
+            undo.touchTree($(sel));
+            utils.removeIndex(sel);
         }
     } else if (selection.cardinality() === 2) {
         // don't do anything if different token roots
-        var startRoot = utils.getTokenRoot($(selection.get()));
-        var endRoot = utils.getTokenRoot($(selection.get(true)));
+        var startRoot = utils.getTokenRoot($(sel));
+        var endRoot = utils.getTokenRoot($(sel2));
         if (startRoot !== endRoot) {
+            // TODO: message
             return;
         }
 
-        undo.touchTree($(selection.get()));
+        undo.touchTree($(sel));
         // if both nodes already have an index
-        if (utils.getIndex($(selection.get())) > 0 &&
-            utils.getIndex($(selection.get(true))) > 0) {
+        if (utils.getIndex(sel) && utils.getIndex(sel2)) {
             // and if it is the same index
-            if (utils.getIndex($(selection.get())) ===
-                utils.getIndex($(selection.get(true)))) {
-                var theIndex = utils.getIndex($(selection.get()));
-                var types = "" + utils.getIndexType($(selection.get())) +
-                    "" + utils.getIndexType($(selection.get(true)));
-                // remove it
+            if (utils.getIndex(sel) === utils.getIndex(sel2)) {
+                var theIndex = utils.getIndex(sel);
+                var types = utils.getIndexType(sel) +
+                    utils.getIndexType(sel2);
 
+                // remove it
                 if (types === "=-") {
-                    utils.removeIndex($(selection.get()));
-                    utils.removeIndex($(selection.get(true)));
-                    utils.appendExtension($(selection.get()), theIndex, "=");
-                    utils.appendExtension($(selection.get(true)), theIndex, "=");
+                    utils.setIndexType(sel2, "=");
                 } else if (types === "--") {
-                    utils.removeIndex($(selection.get(true)));
-                    utils.appendExtension($(selection.get(true)),
-                                          utils.getIndex($(selection.get())),
-                                          "=");
+                    utils.setIndexType(sel2, "=");
                 } else if (types === "-=") {
-                    utils.removeIndex($(selection.get()));
-                    utils.removeIndex($(selection.get(true)));
-                    utils.appendExtension($(selection.get()), theIndex, "=");
-                    utils.appendExtension($(selection.get(true)), theIndex, "-");
+                    utils.setIndexType(sel, "=");
+                    utils.setIndexType(sel2, "-");
                 } else if (types === "==") {
-                    utils.removeIndex($(selection.get()));
-                    utils.removeIndex($(selection.get(true)));
+                    utils.removeIndex(sel);
+                    utils.removeIndex(sel2);
                 }
             }
-        } else if (utils.getIndex($(selection.get())) > 0 &&
-                   utils.getIndex($(selection.get(true))) === -1) {
-            utils.appendExtension($(selection.get(true)),
-                                  utils.getIndex($(selection.get())));
-        } else if (utils.getIndex($(selection.get())) === -1 &&
-                   utils.getIndex($(selection.get(true))) > 0) {
-            utils.appendExtension($(selection.get()),
-                                  utils.getIndex($(selection.get(true))));
+        } else if (utils.getIndex(sel) && !utils.getIndex(sel2)) {
+            utils.setIndex(sel2, utils.getIndex(sel));
+        } else if (!utils.getIndex(sel) && utils.getIndex(sel2)) {
+            utils.setIndex(sel, utils.getIndex(sel2));
         } else { // no indices here, so make them
             var index = utils.maxIndex(startRoot) + 1;
-            utils.appendExtension($(selection.get()), index);
-            utils.appendExtension($(selection.get(true)), index);
+            utils.setIndex(sel, index);
+            utils.setIndex(sel2, index);
         }
     }
 }
@@ -308,11 +297,11 @@ export function pruneNode() : void {
             } else {
                 undo.touchTree($(selection.get()));
             }
-            var idx = utils.getIndex($(selection.get()));
+            var idx = utils.getIndex(selection.get());
             if (idx > 0) {
                 var root = $(utils.getTokenRoot($(selection.get())));
                 var sameIdx = root.find('.snode').filter(function () : boolean {
-                    return utils.getIndex($(this)) === idx;
+                    return utils.getIndex(this) === idx;
                 }).not(selection.get());
                 if (sameIdx.length === 1) {
                     var osn = selection.get();

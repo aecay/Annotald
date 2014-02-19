@@ -158,7 +158,6 @@ function leafEditorReplacement(label : string,
 export function displayRename () : void {
     // Lifted so we can close over it below
     var label = utils.getLabel($(selection.get()));
-    var oldClass = utils.parseLabel(label);
 
     // Inner functions
     function space(event : KeyboardEvent) : void {
@@ -168,7 +167,7 @@ export function displayRename () : void {
     }
     function postChange(newNode : JQuery) : void {
         if (newNode) {
-            utils.updateCssClass(newNode, oldClass);
+            utils.updateCssClass(newNode, label);
             selection.clearSelection();
             selection.updateSelection();
             document.body.onkeydown = events.handleKeyDown;

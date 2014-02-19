@@ -83,7 +83,7 @@ export function addCaseMarker (marker : string) : void {
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
-function doToggleExtension(node : Node, extension : string) : () => void {
+function doToggleExtension(node : Element, extension : string) : () => void {
     return function () : void {
         undo.touchTree($(node));
         selection.clearSelection();
@@ -182,20 +182,19 @@ export function addConLeafBefore(phrase : string, terminal : string) : void {
  * @param {String} label
  * @private
  */
-function getSuggestions(label : string) : string[] {
+function getSuggestions(node : Element) : string[] {
     var indstr = "",
         indtype = "",
         theCase = "";
-    if (utils.parseIndex(label) > 0) {
-        indstr = utils.parseIndex(label) + "";
-        indtype = utils.parseIndexType(label);
+    if (utils.getIndex(node)) {
+        indstr = utils.getIndex(node).toString();
+        indtype = utils.getIndexType(node);
     }
-    label = utils.parseLabel(label);
-    theCase = utils.labelGetCase(label);
-    if (theCase !== "") {
+    var label = utils.getLabel($(node));
+    theCase = utils.getCase($(node));
+    if (theCase) {
         theCase = "-" + theCase;
     }
-    label = utils.labelRemoveCase(label);
 
     var suggestions = [];
     var menuitems = conf.customConMenuGroups;
@@ -221,9 +220,9 @@ function getSuggestions(label : string) : string[] {
  * @param {Node} nodeOrig
  * @private
  */
-function loadContextMenu(nodeOrig : Node) : void {
+function loadContextMenu(nodeOrig : Element) : void {
     var nO = $(nodeOrig),
-        nodeIndex = utils.getIndex(nO),
+        nodeIndex = utils.getIndex(nodeOrig),
         indexSep = "",
         indexString = "",
         nodelabel = utils.getLabel(nO),
@@ -235,15 +234,14 @@ function loadContextMenu(nodeOrig : Node) : void {
         hideContextMenu();
     }
 
-    if (nodeIndex > -1) {
-        indexSep = utils.parseIndexType(nodelabel);
-        indexString = indexSep + utils.parseIndex(nodelabel);
-        nodelabel = utils.parseLabel(nodelabel);
+    if (nodeIndex) {
+        indexSep = utils.getIndexType(nodeOrig);
+        indexString = indexSep + utils.getIndex(nodeOrig);
     }
     $("#conLeft").empty();
     $("#conLeft").append($("<div class='conMenuHeading'>Label</div>"));
 
-    var suggestions = getSuggestions(nodelabel);
+    var suggestions = getSuggestions(nodeOrig);
     for (i = 0; i < suggestions.length; i++) {
         if (suggestions[i] !== nodelabel) {
             newnode = $("<div class='conMenuItem'><a href='#'>" +
@@ -292,7 +290,7 @@ function loadContextMenu(nodeOrig : Node) : void {
 }
 
 export function showContextMenu(e : JQueryMouseEventObject) : void {
-    var element = <Node>e.target; // TODO: needed? || e.srcElement;
+    var element = <Element>e.target; // TODO: needed? || e.srcElement;
     if (element === document.getElementById("sn0")) {
         selection.clearSelection();
         return;

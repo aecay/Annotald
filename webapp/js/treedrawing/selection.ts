@@ -11,14 +11,14 @@ import globals = require("./global");
  *
  * @type Node
  */
-var startnode : Node = null;
+var startnode : Element = null;
 /**
  * This variable holds the "end" node if multiple selection is in effect.
  * Otherwise undefined.
  *
  * @type Node
  */
-var endnode : Node = null;
+var endnode : Element = null;
 
 export function updateSelection (suppressRemote? : boolean) : void {
     // update selection display
@@ -58,9 +58,9 @@ export function clearSelection () : void {
  * selection, even if it wouldn't otherwise be
  * @param {Boolean} remote whether this request was triggered remotely
  */
-export function selectNode (node : Node, force? : boolean) : void {
+export function selectNode (node : Element, force? : boolean) : void {
     if (node) {
-        if (!(node instanceof Node)) {
+        if (!(node instanceof Element)) {
             try {
                 throw Error("foo");
             } catch (e) {
@@ -72,8 +72,11 @@ export function selectNode (node : Node, force? : boolean) : void {
             return;
         }
 
-        while (!$(node).hasClass("snode") && node !== document) {
-            node = node.parentNode;
+        while (node && !$(node).hasClass("snode")) {
+            node = <Element>node.parentNode;
+            if (node.nodeType !== 1) {
+                node = undefined;
+            }
         }
 
         if (node === startnode) {
@@ -122,14 +125,14 @@ export function scrollToShowSel () : void {
     }
 };
 
-export function get (second? : boolean) : Node {
+export function get (second? : boolean) : Element {
     if (second) {
         return endnode;
     }
     return startnode;
 }
 
-export function set (node: Node, second? : boolean) : void {
+export function set (node: Element, second? : boolean) : void {
     if (second) {
         endnode = node;
     } else {
