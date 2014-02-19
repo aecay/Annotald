@@ -108,8 +108,8 @@ function doToggleExtension(node : Element, extension : string) : () => void {
  */
 function setCaseOnTag(node : JQuery, theCase : string) : (e : Event) => void {
     function doKids(n : JQuery, override? : boolean) : void {
-        if (utils.isCaseNode(n)) {
-            utils.setCase(n, theCase);
+        if (utils.isCaseNode(n.get(0))) {
+            utils.setCase(n.get(0), theCase);
         } else if (_.contains(conf.caseBarriers, utils.getLabel(n).split("-")[0]) &&
                    !n.parent().is(".CONJP") &&
                    !override) {
@@ -191,7 +191,7 @@ function getSuggestions(node : Element) : string[] {
         indtype = utils.getIndexType(node);
     }
     var label = utils.getLabel($(node));
-    theCase = utils.getCase($(node));
+    theCase = utils.getCase(node);
     if (theCase) {
         theCase = "-" + theCase;
     }
@@ -204,7 +204,8 @@ function getSuggestions(node : Element) : string[] {
 
     for (var i = 0; i < menuitems.length; i++) {
         var menuitem = menuitems[i];
-        if (utils.isCaseLabel(menuitem)) {
+        // TODO: check whether menuitem is really a bare category
+        if (utils.isCaseCategory(menuitem)) {
             menuitem += theCase;
         }
         suggestions.push(menuitem + indtype + indstr);
@@ -255,7 +256,7 @@ function loadContextMenu(nodeOrig : Element) : void {
     $("#conRight").empty();
 
     if (conf.displayCaseMenu) {
-        if (utils.hasCase(nO) || utils.isCasePhrase(nO)) {
+        if (utils.hasCase(nodeOrig) || utils.isCasePhrase(nodeOrig)) {
             $("#conRight").append($("<div class='conMenuHeading'>Case</div>"));
             caseMarkers.forEach(function(c : string) : void {
                 newnode = $("<div class='conMenuItem'><a href='#'>-" + c +

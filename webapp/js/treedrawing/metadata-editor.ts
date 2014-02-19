@@ -142,7 +142,7 @@ export function updateMetadataEditor() : void {
     }
     var addButtonHtml = '<input type="button" id="addMetadataButton" ' +
             'value="Add" />';
-    $("#metadata").html(dictionaryToForm(utils.getMetadata($(selection.get()))) +
+    $("#metadata").html(dictionaryToForm(utils.getMetadata(selection.get())) +
                         addButtonHtml);
     $("#metadata").find(".metadataField").change(saveMetadata).
         focusout(saveMetadata).keydown(function (e : KeyboardEvent) : boolean {

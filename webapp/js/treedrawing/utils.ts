@@ -295,16 +295,6 @@ export function getLemma(node : JQuery) : string {
         text().substring(1); // strip the dash
 }
 
-// TODO: document
-export function getMetadata(node : JQuery) : Object {
-    var m = node.prop("data-metadata");
-    if (m) {
-        return JSON.parse(m);
-    } else {
-        return undefined;
-    }
-}
-
 /**
  * Test whether a node has a certain dash tag.
  *
@@ -374,7 +364,7 @@ export function maxIndex(token : Node) : number {
 export function addToIndices(tokenRoot : JQuery, numberToAdd : number) : void {
     var nodes = tokenRoot.find(".snode[data-index]").addBack();
     nodes.each(function() : void {
-        setIndex(this, getIndex(this) + numberToAdd)
+        setIndex(this, getIndex(this) + numberToAdd);
     });
 };
 
@@ -394,36 +384,14 @@ export function removeIndex(node : Element) : void {
  * @param {JQuery} node
  * @returns {String} the case on the node, or `""` if none
  */
-export function getCase(node : JQuery) : string {
-    var label = getLabel(node);
-    return labelGetCase(label);
-};
-
-/**
- * Find the case associated with a label.
- *
- * This function respects the case-related variable `caseMarkers`.
- *
- * @param {String} label
- * @returns {String} the case on the label, or `""` if none.
- */
-export function labelGetCase(label : string) : string {
-    var dashTags = label.split("-");
-    if (_.contains(conf.caseTags, dashTags[0])) {
-        dashTags = _.rest(dashTags);
-        // TODO: this should be specified on the type of conf.caseMarkers
-        var cases = <string[]>_.intersection(conf.caseMarkers, dashTags);
-        if (cases.length === 0) {
-            return "";
-        } else if (cases.length === 1) {
-            return cases[0];
-        } else {
-            throw "Tag has two cases: " + label;
-        }
+export function getCase(node : Element) : string {
+    var m = getMetadata(node);
+    if (m && m["morpho"]) {
+        return m["morpho"]["case"];
     } else {
-        return "";
+        return;
     }
-}
+};
 
 /**
  * Test if a node has case.
@@ -434,22 +402,8 @@ export function labelGetCase(label : string) : string {
  * @param {JQuery} node
  * @returns {Boolean}
  */
-export function hasCase(node : JQuery) : boolean {
-    var label = getLabel(node);
-    return labelGetCase(label) !== "";
-}
-
-/**
- * Test if a label has case.
- *
- * This function tests whether a label is in `caseTags`, and then whether it
- * has case.
- *
- * @param {String} label
- * @returns {Boolean}
- */
-export function labelHasCase(label : string) : boolean {
-    return labelGetCase(label) !== "";
+export function hasCase(node : Element) : boolean {
+    return typeof getCase(node) !== "undefined";
 }
 
 /**
@@ -460,8 +414,8 @@ export function labelHasCase(label : string) : boolean {
  * @param {JQuery} nodeLabel
  * @returns {Boolean}
  */
-export function isCasePhrase(node : JQuery) : boolean {
-    return _.contains(conf.casePhrases, getLabel(node).split("-")[0]);
+export function isCasePhrase(node : Element) : boolean {
+    return _.contains(conf.casePhrases, node.getAttribute("data-category"));
 }
 
 /**
@@ -472,9 +426,8 @@ export function isCasePhrase(node : JQuery) : boolean {
  * @param {String} label
  * @returns {Boolean}
  */
-export function isCaseLabel(label : string) : boolean {
-    var dashTags = label.split("-");
-    return _.contains(conf.caseTags, dashTags[0]);
+export function isCaseCategory(cat : string) : boolean {
+    return _.contains(conf.caseTags, cat);
 }
 
 /**
@@ -485,22 +438,8 @@ export function isCaseLabel(label : string) : boolean {
  * @param {JQuery} node
  * @returns {Boolean}
  */
-export function isCaseNode(node : JQuery) : boolean {
-    return isCaseLabel(getLabel(node));
-}
-
-/**
- * Remove the case from a string label.
- *
- * @param {String} label
- * @returns {String} the label without case
- */
-export function labelRemoveCase(label : string) : string {
-    if (labelHasCase(label)) {
-        var theCase = labelGetCase(label);
-        return label.replace("-" + theCase, "");
-    }
-    return label;
+export function isCaseNode(node : Element) : boolean {
+    return isCaseCategory(node.getAttribute("data-cetegory"));
 }
 
 /**
@@ -510,12 +449,8 @@ export function labelRemoveCase(label : string) : string {
  *
  * @param {JQuery} node
  */
-function removeCase(node : JQuery) : void {
-    if (!hasCase(node)) {
-        return;
-    }
-    var label = getLabel(node);
-    setNodeLabel(node, labelRemoveCase(label));
+function removeCase(node : Element) : void {
+    removeMetadata(node, "morpho",  { "case": "foo" });
 }
 
 /**
@@ -525,12 +460,8 @@ function removeCase(node : JQuery) : void {
  *
  * @param {JQuery} node
  */
-export function setCase(node : JQuery, theCase : string) : void {
-    removeCase(node);
-    var osn = selection.get();
-    selection.set(node.get(0));
-    strucEdit.toggleExtension(theCase, [theCase]);
-    selection.set(osn);
+export function setCase(node : Element, theCase : string) : void {
+    setMetadata(node, "morpho", { "case": theCase });
 };
 
 // TODO: toggling the case requires intelligence about where the dash tag
@@ -592,12 +523,45 @@ export function toggleStringExtension (...foo : any[]) : void {
     return;
 }
 
-export function removeMetadata (...foo : any[]) : void {
-    return;
+function setInDict (dict : { [key: string] : any },
+                    key : string, val : any, remove? : boolean)
+: { [key: string] : any } {
+    if (typeof val === "string") {
+        if (remove) {
+            delete dict[key];
+        } else {
+            dict[key] = val;
+        }
+    } else {
+        _.forOwn(val, function (v : any, k : string) : void {
+            dict[key] = setInDict(dict[key] || {}, k, v, remove);
+            if (_.isEmpty(dict[key])) {
+                delete dict[key];
+            }
+        });
+    }
+    return dict;
 }
 
-export function setMetadata (...foo : any[]) : void {
-    return;
+export function removeMetadata (node : Element, key : string, value : any = "")
+: void {
+    var metadata = JSON.parse(node.getAttribute("data-metadata")) || {};
+    metadata = setInDict(metadata, key, value, true);
+    if (_.isEmpty(metadata)) {
+        node.removeAttribute("data-metadata");
+    } else {
+        node.setAttribute("data-metadata", JSON.stringify(metadata));
+    }
+}
+
+export function setMetadata (node : Element, key : string, value : any) : void {
+    var metadata = JSON.parse(node.getAttribute("data-metadata")) || {};
+    metadata = setInDict(metadata, key, value);
+    node.setAttribute("data-metadata", JSON.stringify(metadata));
+}
+
+export function getMetadata (node : Element) : {} {
+    return JSON.parse(node.getAttribute("data-metadata")) || {};
 }
 
 export function lookupNextLabel (...foo : any[]) : string {
