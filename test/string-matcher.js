@@ -26,6 +26,38 @@ beforeEach(function() {
                          return result;
                      }
                    };
+        },
+        toHaveAttribute:
+        function toHaveAttributeOuter () {
+            return { compare:
+                     function toHaveAttribute (actual, attribute, value) {
+                         var result = {};
+                         if (! actual instanceof Element) {
+                             result.pass = false;
+                             result.message = "Expected a non-Element to have" +
+                                 "an attribute.";
+                         } else {
+                             if (typeof value !== "undefined") {
+                                 result.pass = actual.hasAttribute(attribute) &&
+                                     actual.getAttribute(attribute) === value;
+                                 if (result.pass) {
+                                     result.message = "Expected attribute '" +
+                                         attribute + "' was '" + value + "'";
+                                 } else {
+                                     result.message = "Expected attribute '" +
+                                         attribute + "' was '" +
+                                         actual.getAttribute(attribute) + "'" +
+                                         " instead of '" + value + "'";
+                                 }
+                             } else {
+                                 result.pass = actual.hasAttribute(attribute);
+                                 result.message = "Expected attribute '" +
+                                     attribute + "' was " + (result.pass ? "" :
+                                                           "not ") + "found";
+                             }
+                         }
+                         return result;
+                   }};
         }
     };
 

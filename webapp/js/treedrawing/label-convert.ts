@@ -1,7 +1,11 @@
 ///<reference path="./../../../types/all.d.ts" />
 
+var dummy;
+
 import utils = require("./utils");
+dummy = require("./utils.ts");
 import globals = require("./global");
+dummy = require("./global.ts");
 import _ = require("lodash");
 
 export interface MatchSpec {
@@ -37,16 +41,19 @@ function isValidSubcategoryForCategory (subcat : string,
 }
 
 export function matchMetadataAgainstObject (key : string, value : any,
-                                            object : { [key : string] : any }) {
+                                            object : { [key : string] : any })
+: boolean {
     if (!object[key]) {
         return false;
     }
-    if (object[key] instanceof String) {
+    if (typeof object[key] === "string") {
         return object[key] === value;
     }
     return _.all(_.forOwn(object[key],
                           function (v : any, k : string) : boolean {
-                              if (!value[k]) return false;
+                              if (!value[k]) {
+                                  return false;
+                              }
                               return matchMetadataAgainstObject(k, value[k], v);
                           }));
 }
@@ -86,7 +93,7 @@ export function labelToMatchSpec (label : string, mapping : LabelMap)
     }
     if (pieces.length > 0) {
         r.metadata = {};
-        _.each(pieces, function (v : string) {
+        _.each(pieces, function (v : string) : void {
             var x = submap[v] || mapping.defaults[v];
             if (x) {
                 r.metadata[x.key] = x.value;
@@ -96,36 +103,21 @@ export function labelToMatchSpec (label : string, mapping : LabelMap)
     return r;
 }
 
-
 /*
-idea:
-match spec looks like:
-{ category: "foo", subcategory: "bar", metadata: { morpho : { case : "acc" } } }
-
-a function transforms strings into match specs
-
-then we toggle through match specs by:
-given list as arg to old setLabel
-find the first arg that matches
-calculate the diff with the next list element
-apply those changes
-
 use the deep-diff package
 
 make setlabel take two lists: one for nonterminals and one for terminals
   */
 
-
-
 export function setLabelForNode (label : string,
                                  node : Element,
-                                 remove? : boolean,
-                                 mapping : LabelMap = globals.labelMapping) : void
+                                 mapping : LabelMap = globals.labelMapping,
+                                 remove? : boolean) : void
 {
     var pieces = label.split("-");
     var category = pieces.shift();
     node.setAttribute("data-category", category);
-    if (pieces.length > 1 && isValidSubcategoryForCategory(pieces[0],
+    if (pieces.length > 0 && isValidSubcategoryForCategory(pieces[0],
                                                            category,
                                                            mapping)) {
         if (remove) {
@@ -136,12 +128,15 @@ export function setLabelForNode (label : string,
         pieces.shift();
     }
     if (pieces.length > 0) {
-        var submapping = mapping.byLabel[category] || {};
+        var submapping = mapping.byLabel[category].metadataKeys || {};
         _.map(pieces, function (piece : string) : void {
-            var action = submapping[piece] || mapping.defaults[piece];
-            if (!action) return;
+            var action : LabelMapAction = submapping[piece] ||
+                mapping.defaults[piece];
+            if (!action) {
+                return;
+            }
             if (remove) {
-                utils.removeMetadata(node, action.key);
+                utils.removeMetadata(node, action.key, action.value);
             } else {
                 utils.setMetadata(node, action.key, action.value);
             }

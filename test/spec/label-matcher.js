@@ -6,6 +6,25 @@ var $ = require("jquery");
 describe("The label converter", function () {
     var M = labelConvert.matchMetadataAgainstObject;
     var N = labelConvert.nodeMatchesSpec;
+    var mapping = {
+        defaults: { PRN: { parenthetical: "yes" }},
+        defaultSubcategories: [],
+        byLabel : {
+            NP: {
+                subcategories: ["SBJ","OB1"],
+                metadataKeys: {
+                    LFD: { key: "left-disloc", value: "yes" },
+                    TMP: { key: "semantic", value: { fn: "temporal" }}
+                }
+            },
+            IP: {
+                subcategories: ["MAT","SUB"],
+                metadataKeys: {
+                    TMP: { key: "foo", value: "bar"}
+                }
+            }
+        }
+    };
     it("should match simple objects against templates correctly", function () {
         expect(M("x", "y", { x: "y" }));
         expect(!M("x", "y", { x: "z" }));
@@ -61,25 +80,6 @@ describe("The label converter", function () {
     });
     it("should convert labels to match specs properly", function () {
         var LMS = labelConvert.labelToMatchSpec;
-        var mapping = {
-            defaults: { PRN: { parenthetical: "yes" }},
-            defaultSubcategories: [],
-            byLabel : {
-                NP: {
-                    subcategories: ["SBJ","OB1"],
-                    metadataKeys: {
-                        LFD: { key: "left-disloc", value: "yes" },
-                        TMP: { key: "semantic", value: { fn: "temporal" }}
-                    }
-                },
-                IP: {
-                    subcategories: ["MAT","SUB"],
-                    metadataKeys: {
-                        TMP: { key: "foo", value: "bar"}
-                    }
-                }
-            }
-        };
         expect(LMS("NP", mapping)).toEqual({ category: "NP" });
         expect(LMS("NP-SBJ", mapping)).toEqual({ category: "NP", subcategory: "SBJ" });
         expect(LMS("NP-SBJ-TMP", mapping)).toEqual({ category: "NP", subcategory: "SBJ",
@@ -90,5 +90,30 @@ describe("The label converter", function () {
                                                  metadata: { semantic: {
                                                      fn: "temporal"
                                                  }}});
+    });
+    it("should properly set labels on nodes", function () {
+        var node = $('<div></div>').get(0);
+        var SL = labelConvert.setLabelForNode;
+        SL("NP-SBJ", node, mapping);
+        expect(node).toHaveAttribute("data-category", "NP");
+        expect(node).toHaveAttribute("data-subcategory", "SBJ");
+
+        SL("NP-SBJ", node, mapping, true);
+        // Cannot remove the category
+        expect(node).toHaveAttribute("data-category", "NP");
+        expect(node).not.toHaveAttribute("data-subcategory");
+
+        SL("NP-TMP", node, mapping);
+        expect(node).toHaveAttribute("data-category", "NP");
+        expect(node).not.toHaveAttribute("data-subcategory");
+        expect(node).toHaveAttribute("data-metadata", JSON.stringify(
+            { semantic: { fn: "temporal" }}
+        ));
+
+        SL("NP-TMP", node, mapping, true);
+
+        expect(node).toHaveAttribute("data-category", "NP");
+        expect(node).not.toHaveAttribute("data-subcategory");
+        expect(node).not.toHaveAttribute("data-metadata");
     });
 });
