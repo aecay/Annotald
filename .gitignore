@@ -23,6 +23,8 @@ bower_components/
 cache-ts/
 cache-react/
 /types/all.d.ts
+/.grunt/
+
 /webapp/js/treedrawing/bindings.js
 /webapp/js/treedrawing/bindings.js.map
 /webapp/js/treedrawing/config.js
@@ -65,3 +67,4 @@ cache-react/
 /webapp/js/file/local.js
 /webapp/js/file/dropbox.js
 /webapp/js/file/recent.js
+/webapp/js/treedrawing/label-convert.js
