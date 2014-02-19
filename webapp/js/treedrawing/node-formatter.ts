@@ -19,6 +19,10 @@ function formatSnode (snode : Node) : void {
     if (snodeElement.getAttribute("data-subcategory")) {
         tv += "-" + snodeElement.getAttribute("data-subcategory");
     }
+    if (snodeElement.getAttribute("data-index")) {
+        tv += snodeElement.getAttribute("data-idxtype") === "gap" ? "=" : "-";
+        tv += snodeElement.getAttribute("data-index");
+    }
     tv += " ";
     textNode.nodeValue = tv;
 }
