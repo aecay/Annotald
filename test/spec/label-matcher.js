@@ -1,6 +1,6 @@
 /*global describe: false, it: false, expect: false, require: false */
 
-var labelConvert = require("../../webapp/js/treedrawing/label-convert");
+var labelConvert = require("../../webapp/js/treedrawing/label-convert.ts");
 var $ = require("jquery");
 
 describe("The label converter", function () {
@@ -55,6 +55,10 @@ describe("The label converter", function () {
         expect(!N(node, { metadata: { e: "f" }}));
         expect(!N(node, { metadata: { a: "b", x: { y: "z" }, e: "f" }}));
     });
+    it("should properly discern valid subcats", function () {
+        expect(1);
+        // TODO: how to test private function?
+    });
     it("should convert labels to match specs properly", function () {
         var LMS = labelConvert.labelToMatchSpec;
         var mapping = {
@@ -62,7 +66,7 @@ describe("The label converter", function () {
             defaultSubcategories: [],
             byLabel : {
                 NP: {
-                    subcategories: ["SBJ", "OB1"],
+                    subcategories: ["SBJ","OB1"],
                     metadataKeys: {
                         LFD: { key: "left-disloc", value: "yes" },
                         TMP: { key: "semantic", value: { fn: "temporal" }}
