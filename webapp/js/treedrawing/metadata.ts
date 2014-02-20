@@ -3,10 +3,49 @@
 /* tslint:disable:quotemark */
 
 import $ = require("jquery");
-import globals = require("./global");
-import utils = require("./utils");
 import dialog = require("./dialog");
 import selection = require("./selection");
+
+function setInDict (dict : { [key: string] : any },
+                    key : string, val : any, remove? : boolean)
+: { [key: string] : any } {
+    if (typeof val === "string") {
+        if (remove) {
+            delete dict[key];
+        } else {
+            dict[key] = val;
+        }
+    } else {
+        _.forOwn(val, function (v : any, k : string) : void {
+            dict[key] = setInDict(dict[key] || {}, k, v, remove);
+            if (_.isEmpty(dict[key])) {
+                delete dict[key];
+            }
+        });
+    }
+    return dict;
+}
+
+export function removeMetadata (node : Element, key : string, value : any = "")
+: void {
+    var metadata = JSON.parse(node.getAttribute("data-metadata")) || {};
+    metadata = setInDict(metadata, key, value, true);
+    if (_.isEmpty(metadata)) {
+        node.removeAttribute("data-metadata");
+    } else {
+        node.setAttribute("data-metadata", JSON.stringify(metadata));
+    }
+}
+
+export function setMetadata (node : Element, key : string, value : any) : void {
+    var metadata = JSON.parse(node.getAttribute("data-metadata")) || {};
+    metadata = setInDict(metadata, key, value);
+    node.setAttribute("data-metadata", JSON.stringify(metadata));
+}
+
+export function getMetadata (node : Element) : {} {
+    return JSON.parse(node.getAttribute("data-metadata")) || {};
+}
 
 /**
  * Convert a JS disctionary to an HTML form.
@@ -142,7 +181,7 @@ export function updateMetadataEditor() : void {
     }
     var addButtonHtml = '<input type="button" id="addMetadataButton" ' +
             'value="Add" />';
-    $("#metadata").html(dictionaryToForm(utils.getMetadata(selection.get())) +
+    $("#metadata").html(dictionaryToForm(getMetadata(selection.get())) +
                         addButtonHtml);
     $("#metadata").find(".metadataField").change(saveMetadata).
         focusout(saveMetadata).keydown(function (e : KeyboardEvent) : boolean {
