@@ -1,4 +1,4 @@
-/*global require: false, exports: true */
+/*global require: false */
 /*jshint browser: true */
 
 var vex = require("vex");
