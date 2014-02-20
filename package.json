@@ -39,7 +39,8 @@
         "istanbulify": "^0.1.0",
         "through": "^2.3.4",
         "esprima": "^1.0.4",
-        "istanbul": "^0.2.4"
+        "istanbul": "^0.2.4",
+        "load-grunt-tasks": "^0.3.0"
     },
     "browser": {
         "localforage": "./bower_components/localforage/dist/localforage.js"
