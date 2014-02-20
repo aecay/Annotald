@@ -2,9 +2,13 @@
 
 /* tslint:disable:quotemark */
 
+var dummy;
+
 import $ = require("jquery");
-import dialog = require("./dialog");
-import selection = require("./selection");
+import _ = require("lodash");
+
+import dialog = require("./dialog"); dummy = require("./dialog.ts")
+import selection = require("./selection"); dummy = require("./selection.ts");
 
 function setInDict (dict : { [key: string] : any },
                     key : string, val : any, remove? : boolean)
