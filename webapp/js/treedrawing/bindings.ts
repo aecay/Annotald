@@ -1,3 +1,5 @@
+// TODO: use mousetrap
+
 export interface KeyBinding {
     ctrl: boolean;
     shift: boolean;
