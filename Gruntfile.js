@@ -69,10 +69,19 @@ module.exports = function (grunt) {
                 src: 'test/spec/*.js',
                 dest: 'test/build/spec-entry.js',
                 options: {
-                    debug: true,
                     transform: [typescriptifyCached, reactifyCached,
                                 "browserify-shim", istanbulify],
                     external: annotaldBrowserifyExternal
+                }
+            },
+            test_debug: {
+                src: 'test/spec/*.js',
+                dest: 'test/build/spec-entry-debug.js',
+                options: {
+                    transform: [typescriptifyCached, reactifyCached,
+                                "browserify-shim"],
+                    external: annotaldBrowserifyExternal,
+                    debug: true
                 }
             }
         },
@@ -84,17 +93,30 @@ module.exports = function (grunt) {
             }
         },
         jasmine: {
-            src: [],
-            options: {
-                vendor: ["test/ace-polyfill-fix.js",
-                         "node_modules/polymer-weakmap/weakmap.js",
-                         "node_modules/mutationobservers/MutationObserver.js",
-                         "webapp/build/ext.js"],
-                specs: "test/build/spec-entry.js",
-                template: require("./test/jasmine-istanbul-template/template"),
-                templateOptions: {
-                    coverage: "test/out/coverage.json",
-                    report: "test/out/coverage"
+            test: {
+                src: [],
+                options: {
+                    vendor: ["test/ace-polyfill-fix.js",
+                             "node_modules/polymer-weakmap/weakmap.js",
+                             "node_modules/mutationobservers/MutationObserver.js",
+                             "webapp/build/ext.js"],
+                    specs: "test/build/spec-entry.js",
+                    template: require("./test/jasmine-istanbul-template/template"),
+                    templateOptions: {
+                        coverage: "test/out/coverage.json",
+                        report: "test/out/coverage"
+                    }
+                }
+            },
+            test_debug: {
+                src: [],
+                options: {
+                    vendor: ["test/ace-polyfill-fix.js",
+                             "node_modules/polymer-weakmap/weakmap.js",
+                             "node_modules/mutationobservers/MutationObserver.js",
+                             "webapp/build/ext.js"],
+                    specs: "test/build/spec-entry-debug.js",
+                    keepRunner: true
                 }
             }
         },
