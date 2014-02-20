@@ -1,5 +1,7 @@
 /*global beforeEach: false, jasmine: false */
 
+/* istanbulify ignore file */
+
 beforeEach(function() {
     var matchers = {
         toEqualString:

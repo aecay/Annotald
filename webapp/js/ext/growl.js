@@ -7,6 +7,8 @@
  Modified by Aaron Ecay
  */
 
+/* istanbulify ignore file */
+
 var $, Animation, Growl,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 

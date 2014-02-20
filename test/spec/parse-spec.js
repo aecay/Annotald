@@ -1,5 +1,7 @@
 /*global describe: false, it: false, expect: false, require: false */
 
+/* istanbulify ignore file */
+
 var parse = require('../../webapp/js/parse.js');
 
 require("../string-matcher");

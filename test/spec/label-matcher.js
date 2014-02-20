@@ -1,5 +1,7 @@
 /*global describe: false, it: false, expect: false, require: false */
 
+/* istanbulify ignore file */
+
 var labelConvert = require("../../webapp/js/treedrawing/label-convert.ts");
 var $ = require("jquery");
 
