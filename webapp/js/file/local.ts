@@ -20,7 +20,9 @@ export class LocalFile implements file.File {
         this.content = params.content;
     }
 
+    /* tslint:disable:no-unused-variable */
     static fileType = "Local";
+    /* tslint:enable:no-unused-variable */
 
     static prompt () : Q.Promise<LocalFile> {
         var that = this;

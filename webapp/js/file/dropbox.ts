@@ -24,7 +24,9 @@ export class DropboxFile implements file.File {
         this.content = params.content;
     }
 
+    /* tslint:disable:no-unused-variable */
     static fileType = "Dropbox";
+    /* tslint:enable:no-unused-variable */
 
     static prompt (allowedExtensions : string[] = [".psdx"]) :
     Q.Promise<DropboxFile> {

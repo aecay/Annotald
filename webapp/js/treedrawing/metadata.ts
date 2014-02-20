@@ -7,7 +7,7 @@ var dummy;
 import $ = require("jquery");
 import _ = require("lodash");
 
-import dialog = require("./dialog"); dummy = require("./dialog.ts")
+import dialog = require("./dialog"); dummy = require("./dialog.ts");
 import selection = require("./selection"); dummy = require("./selection.ts");
 
 function setInDict (dict : { [key: string] : any },
