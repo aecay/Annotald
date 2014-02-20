@@ -3,7 +3,6 @@
 /* tslint:disable:variable-name no-bitwise quotemark */
 
 import $ = require("jquery");
-import globals = require("./global");
 import utils = require("./utils");
 import selection = require("./selection");
 import undo = require("./undo");
@@ -41,7 +40,6 @@ export function coIndex() : void {
         if (utils.getIndex(sel) && utils.getIndex(sel2)) {
             // and if it is the same index
             if (utils.getIndex(sel) === utils.getIndex(sel2)) {
-                var theIndex = utils.getIndex(sel);
                 var types = utils.getIndexType(sel) +
                     utils.getIndexType(sel2);
 

@@ -1,6 +1,5 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-import globals = require("./global");
 import startup = require("./startup");
 import selection = require("./selection");
 

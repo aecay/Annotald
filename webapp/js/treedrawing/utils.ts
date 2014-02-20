@@ -20,10 +20,11 @@
 
 import $ = require("jquery");
 import _ = require("lodash");
-import strucEdit = require("./struc-edit");
-import conf = require("./config");
-import undo = require("./undo");
-import selection = require("./selection");
+
+var dummy;
+import conf = require("./config"); dummy = require("./config.ts");
+import undo = require("./undo"); dummy = require("./undo.ts");
+import metadata = require("./metadata"); dummy = require("./metadata.ts");
 
 export function startsWith (a : string, b : string) : boolean {
     return (a.substr(0, b.length) === b);
@@ -47,7 +48,7 @@ var messageHistory : string = "";
  * Log the message in the message history.
  * @private
  */
-function logMessage(msg : string) : void {
+export function logMessage(msg : string) : void {
     var d = new Date();
     messageHistory += d.toUTCString() + ": " + $("<div>" + msg +
                                                  "</div>").text() +
@@ -385,12 +386,14 @@ export function removeIndex(node : Element) : void {
  * @returns {String} the case on the node, or `""` if none
  */
 export function getCase(node : Element) : string {
-    var m = getMetadata(node);
+    var m = metadata.getMetadata(node);
+    /* tslint:disable:no-string-literal */
     if (m && m["morpho"]) {
         return m["morpho"]["case"];
     } else {
         return;
     }
+    /* tslint:enable:no-string-literal */
 };
 
 /**
@@ -447,10 +450,10 @@ export function isCaseNode(node : Element) : boolean {
  *
  * Does not record undo information.
  *
- * @param {JQuery} node
+ * @param {Element} node
  */
-function removeCase(node : Element) : void {
-    removeMetadata(node, "morpho",  { "case": "foo" });
+export function removeCase(node : Element) : void {
+    metadata.removeMetadata(node, "morpho",  { "case": "foo" });
 }
 
 /**
@@ -458,10 +461,11 @@ function removeCase(node : Element) : void {
  *
  * Removes any previous case.  Does not record undo information.
  *
- * @param {JQuery} node
+ * @param {Element} node
+ * @param {string} theCase
  */
 export function setCase(node : Element, theCase : string) : void {
-    setMetadata(node, "morpho", { "case": theCase });
+    metadata.setMetadata(node, "morpho", { "case": theCase });
 };
 
 // TODO: toggling the case requires intelligence about where the dash tag
@@ -521,47 +525,6 @@ export function setLeafLabel(node : JQuery, label : string) : void {
 
 export function toggleStringExtension (...foo : any[]) : void {
     return;
-}
-
-function setInDict (dict : { [key: string] : any },
-                    key : string, val : any, remove? : boolean)
-: { [key: string] : any } {
-    if (typeof val === "string") {
-        if (remove) {
-            delete dict[key];
-        } else {
-            dict[key] = val;
-        }
-    } else {
-        _.forOwn(val, function (v : any, k : string) : void {
-            dict[key] = setInDict(dict[key] || {}, k, v, remove);
-            if (_.isEmpty(dict[key])) {
-                delete dict[key];
-            }
-        });
-    }
-    return dict;
-}
-
-export function removeMetadata (node : Element, key : string, value : any = "")
-: void {
-    var metadata = JSON.parse(node.getAttribute("data-metadata")) || {};
-    metadata = setInDict(metadata, key, value, true);
-    if (_.isEmpty(metadata)) {
-        node.removeAttribute("data-metadata");
-    } else {
-        node.setAttribute("data-metadata", JSON.stringify(metadata));
-    }
-}
-
-export function setMetadata (node : Element, key : string, value : any) : void {
-    var metadata = JSON.parse(node.getAttribute("data-metadata")) || {};
-    metadata = setInDict(metadata, key, value);
-    node.setAttribute("data-metadata", JSON.stringify(metadata));
-}
-
-export function getMetadata (node : Element) : {} {
-    return JSON.parse(node.getAttribute("data-metadata")) || {};
 }
 
 export function lookupNextLabel (...foo : any[]) : string {
