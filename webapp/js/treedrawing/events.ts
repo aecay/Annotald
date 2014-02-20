@@ -1,24 +1,18 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-// export interface Event {
-//     // A pox on your mutually incompatible houses.
-//     keyCode : number;
-//     ctrlKey : boolean;
-//     shiftKey : boolean;
-//     pageX : number;
-//     pageY : number
-// }
+var dummy;
 
 import $ = require("jquery");
 import _ = require("lodash");
-import globals = require("./global");
-import contextmenu = require("./contextmenu");
-import bindings = require("./bindings");
-import undo = require("./undo");
-import selection = require("./selection");
-import edit = require("./struc-edit");
-import metadataEditor = require("./metadata-editor");
-import dialog = require("./dialog");
+
+import globals = require("./global"); dummy = require("./global");
+import contextmenu = require("./contextmenu"); dummy = require("./contextmenu");
+import bindings = require("./bindings"); dummy = require("./bindings");
+import undo = require("./undo"); dummy = require("./undo");
+import selection = require("./selection"); dummy = require("./selection");
+import edit = require("./struc-edit"); dummy = require("./struc-edit");
+import metadataEditor = require("./metadata"); dummy = require("./metadata.ts");
+import dialog = require("./dialog"); dummy = require("./dialog");
 
 export interface ClickHook { (button : number) : void; }
 
