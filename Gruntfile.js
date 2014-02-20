@@ -5,14 +5,15 @@ var cacheify = require("cacheify"),
     dbr = level("./cache-react"),
     dbt = level("./cache-ts"),
     typescriptify = require("typescriptify"),
-    reactify = require("reactify");
+    reactify = require("reactify"),
+    istanbulify = require("./test/istanbulify");
 
 var reactifyCached = cacheify(reactify, dbr);
 var typescriptifyCached = cacheify(typescriptify, dbt);
 
 var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
-                               "brace/theme/xcode","brace/mode/javascript",
-                               "q","dropbox"];
+                                  "brace/theme/xcode","brace/mode/javascript",
+                                  "q","dropbox","lodash"];
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -69,7 +70,8 @@ module.exports = function (grunt) {
                 dest: 'test/build/spec-entry.js',
                 options: {
                     debug: true,
-                    transform: [typescriptifyCached, reactifyCached, "browserify-shim"],
+                    transform: [typescriptifyCached, reactifyCached,
+                                "browserify-shim", istanbulify],
                     external: annotaldBrowserifyExternal
                 }
             }
@@ -84,10 +86,16 @@ module.exports = function (grunt) {
         jasmine: {
             src: [],
             options: {
-                vendor: ["test/ace-polyfill-fix.js", "webapp/build/ext.js"],
+                vendor: ["test/ace-polyfill-fix.js",
+                         "node_modules/polymer-weakmap/weakmap.js",
+                         "node_modules/mutationobservers/MutationObserver.js",
+                         "webapp/build/ext.js"],
                 specs: "test/build/spec-entry.js",
-                outfile: "test/runner.html",
-                keepRunner: true
+                template: require("./test/jasmine-istanbul-template/template"),
+                templateOptions: {
+                    coverage: "test/out/coverage.json",
+                    report: "test/out/coverage"
+                }
             }
         },
         jshint: {

@@ -70,3 +70,4 @@ doc/README.asciidoc
 /webapp/js/treedrawing/metadata.js
 
 /webapp/build/
+/test/out/

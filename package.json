@@ -33,7 +33,10 @@
         "level": "~0.18.0",
         "typescript-tpm": "~0.1.7",
         "grunt-tslint": "~0.4.0",
-        "blanket": "^1.1.6"
+        "polymer-weakmap": "0.0.0",
+        "polymer-tools": "0.0.0",
+        "mutationobservers": "0.0.1",
+        "istanbulify": "^0.1.0"
     },
     "browser": {
         "localforage": "./bower_components/localforage/dist/localforage.js"
