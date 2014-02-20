@@ -106,7 +106,7 @@ function doToggleExtension(node : Element, extension : string) : () => void {
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
-function setCaseOnTag(node : JQuery, theCase : string) : (e : Event) => void {
+function setCaseOnTag(node : JQuery, theCase : string) : () => void {
     function doKids(n : JQuery, override? : boolean) : void {
         if (utils.isCaseNode(n.get(0))) {
             utils.setCase(n.get(0), theCase);
@@ -120,7 +120,7 @@ function setCaseOnTag(node : JQuery, theCase : string) : (e : Event) => void {
             });
         }
     }
-    return function (e : Event) : void {
+    return function () : void {
         undo.touchTree(node);
         doKids(node, true);
     };
