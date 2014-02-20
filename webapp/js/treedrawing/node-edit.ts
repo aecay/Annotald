@@ -5,7 +5,6 @@
 import $ = require("jquery");
 import _ = require("lodash");
 import utils = require("./utils");
-import globals = require("./global");
 import undo = require("./undo");
 var logger = require("../ui/log");
 import selection = require("./selection");
