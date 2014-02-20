@@ -1,22 +1,24 @@
 ///<reference path="./../../../types/all.d.ts" />
 
+var dummy;
+
 import $ = require("jquery");
-import contextmenu = require("./contextmenu");
-import metadataEditor = require("./metadata-editor");
-import globals = require("./global");
+import contextmenu = require("./contextmenu"); dummy = require("./contextmenu.ts");
+import metadataEditor = require("./metadata"); dummy = require("./metadata.ts");
+import globals = require("./global"); dummy = require("./global.ts");
 
 /**
  * This variable holds the selected node, or "start" node if multiple
  * selection is in effect.  Otherwise undefined.
  *
- * @type Node
+ * @type Element
  */
 var startnode : Element = null;
 /**
  * This variable holds the "end" node if multiple selection is in effect.
  * Otherwise undefined.
  *
- * @type Node
+ * @type Element
  */
 var endnode : Element = null;
 
