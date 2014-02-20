@@ -2,11 +2,10 @@
 
 var dummy;
 
-import utils = require("./utils");
-dummy = require("./utils.ts");
-import globals = require("./global");
-dummy = require("./global.ts");
 import _ = require("lodash");
+
+import globals = require("./global"); dummy = require("./global.ts");
+import metadata = require("./metadata"); dummy = require("./metadata.ts");
 
 export interface MatchSpec {
     category?: string;
@@ -78,6 +77,7 @@ export function nodeMatchesSpec (node : Element, spec : MatchSpec) : boolean {
                                          key, value, md);
                                  }));
     }
+    return res;
 }
 
 export function labelToMatchSpec (label : string, mapping : LabelMap)
@@ -136,9 +136,9 @@ export function setLabelForNode (label : string,
                 return;
             }
             if (remove) {
-                utils.removeMetadata(node, action.key, action.value);
+                metadata.removeMetadata(node, action.key, action.value);
             } else {
-                utils.setMetadata(node, action.key, action.value);
+                metadata.setMetadata(node, action.key, action.value);
             }
         });
     }
