@@ -12,16 +12,16 @@ htmlcov/
 /doc/user.xml
 /doc/images/icons/
 /MANIFEST
-build/
-dist/
+/build/
+/dist/
 annotaldLog.*
 annotald.egg-info/
 doc/README.asciidoc
 
-node_modules/
-bower_components/
-cache-ts/
-cache-react/
+/node_modules/
+/bower_components/
+/cache-ts/
+/cache-react/
 /types/all.d.ts
 /.grunt/
 /test/runner.html
@@ -68,3 +68,5 @@ cache-react/
 /webapp/js/file/recent.js
 /webapp/js/treedrawing/label-convert.js
 /webapp/js/treedrawing/metadata.js
+
+/webapp/build/

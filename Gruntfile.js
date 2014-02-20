@@ -66,6 +66,7 @@ module.exports = function (grunt) {
                 src: 'test/spec/*.js',
                 dest: 'test/build/spec-entry.js',
                 options: {
+                    debug: true,
                     transform: [typescriptifyCached, reactifyCached, "browserify-shim"],
                     external: annotaldBrowserifyExternal
                 }
@@ -172,6 +173,13 @@ module.exports = function (grunt) {
                 options: {
                     port: 8888,
                     base: 'webapp/build',
+                    keepalive: true
+                }
+            },
+            test: {
+                options: {
+                    port: 8887,
+                    base: 'test/build',
                     keepalive: true
                 }
             }
