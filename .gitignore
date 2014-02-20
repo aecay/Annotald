@@ -71,3 +71,4 @@ doc/README.asciidoc
 
 /webapp/build/
 /test/out/
+/test/build/spec-entry.js
