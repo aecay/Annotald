@@ -7,17 +7,23 @@ var parse = require('../../webapp/js/parse.js');
 require("../string-matcher");
 
 describe("The parser", function () {
-    var xml = '<doc><sentence category="IP" subcategory="MAT"><node' +
-            ' category="NP" subcategory="SBJ"><leaf'
-            + ' category="PRO">I</leaf></node></sentence></doc>'
+    var xml = '<corpus><sentence category="IP" subcategory="MAT"><nonterminal' +
+            ' category="NP" subcategory="SBJ"><text'
+            + ' category="PRO">I</text></nonterminal></sentence></corpus>'
       , html = '<div class="snode" data-category="IP" data-subcategory="MAT"><div class="snode"'
             + ' data-category="NP" data-subcategory="SBJ"><div class="snode"'
-            + ' data-nodetype="leaf" data-category="PRO"><span '
+            + ' data-nodetype="text" data-category="PRO"><span '
             + 'class="wnode">I</span></div></div></div>';
     it("should generate correct HTML from XML", function () {
         expect(parse.parseXmlToHtml(xml).innerHTML).toEqualString(html);
     });
-    it("should fail", function () {
-        expect(false);
+    it("should generate correct XML from HTML", function () {
+        expect(parse.parseHtmlToXml(html)).toEqualString(xml);
+    });
+    it("should be idempotent on HTML", function () {
+        expect(parse.parseHtmlToXml(parse.parseXmlToHtml(xml))).toEqualString(xml);
+    });
+    it("should be idempotent on XML", function () {
+        expect(parse.parseXmlToHtml(parse.parseHtmlToXml(html)).innerHTML).toEqualString(html);
     });
 });
