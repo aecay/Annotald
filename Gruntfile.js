@@ -30,6 +30,7 @@ module.exports = function (grunt) {
                     ,'node_modules/q/q.js'
                     ,'webapp/js/ext/dropbox.js'
                     ,'webapp/js/ext/growl.js'
+                    ,'node_modules/lodash/dist/lodash.js'
                 ],
                 dest: 'webapp/build/ext.js',
                 options: {
@@ -42,7 +43,8 @@ module.exports = function (grunt) {
                             'node_modules/brace/mode/javascript.js:brace/mode/javascript',
                             'node_modules/q/q.js:q',
                             'webapp/js/ext/dropbox.js:dropbox',
-                            'webapp/js/ext/growl.js:growl'
+                            'webapp/js/ext/growl.js:growl',
+                            'node_modules/lodash/dist/lodash.js:lodash'
                            ]
                 }
             },
