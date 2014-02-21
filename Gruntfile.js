@@ -4,7 +4,7 @@ var cacheify = require("cacheify"),
     level = require("level"),
     dbr = level("./cache-react"),
     dbt = level("./cache-ts"),
-    typescriptify = require("typescriptify"),
+    typescriptify = require("./js-ext/typeify"),
     reactify = require("reactify"),
     istanbulify = require("./test/istanbulify");
 
