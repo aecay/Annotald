@@ -3,7 +3,9 @@
 // TODO: migrate to vex
 
 import $ = require("jquery");
+
 import events = require("./events");
+import bindings = require("./bindings");
 
 var dialogShowing : boolean = false;
 
@@ -17,7 +19,7 @@ export function isDialogShowing () : boolean {
 export function hideDialogBox () : void {
     $("#dialogBox").get(0).style.visibility = "hidden";
     $("#dialogBackground").get(0).style.visibility = "hidden";
-    document.body.onkeydown = events.handleKeyDown;
+    bindings.uninhibit();
     dialogShowing = false;
 }
 

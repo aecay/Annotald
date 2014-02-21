@@ -16,12 +16,6 @@ import dialog = require("./dialog"); dummy = require("./dialog");
 
 export interface ClickHook { (button : number) : void; }
 
-export interface KeyDownHook {
-    (x : { keyCode: number; shift: boolean; ctrl: boolean; },
-     y : Function,
-     z : any[]) : void;
-}
-
 export function killTextSelection(e : Event) : void {
     if (dialog.isDialogShowing() ||
         $(e.target).parents(".togetherjs,.togetherjs-modal").length > 0) {
@@ -29,56 +23,6 @@ export function killTextSelection(e : Event) : void {
     }
     var sel = window.getSelection();
     sel.removeAllRanges();
-};
-
-var keyDownHooks : KeyDownHook[] = [];
-
-export function addKeyDownHook(fn : KeyDownHook) : void {
-    keyDownHooks.push(fn);
-};
-
-export function handleKeyDown(e : KeyboardEvent) : boolean {
-    if ((e.ctrlKey && e.shiftKey) || e.metaKey || e.altKey) {
-        // unsupported modifier combinations
-        return true;
-    }
-    if (e.keyCode === 16 || e.keyCode === 17 || e.keyCode === 18) {
-        // Don't handle shift, ctrl, and meta presses
-        return true;
-    }
-    if ($(e.target).parents(".togetherjs,.togetherjs-modal").length > 0) {
-        // Don't interfere with TogetherJS UI elements
-        return true;
-    }
-    var commandMap;
-    if (e.ctrlKey) {
-        commandMap = bindings.ctrlKeyMap;
-    } else if (e.shiftKey) {
-        commandMap = bindings.shiftKeyMap;
-    } else {
-        commandMap = bindings.regularKeyMap;
-    }
-    globals.lastEventWasMouse = false;
-    if (!commandMap[e.keyCode]) {
-        return true;
-    }
-    e.preventDefault();
-    var theFn = commandMap[e.keyCode].func;
-    var theArgs = commandMap[e.keyCode].args;
-    _.each(keyDownHooks, function (fn : KeyDownHook) : void {
-        fn({
-            keyCode: e.keyCode,
-            shift: e.shiftKey,
-            ctrl: e.ctrlKey
-           },
-          theFn,
-          theArgs);
-    });
-    theFn.apply(undefined, theArgs);
-    if (!theFn.async) {
-        undo.undoBarrier();
-    }
-    return false;
 };
 
 var clickHooks : ClickHook[] = [];

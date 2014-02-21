@@ -2,6 +2,8 @@
 
 /* tslint:disable:variable-name no-bitwise quotemark */
 
+var bar = "foo";
+
 import $ = require("jquery");
 import utils = require("./utils");
 import selection = require("./selection");

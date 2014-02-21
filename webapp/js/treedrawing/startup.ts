@@ -67,7 +67,6 @@ function assignEvents () : void {
     savedOnUnload = window.onunload;
 
     // Install global event handlers
-    document.body.onkeydown = events.handleKeyDown;
     document.body.onmouseup = events.killTextSelection;
     window.onbeforeunload = navigationWarning;
     // window.onunload = logUnload;

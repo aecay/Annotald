@@ -12,6 +12,7 @@ import events = require("./events");
 import dialog = require("./dialog");
 import startup = require("./startup");
 import conf = require("./config");
+import bindings = require("./bindings");
 import strucEdit = require("./struc-edit");
 
 // * Editing parts of the tree
@@ -169,7 +170,7 @@ export function displayRename () : void {
             utils.updateCssClass(newNode, label);
             selection.clearSelection();
             selection.updateSelection();
-            document.body.onkeydown = events.handleKeyDown;
+            bindings.uninhibit();
             $("#sn0").mousedown(events.handleNodeClick);
             $("#editpane").mousedown(selection.clearSelection);
             $("#butundo").prop("disabled", false);
@@ -184,7 +185,7 @@ export function displayRename () : void {
     }
     undo.undoBeginTransaction();
     undo.touchTree($(selection.get()));
-    document.body.onkeydown = null;
+    bindings.inhibit();
     $("#sn0").unbind("mousedown");
     $("#editpane").unbind("mousedown");
     $("#butundo").prop("disabled", true);
@@ -346,7 +347,7 @@ export function editLemma () : void {
     function postChange () : void {
         selection.clearSelection();
         selection.updateSelection();
-        document.body.onkeydown = events.handleKeyDown;
+        bindings.uninhibit();
         $("#sn0").mousedown(events.handleNodeClick);
         $("#butundo").prop("disabled", false);
         $("#butredo").prop("disabled", false);
@@ -358,7 +359,7 @@ export function editLemma () : void {
     if (selection.cardinality() !== 1 || childLemmata.length !== 1) {
         return;
     }
-    document.body.onkeydown = null;
+    bindings.inhibit();
     $("#sn0").unbind("mousedown");
     undo.undoBeginTransaction();
     undo.touchTree($(selection.get()));
