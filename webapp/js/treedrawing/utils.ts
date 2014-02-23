@@ -20,12 +20,11 @@
 
 import $ = require("jquery");
 import _ = require("lodash");
-var strucEdit = require("./struc-edit");
-var conf = require("./config");
-var undo = require("./undo");
-import globals = require("./global");
 
-var startnode = globals.startnode;
+var dummy;
+import conf = require("./config"); dummy = require("./config.ts");
+import undo = require("./undo"); dummy = require("./undo.ts");
+import metadata = require("./metadata"); dummy = require("./metadata.ts");
 
 export function startsWith (a : string, b : string) : boolean {
     return (a.substr(0, b.length) === b);
@@ -49,7 +48,7 @@ var messageHistory : string = "";
  * Log the message in the message history.
  * @private
  */
-function logMessage(msg : string) : void {
+export function logMessage(msg : string) : void {
     var d = new Date();
     messageHistory += d.toUTCString() + ": " + $("<div>" + msg +
                                                  "</div>").text() +
@@ -87,10 +86,7 @@ export function updateCssClass(node : JQuery, oldlabel? : string) : void {
     if (!node.hasClass("snode")) {
         return;
     }
-    if (oldlabel) {
-        // should never be needed, but a bit of defensiveness can't hurt
-        oldlabel = parseLabel($.trim(oldlabel));
-    } else {
+    if (!oldlabel) {
         // oldlabel wasn't supplied -- try to guess
         oldlabel = _.find(node.prop("class").split(" "),
                           function (s : string) : boolean {
@@ -98,7 +94,7 @@ export function updateCssClass(node : JQuery, oldlabel? : string) : void {
                           });
     }
     node.removeClass(oldlabel);
-    node.addClass(parseLabel(getLabel(node)));
+    node.addClass(getLabel(node));
 }
 
 // * Functions on node representation
@@ -264,10 +260,16 @@ export function currentText(root : JQuery) : string {
 /**
  * Get the label of a node.
  *
- *@param {JQuery} node the node to operate on
+ * @param {JQuery} node the node to operate on
  */
+// TODO: tie this in to the formatiign functions?  or refactor/eliminate
 export function getLabel(node : JQuery) : string {
-    return $.trim(textNode(node).text());
+    var n = node.get(0);
+    var l = n.getAttribute("data-category");
+    if (n.getAttribute("data-subcategory")) {
+        l += "-" + n.getAttribute("data-subcategory");
+    }
+    return l;
 }
 exports.getLabel = getLabel;
 
@@ -294,16 +296,6 @@ export function getLemma(node : JQuery) : string {
         text().substring(1); // strip the dash
 }
 
-// TODO: document
-export function getMetadata(node : JQuery) : Object {
-    var m = node.prop("data-metadata");
-    if (m) {
-        return JSON.parse(m);
-    } else {
-        return undefined;
-    }
-}
-
 /**
  * Test whether a node has a certain dash tag.
  *
@@ -319,69 +311,12 @@ export function hasDashTag(node : JQuery, tag : string) : boolean {
 // ** Index-related functions
 
 /**
- * Return the index portion of a label, or -1 if no index.
- * @private
- *
- * @param {String} label the label to operate on
- */
-export function parseIndex (label : string) : number {
-    var index = -1;
-    var lastindex = Math.max(label.lastIndexOf("-"),
-                             label.lastIndexOf("="));
-    if (lastindex === -1) {
-        return -1;
-    }
-    var lastpart = parseInt(label.substr(lastindex + 1), 10);
-    if (!isNaN(lastpart)) {
-        index = Math.max(lastpart, index);
-    }
-    if (index === 0) {
-        return -1;
-    }
-    return index;
-}
-
-/**
- * Return the non-index portion of a label.
- * @private
- *
- * @param {String} label the label to operate on
- */
-export function parseLabel (label : string) : string {
-    var index = parseIndex(label);
-    if (index > 0) {
-        var lastindex = Math.max(label.lastIndexOf("-"),
-                                 label.lastIndexOf("="));
-        var out = $.trim("" + label.substr(0, lastindex));
-        return out;
-    }
-    return $.trim(label);
-}
-
-/**
- * Return the type of index attached to a label, either `"-"` or `"="`.
- * @private
- *
- * @param {String} label the label to operate on
- */
-// TODO: document that this doesn't check whether there is a numerical index,
-// or actually do the test
-export function parseIndexType(label : string) : string {
-    var lastindex = Math.max(label.lastIndexOf("-"), label.lastIndexOf("="));
-    return label.charAt(lastindex);
-}
-
-/**
  * Return the movement index associated with a node.
  *
  * @param {JQuery} node the node to operate on
  */
-export function getIndex(node : JQuery) : number {
-    if (shouldIndexLeaf(node)) {
-        return parseIndex(textNode(node.children(".wnode").first()).text());
-    } else {
-        return parseIndex(getLabel(node));
-    }
+export function getIndex(node : Element) : number {
+    return parseInt(node.getAttribute("data-index"), 10);
 }
 
 /**
@@ -390,37 +325,22 @@ export function getIndex(node : JQuery) : number {
  * @param {JQuery} node the node to operate on
  */
 // TODO: only used once, eliminate?
-export function getIndexType (node : JQuery) : string {
-    if (getIndex(node) < 0) {
-        return;
-    }
-    var label;
-    if (shouldIndexLeaf(node)) {
-        label = wnodeString(node.get(0));
-    } else {
-        label = getLabel(node);
-    }
-    var lastpart = parseIndexType(label);
-    return lastpart;
+// TODO: use enum
+export function getIndexType (node : Element) : string {
+    return node.getAttribute("data-idxtype") === "gap" ? "=" : "-";
 };
 
-/**
- * Determine whether to place a movement index on the node label or the text.
- *
- * @param {JQuery} node the node to operate on
- */
-export function shouldIndexLeaf(node : JQuery) : boolean {
-    // The below check bogusly returns true if the leftmost node in a tree is
-    // a trace, even if it is not a direct daughter.  Only do the more
-    // complicated check if we are at a POS label, otherwise short circuit
-    if (node.children(".wnode").length === 0) {
-        return false;
+// TODO: document
+export function setIndexType (node : Element, idxtype : string) : void {
+    node.setAttribute("data-idxtype", idxtype === "=" ? "gap" : "regular");
+}
+
+// TODO: document
+export function setIndex (node : Element, index : number) : void {
+    node.setAttribute("data-index", index.toString());
+    if (!node.getAttribute("data-idxtype")) {
+        setIndexType(node, "-");
     }
-    var str = wnodeString(node.get(0));
-    return (str.substring(0, 3) === "*T*" ||
-            str.substring(0, 5) === "*ICH*" ||
-            str.substring(0, 4) === "*CL*" ||
-            $.trim(str) === "*");
 }
 
 /**
@@ -429,15 +349,9 @@ export function shouldIndexLeaf(node : JQuery) : boolean {
  * @param {Node} token the token to work on
  */
 export function maxIndex(token : Node) : number {
-    var allSNodes = $(token).find(".snode,.wnode");
-    var ind = 0;
-    var label;
-
-    for (var i = 0; i < allSNodes.length; i++) {
-        label = getLabel($(allSNodes[i]));
-        ind = Math.max(parseIndex(label), ind);
-    }
-    return ind;
+    return _.max(_.map($(token).find(".snode"), function () : number {
+        return getIndex(this);
+    }));
 }
 
 /**
@@ -447,44 +361,17 @@ export function maxIndex(token : Node) : number {
  * @param {JQuery} tokenRoot the token to operate on
  * @param {number} numberToAdd
  */
+// TODO: rwerite
 export function addToIndices(tokenRoot : JQuery, numberToAdd : number) : void {
-    var nodes = tokenRoot.find(".snode,.wnode").addBack();
+    var nodes = tokenRoot.find(".snode[data-index]").addBack();
     nodes.each(function() : void {
-        var curNode = $(this);
-        var nindex = getIndex(curNode);
-        if (nindex > 0) {
-            if (shouldIndexLeaf(curNode)) {
-                var leafText = wnodeString(this);
-                leafText = parseLabel(leafText) + parseIndexType(leafText);
-                textNode(curNode.children(".wnode").first()).text(
-                    leafText + (nindex + numberToAdd));
-            } else {
-                var label = getLabel(curNode);
-                label = parseLabel(label) + parseIndexType(label);
-                label = label + (nindex + numberToAdd);
-                setNodeLabel(curNode, label, true);
-            }
-        }
+        setIndex(this, getIndex(this) + numberToAdd);
     });
 };
 
-export function removeIndex(node : JQuery) : void {
-    node = $(node);
-    if (getIndex(node) === -1) {
-        return;
-    }
-    var label, setLabelFn;
-    if (shouldIndexLeaf(node)) {
-        label = wnodeString(node.get(0));
-        setLabelFn = setLeafLabel;
-    } else {
-        label = getLabel(node);
-        setLabelFn = setNodeLabel;
-    }
-    setLabelFn(node,
-               label.substr(0, Math.max(label.lastIndexOf("-"),
-                                        label.lastIndexOf("="))),
-               true);
+export function removeIndex(node : Element) : void {
+    node.removeAttribute("data-index");
+    node.removeAttribute("data-idxtype");
 }
 
 // ** Case-related functions
@@ -498,36 +385,16 @@ export function removeIndex(node : JQuery) : void {
  * @param {JQuery} node
  * @returns {String} the case on the node, or `""` if none
  */
-export function getCase(node : JQuery) : string {
-    var label = parseLabel(getLabel(node));
-    return labelGetCase(label);
-};
-
-/**
- * Find the case associated with a label.
- *
- * This function respects the case-related variable `caseMarkers`.
- *
- * @param {String} label
- * @returns {String} the case on the label, or `""` if none.
- */
-export function labelGetCase(label : string) : string {
-    var dashTags = label.split("-");
-    if (_.contains(conf.caseTags, dashTags[0])) {
-        dashTags = _.rest(dashTags);
-        // TODO: this should be specified on the type of conf.caseMarkers
-        var cases = <string[]>_.intersection(conf.caseMarkers, dashTags);
-        if (cases.length === 0) {
-            return "";
-        } else if (cases.length === 1) {
-            return cases[0];
-        } else {
-            throw "Tag has two cases: " + label;
-        }
+export function getCase(node : Element) : string {
+    var m = metadata.getMetadata(node);
+    /* tslint:disable:no-string-literal */
+    if (m && m["morpho"]) {
+        return m["morpho"]["case"];
     } else {
-        return "";
+        return;
     }
-}
+    /* tslint:enable:no-string-literal */
+};
 
 /**
  * Test if a node has case.
@@ -538,22 +405,8 @@ export function labelGetCase(label : string) : string {
  * @param {JQuery} node
  * @returns {Boolean}
  */
-export function hasCase(node : JQuery) : boolean {
-    var label = parseLabel(getLabel(node));
-    return labelGetCase(label) !== "";
-}
-
-/**
- * Test if a label has case.
- *
- * This function tests whether a label is in `caseTags`, and then whether it
- * has case.
- *
- * @param {String} label
- * @returns {Boolean}
- */
-export function labelHasCase(label : string) : boolean {
-    return labelGetCase(label) !== "";
+export function hasCase(node : Element) : boolean {
+    return typeof getCase(node) !== "undefined";
 }
 
 /**
@@ -564,8 +417,8 @@ export function labelHasCase(label : string) : boolean {
  * @param {JQuery} nodeLabel
  * @returns {Boolean}
  */
-export function isCasePhrase(node : JQuery) : boolean {
-    return _.contains(conf.casePhrases, getLabel(node).split("-")[0]);
+export function isCasePhrase(node : Element) : boolean {
+    return _.contains(conf.casePhrases, node.getAttribute("data-category"));
 }
 
 /**
@@ -576,9 +429,8 @@ export function isCasePhrase(node : JQuery) : boolean {
  * @param {String} label
  * @returns {Boolean}
  */
-export function isCaseLabel(label : string) : boolean {
-    var dashTags = label.split("-");
-    return _.contains(conf.caseTags, dashTags[0]);
+export function isCaseCategory(cat : string) : boolean {
+    return _.contains(conf.caseTags, cat);
 }
 
 /**
@@ -589,22 +441,8 @@ export function isCaseLabel(label : string) : boolean {
  * @param {JQuery} node
  * @returns {Boolean}
  */
-export function isCaseNode(node : JQuery) : boolean {
-    return isCaseLabel(getLabel(node));
-}
-
-/**
- * Remove the case from a string label.
- *
- * @param {String} label
- * @returns {String} the label without case
- */
-export function labelRemoveCase(label : string) : string {
-    if (labelHasCase(label)) {
-        var theCase = labelGetCase(label);
-        return label.replace("-" + theCase, "");
-    }
-    return label;
+export function isCaseNode(node : Element) : boolean {
+    return isCaseCategory(node.getAttribute("data-cetegory"));
 }
 
 /**
@@ -612,14 +450,10 @@ export function labelRemoveCase(label : string) : string {
  *
  * Does not record undo information.
  *
- * @param {JQuery} node
+ * @param {Element} node
  */
-function removeCase(node : JQuery) : void {
-    if (!hasCase(node)) {
-        return;
-    }
-    var label = getLabel(node);
-    setNodeLabel(node, labelRemoveCase(label));
+export function removeCase(node : Element) : void {
+    metadata.removeMetadata(node, "morpho",  { "case": "foo" });
 }
 
 /**
@@ -627,14 +461,11 @@ function removeCase(node : JQuery) : void {
  *
  * Removes any previous case.  Does not record undo information.
  *
- * @param {JQuery} node
+ * @param {Element} node
+ * @param {string} theCase
  */
-export function setCase(node : JQuery, theCase : string) : void {
-    removeCase(node);
-    var osn = startnode;
-    startnode = node.get(0);
-    strucEdit.toggleExtension(theCase, [theCase]);
-    startnode = osn;
+export function setCase(node : Element, theCase : string) : void {
+    metadata.setMetadata(node, "morpho", { "case": theCase });
 };
 
 // TODO: toggling the case requires intelligence about where the dash tag
@@ -672,7 +503,7 @@ export function setNodeLabel(node : JQuery,
         // should never happen
         return;
     }
-    var oldLabel = parseLabel(getLabel(node));
+    var oldLabel = getLabel(node);
     textNode(node).replaceWith(label);
     updateCssClass(node, oldLabel);
     if (noUndo) {
@@ -688,123 +519,19 @@ export function setLeafLabel(node : JQuery, label : string) : void {
     textNode(node).replaceWith($.trim(label));
 }
 
-// TODO: only called from one place, with indices: possibly specialize name?
-export function appendExtension(node : JQuery,
-                                extension : number,
-                                type? : string) : void {
-    if (!type) {
-        type = "-";
-    }
-    if (shouldIndexLeaf(node) && !isNaN(extension)) {
-        // Adding an index to an empty category, and the EC is not an
-        // empty operator.  The final proviso is needed because of
-        // things like the empty WADJP in comparatives.
-        var oldLabel = textNode(node.children(".wnode").first()).text();
-        setLeafLabel(node, oldLabel + type + extension);
-    } else {
-        setNodeLabel(node, getLabel(node) + type + extension, true);
-    }
+// * Stubs
+
+// TODO: remove
+
+export function toggleStringExtension (...foo : any[]) : void {
+    return;
 }
+
+export function lookupNextLabel (...foo : any[]) : string {
+    return "foo";
+}
+
 // * Uncategorized
-
-// TODO: more perspicuous name
-export function changeJustLabel (oldlabel : string, newlabel : string) : string {
-    var label = oldlabel;
-    var index = parseIndex(oldlabel);
-    if (index > 0) {
-        label = parseLabel(oldlabel);
-        var indextype = parseIndexType(oldlabel);
-        return newlabel + indextype + index;
-    }
-    return newlabel;
-}
-
-// This function takes 3 arguments: a node label with dash tags and possibly
-// indices, a dash tag to toggle (no dash), and a list of possible extensions
-// (in L-to-R order).  It returns a string, which is the label with
-// transformations applied
-export function toggleStringExtension (oldlabel : string,
-                                       extension : string,
-                                       extensionList : string[]) : string {
-    if (extension[0] === "-") {
-        // temporary compatibility hack for old configs
-        extension = extension.substring(1);
-        extensionList = extensionList.map(function(s : string) : string {
-            return s.substring(1);
-        });
-    }
-    var index = parseIndex(oldlabel);
-    var indextype = "";
-    if (index > 0) {
-        indextype = parseIndexType(oldlabel);
-    }
-    var currentLabel = parseLabel(oldlabel);
-
-    // The strategy here is as follows:
-    // - split the label into an array of dash tags
-    // - operate on the array
-    // - reform the array into a string
-    var currentLabelParts = currentLabel.split("-");
-    var labelBase = currentLabelParts.shift();
-    var idx = currentLabelParts.indexOf(extension);
-
-    if (idx > -1) {
-        // currentLabelParts contains extension, remove it
-        currentLabelParts.splice(idx, 1);
-    } else {
-        idx = extensionList.indexOf(extension);
-        if (idx > -1) {
-            // Loop through the list, stop when we pass the right spot
-            for (var i = 0; i < currentLabelParts.length; i++) {
-                if (idx < extensionList.indexOf(currentLabelParts[i])) {
-                    break;
-                }
-            }
-            currentLabelParts.splice(i, 0, extension);
-        } else {
-            currentLabelParts.push(extension);
-        }
-    }
-
-    var out = labelBase;
-    if (currentLabelParts.length > 0) {
-        out += "-" + currentLabelParts.join("-");
-    }
-    if (index > 0) {
-        out += indextype;
-        out += index;
-    }
-    return out;
-};
-
-export function lookupNextLabel(oldlabel : string, labels : string[]) : string {
-    // labels is either: an array, an object
-    var newlabel = null;
-    // TODO(AWE): make this more robust!
-    if (!(labels instanceof Array)) {
-        var prefix = oldlabel.split("-")[0];
-        var newLabels = labels[prefix];
-        if (!newLabels) {
-            newLabels = _.values(labels)[0];
-        }
-        labels = newLabels;
-    }
-    for (var i = 0; i < labels.length; i++) {
-        if (labels[i] === parseLabel(oldlabel)) {
-            if (i < labels.length - 1) {
-                newlabel = labels[i + 1];
-            } else {
-                newlabel = labels[0];
-            }
-        }
-    }
-    if (!newlabel) {
-        newlabel = labels[0];
-    }
-    newlabel = changeJustLabel(oldlabel, newlabel);
-
-    return newlabel;
-};
 
 // TODO(AWE): add getMetadataTU fn, to also do trickle-up of metadata.
 

@@ -7,32 +7,46 @@
         "q-io": "latest",
         "react": "latest",
         "brace": "latest",
-        "dropbox": "latest"
+        "dropbox": "latest",
+        "br-mousetrap": "^1.1.3"
     },
     "devDependencies": {
-        "browserify": "latest",
+        "browserify": "3.24.8",
         "browserify-shim": "latest",
         "grunt": "latest",
         "grunt-browserify": "latest",
         "grunt-contrib-clean": "~0.5.0",
         "grunt-contrib-connect": "~0.6.0",
         "grunt-contrib-copy": "~0.5.0",
-        "grunt-contrib-cssmin": "~0.7.0",
+        "grunt-contrib-cssmin": "latest",
         "grunt-contrib-jasmine": "latest",
         "grunt-contrib-jshint": "~0.8.0",
-        "grunt-contrib-uglify": "~0.2.7",
+        "grunt-contrib-uglify": "latest",
         "grunt-contrib-watch": "latest",
         "grunt-external-sourcemap": "~0.1.6",
         "grunt-jasmine-node": "latest",
         "grunt-node-webkit-builder": "latest",
         "jasmine-node": "latest",
         "jshint": "~2.4.1",
-        "reactify": "~0.5.0",
-        "typescriptify": "latest",
+        "reactify": "latest",
         "cacheify": "~0.3.1",
         "level": "~0.18.0",
         "typescript-tpm": "~0.1.7",
-        "grunt-tslint": "~0.4.0"
+        "grunt-tslint": "~0.4.0",
+        "polymer-weakmap": "0.0.0",
+        "polymer-tools": "0.0.0",
+        "mutationobservers": "0.0.1",
+        "istanbulify": "^0.1.0",
+        "through": "^2.3.4",
+        "esprima": "^1.0.4",
+        "istanbul": "^0.2.4",
+        "load-grunt-tasks": "^0.3.0"
+    },
+    "browser": {
+        "localforage": "./bower_components/localforage/dist/localforage.js"
+    },
+    "browserify-shim": {
+        "localforage": "localforage"
     },
     "license": "GPL v3+",
     "private": true,

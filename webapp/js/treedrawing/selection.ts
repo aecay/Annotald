@@ -1,12 +1,26 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-import $ = require("jquery");
-import globals = require("./global");
-import contextmenu = require("./contextmenu");
-import metadataEditor = require("./metadata-editor");
+var dummy;
 
-var startnode = globals.startnode;
-var endnode = globals.endnode;
+import $ = require("jquery");
+import contextmenu = require("./contextmenu"); dummy = require("./contextmenu.ts");
+import metadataEditor = require("./metadata"); dummy = require("./metadata.ts");
+import globals = require("./global"); dummy = require("./global.ts");
+
+/**
+ * This variable holds the selected node, or "start" node if multiple
+ * selection is in effect.  Otherwise undefined.
+ *
+ * @type Element
+ */
+var startnode : Element = null;
+/**
+ * This variable holds the "end" node if multiple selection is in effect.
+ * Otherwise undefined.
+ *
+ * @type Element
+ */
+var endnode : Element = null;
 
 export function updateSelection (suppressRemote? : boolean) : void {
     // update selection display
@@ -46,9 +60,9 @@ export function clearSelection () : void {
  * selection, even if it wouldn't otherwise be
  * @param {Boolean} remote whether this request was triggered remotely
  */
-export function selectNode (node : Node, force? : boolean) : void {
+export function selectNode (node : Element, force? : boolean) : void {
     if (node) {
-        if (!(node instanceof Node)) {
+        if (!(node instanceof Element)) {
             try {
                 throw Error("foo");
             } catch (e) {
@@ -60,8 +74,11 @@ export function selectNode (node : Node, force? : boolean) : void {
             return;
         }
 
-        while (!$(node).hasClass("snode") && node !== document) {
-            node = node.parentNode;
+        while (node && !$(node).hasClass("snode")) {
+            node = <Element>node.parentNode;
+            if (node.nodeType !== 1) {
+                node = undefined;
+            }
         }
 
         if (node === startnode) {
@@ -97,7 +114,7 @@ export function selectNode (node : Node, force? : boolean) : void {
 /**
  * Scroll the page so that the first selected node is visible.
  */
-export function scrollToShowSel() : void {
+export function scrollToShowSel () : void {
     function isTopVisible (elem : Node) : boolean {
         var docViewTop = $(window).scrollTop();
         var docViewBottom = docViewTop + $(window).height();
@@ -109,3 +126,36 @@ export function scrollToShowSel() : void {
         window.scroll(0, $(startnode).offset().top - $(window).height() * 0.25);
     }
 };
+
+export function get (second? : boolean) : Element {
+    if (second) {
+        return endnode;
+    }
+    return startnode;
+}
+
+export function set (node: Element, second? : boolean) : void {
+    if (second) {
+        endnode = node;
+    } else {
+        startnode = node;
+    }
+}
+
+export function cardinality () : number {
+    if (startnode && endnode) {
+        return 2;
+    } else if (startnode) {
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+export function clear (second? : boolean) : void {
+    if (second) {
+        endnode = undefined;
+    } else {
+        startnode = undefined;
+    }
+}

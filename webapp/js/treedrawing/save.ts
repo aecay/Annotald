@@ -4,10 +4,10 @@ var parser = require("../parse");
 var logger = require("../ui/log");
 var lastSavedState : string = require("./global").lastSavedState;
 import $ = require("jquery");
+import Q = require("q");
 
 var saveInProgress : boolean = false;
-// TODO: get a proper promise type
-var savePromise : (x : string) => { then : Function };
+export var saveFn : (s: string) => Q.Promise<boolean>;
 
 export function save(e : Event, extraArgs? : any) : void {
     if (!extraArgs) {
@@ -24,10 +24,11 @@ export function save(e : Event, extraArgs? : any) : void {
     if (!saveInProgress) {
         logger.notice("Saving...");
         saveInProgress = true;
-        savePromise(parser.parseHtmlToXml($("#sn0"))).then(function () : void {
+        var lss = $("#editpane").html();
+        saveFn(parser.parseHtmlToXml($("#sn0"))).then(function () : void {
             logger.notice("Save success");
             saveInProgress = false;
-            lastSavedState = $("#editpane").html();
+            lastSavedState = lss;
         }, function (err : any) : void {
             logger.error("Save error: " + err);
             saveInProgress = false;

@@ -1,10 +1,7 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-import globals = require("./global");
 import startup = require("./startup");
-
-var startnode = globals.startnode;
-var endnode = globals.endnode;
+import selection = require("./selection");
 
 /**
  * Toggle collapsing of a node.
@@ -14,10 +11,10 @@ var endnode = globals.endnode;
  * movement operations etc., but its contents are inaccessible.
  */
 export function toggleCollapsed () : boolean {
-    if (!startnode || endnode) {
+    if (selection.cardinality() !== 1) {
         return false;
     }
-    $(startnode).toggleClass("collapsed");
+    $(selection.get()).toggleClass("collapsed");
     return true;
 }
 

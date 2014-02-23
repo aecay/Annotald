@@ -48,7 +48,7 @@ export function hideContextMenu () : void {
 }
 
 export function addConMenu (label : string,
-                     suggestions : string[]) : void {
+                            suggestions : string[]) : void {
     conmenus[label] = {
         suggestions : suggestions
     };
@@ -83,7 +83,7 @@ export function addCaseMarker (marker : string) : void {
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
-function doToggleExtension(node : Node, extension : string) : () => void {
+function doToggleExtension(node : Element, extension : string) : () => void {
     return function () : void {
         undo.touchTree($(node));
         selection.clearSelection();
@@ -106,10 +106,10 @@ function doToggleExtension(node : Node, extension : string) : () => void {
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
-function setCaseOnTag(node : JQuery, theCase : string) : (e : Event) => void {
+function setCaseOnTag(node : JQuery, theCase : string) : () => void {
     function doKids(n : JQuery, override? : boolean) : void {
-        if (utils.isCaseNode(n)) {
-            utils.setCase(n, theCase);
+        if (utils.isCaseNode(n.get(0))) {
+            utils.setCase(n.get(0), theCase);
         } else if (_.contains(conf.caseBarriers, utils.getLabel(n).split("-")[0]) &&
                    !n.parent().is(".CONJP") &&
                    !override) {
@@ -120,7 +120,7 @@ function setCaseOnTag(node : JQuery, theCase : string) : (e : Event) => void {
             });
         }
     }
-    return function (e : Event) : void {
+    return function () : void {
         undo.touchTree(node);
         doKids(node, true);
     };
@@ -182,20 +182,19 @@ export function addConLeafBefore(phrase : string, terminal : string) : void {
  * @param {String} label
  * @private
  */
-function getSuggestions(label : string) : string[] {
+function getSuggestions(node : Element) : string[] {
     var indstr = "",
         indtype = "",
         theCase = "";
-    if (utils.parseIndex(label) > 0) {
-        indstr = utils.parseIndex(label) + "";
-        indtype = utils.parseIndexType(label);
+    if (utils.getIndex(node)) {
+        indstr = utils.getIndex(node).toString();
+        indtype = utils.getIndexType(node);
     }
-    label = utils.parseLabel(label);
-    theCase = utils.labelGetCase(label);
-    if (theCase !== "") {
+    var label = utils.getLabel($(node));
+    theCase = utils.getCase(node);
+    if (theCase) {
         theCase = "-" + theCase;
     }
-    label = utils.labelRemoveCase(label);
 
     var suggestions = [];
     var menuitems = conf.customConMenuGroups;
@@ -205,7 +204,8 @@ function getSuggestions(label : string) : string[] {
 
     for (var i = 0; i < menuitems.length; i++) {
         var menuitem = menuitems[i];
-        if (utils.isCaseLabel(menuitem)) {
+        // TODO: check whether menuitem is really a bare category
+        if (utils.isCaseCategory(menuitem)) {
             menuitem += theCase;
         }
         suggestions.push(menuitem + indtype + indstr);
@@ -221,9 +221,9 @@ function getSuggestions(label : string) : string[] {
  * @param {Node} nodeOrig
  * @private
  */
-function loadContextMenu(nodeOrig : Node) : void {
+function loadContextMenu(nodeOrig : Element) : void {
     var nO = $(nodeOrig),
-        nodeIndex = utils.getIndex(nO),
+        nodeIndex = utils.getIndex(nodeOrig),
         indexSep = "",
         indexString = "",
         nodelabel = utils.getLabel(nO),
@@ -235,15 +235,14 @@ function loadContextMenu(nodeOrig : Node) : void {
         hideContextMenu();
     }
 
-    if (nodeIndex > -1) {
-        indexSep = utils.parseIndexType(nodelabel);
-        indexString = indexSep + utils.parseIndex(nodelabel);
-        nodelabel = utils.parseLabel(nodelabel);
+    if (nodeIndex) {
+        indexSep = utils.getIndexType(nodeOrig);
+        indexString = indexSep + utils.getIndex(nodeOrig);
     }
     $("#conLeft").empty();
     $("#conLeft").append($("<div class='conMenuHeading'>Label</div>"));
 
-    var suggestions = getSuggestions(nodelabel);
+    var suggestions = getSuggestions(nodeOrig);
     for (i = 0; i < suggestions.length; i++) {
         if (suggestions[i] !== nodelabel) {
             newnode = $("<div class='conMenuItem'><a href='#'>" +
@@ -257,7 +256,7 @@ function loadContextMenu(nodeOrig : Node) : void {
     $("#conRight").empty();
 
     if (conf.displayCaseMenu) {
-        if (utils.hasCase(nO) || utils.isCasePhrase(nO)) {
+        if (utils.hasCase(nodeOrig) || utils.isCasePhrase(nodeOrig)) {
             $("#conRight").append($("<div class='conMenuHeading'>Case</div>"));
             caseMarkers.forEach(function(c : string) : void {
                 newnode = $("<div class='conMenuItem'><a href='#'>-" + c +
@@ -292,7 +291,7 @@ function loadContextMenu(nodeOrig : Node) : void {
 }
 
 export function showContextMenu(e : JQueryMouseEventObject) : void {
-    var element = <Node>e.target; // TODO: needed? || e.srcElement;
+    var element = <Element>e.target; // TODO: needed? || e.srcElement;
     if (element === document.getElementById("sn0")) {
         selection.clearSelection();
         return;
@@ -313,9 +312,9 @@ export function showContextMenu(e : JQueryMouseEventObject) : void {
     conl.height("auto");
     conr.height("auto");
     conrr.height("auto");
-    var h : number = _.max([conl, conr, conrr], function (x : JQuery) : number {
+    var h = _.max(_.map([conl, conr, conrr], function (x : JQuery) : number {
         return x.height();
-    });
+    }));
     conl.height(h);
     conr.height(h);
     conrr.height(h);

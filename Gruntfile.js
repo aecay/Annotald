@@ -1,13 +1,19 @@
 /*global module: true, require: false */
 
-// var cacheify = require("cacheify"),
-//     level = require("level"),
-//     db = level("./cache"),
-//     typescriptify = require("typescriptify"),
-//     reactify = require("reactify");
+var cacheify = require("cacheify"),
+    level = require("level"),
+    dbr = level("./cache-react"),
+    dbt = level("./cache-ts"),
+    typescriptify = require("./js-ext/typeify"),
+    reactify = require("reactify"),
+    istanbulify = require("./test/istanbulify");
 
-// var typeifyCached = cacheify(typescriptify, db);
-// var reactifyCached = cacheify(reactify, db);
+var reactifyCached = cacheify(reactify, dbr);
+var typescriptifyCached = cacheify(typescriptify, dbt);
+
+var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
+                                  "brace/theme/xcode","brace/mode/javascript",
+                                  "q","dropbox","lodash"];
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -25,6 +31,7 @@ module.exports = function (grunt) {
                     ,'node_modules/q/q.js'
                     ,'webapp/js/ext/dropbox.js'
                     ,'webapp/js/ext/growl.js'
+                    ,'node_modules/lodash/dist/lodash.js'
                 ],
                 dest: 'webapp/build/ext.js',
                 options: {
@@ -37,7 +44,8 @@ module.exports = function (grunt) {
                             'node_modules/brace/mode/javascript.js:brace/mode/javascript',
                             'node_modules/q/q.js:q',
                             'webapp/js/ext/dropbox.js:dropbox',
-                            'webapp/js/ext/growl.js:growl'
+                            'webapp/js/ext/growl.js:growl',
+                            'node_modules/lodash/dist/lodash.js:lodash'
                            ]
                 }
             },
@@ -46,10 +54,8 @@ module.exports = function (grunt) {
                 dest: 'webapp/build/web.js',
                 options: {
                     debug: true,
-                    external: ["jquery","vex","vex-dialog","react","brace",
-                               "brace/theme/xcode","brace/mode/javascript",
-                               "q","dropbox"],
-                    transform: ["reactify", "typescriptify"],
+                    external: annotaldBrowserifyExternal,
+                    transform: [typescriptifyCached, reactifyCached, "browserify-shim"],
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points',
                         'webapp/js/treedrawing/bindings.ts:treedrawing/bindings',
@@ -63,7 +69,19 @@ module.exports = function (grunt) {
                 src: 'test/spec/*.js',
                 dest: 'test/build/spec-entry.js',
                 options: {
-                    external: 'webapp/js/**/*.js'
+                    transform: [typescriptifyCached, reactifyCached,
+                                "browserify-shim", istanbulify],
+                    external: annotaldBrowserifyExternal
+                }
+            },
+            test_debug: {
+                src: 'test/spec/*.js',
+                dest: 'test/build/spec-entry-debug.js',
+                options: {
+                    transform: [typescriptifyCached, reactifyCached,
+                                "browserify-shim"],
+                    external: annotaldBrowserifyExternal,
+                    debug: true
                 }
             }
         },
@@ -75,9 +93,31 @@ module.exports = function (grunt) {
             }
         },
         jasmine: {
-            src: "webapp/build/web-bundle.js",
-            options: {
-                specs: "test/build/spec-entry.js"
+            test: {
+                src: [],
+                options: {
+                    vendor: ["test/ace-polyfill-fix.js",
+                             "node_modules/polymer-weakmap/weakmap.js",
+                             "node_modules/mutationobservers/MutationObserver.js",
+                             "webapp/build/ext.js"],
+                    specs: "test/build/spec-entry.js",
+                    template: require("./test/jasmine-istanbul-template/template"),
+                    templateOptions: {
+                        coverage: "test/out/coverage.json",
+                        report: "test/out/coverage"
+                    }
+                }
+            },
+            test_debug: {
+                src: [],
+                options: {
+                    vendor: ["test/ace-polyfill-fix.js",
+                             "node_modules/polymer-weakmap/weakmap.js",
+                             "node_modules/mutationobservers/MutationObserver.js",
+                             "webapp/build/ext.js"],
+                    specs: "test/build/spec-entry-debug.js",
+                    keepRunner: true
+                }
             }
         },
         jshint: {
@@ -164,7 +204,15 @@ module.exports = function (grunt) {
             server: {
                 options: {
                     port: 8888,
-                    base: 'webapp/build'
+                    base: 'webapp/build',
+                    keepalive: true
+                }
+            },
+            test: {
+                options: {
+                    port: 8887,
+                    base: 'test/build',
+                    keepalive: true
                 }
             }
         },
@@ -185,19 +233,8 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.loadNpmTasks('grunt-browserify');
-    grunt.loadNpmTasks('grunt-contrib-jasmine');
-    grunt.loadNpmTasks('grunt-contrib-watch');
-    grunt.loadNpmTasks('grunt-external-sourcemap');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
-    grunt.loadNpmTasks('grunt-contrib-uglify');
-    grunt.loadNpmTasks('grunt-contrib-cssmin');
-    grunt.loadNpmTasks('grunt-contrib-copy');
-    grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-connect');
-    grunt.loadNpmTasks('grunt-contrib-connect');
+    require("load-grunt-tasks")(grunt);
     grunt.loadNpmTasks('typescript-tpm');
-    grunt.loadNpmTasks('grunt-tslint');
 
     grunt.registerTask('build-external', ['browserify:external',
                                           'uglify:external'
@@ -213,7 +250,7 @@ module.exports = function (grunt) {
 
     grunt.registerTask('build', ['build-external','build-annotald',
                                  'build-css','build-html']);
-    grunt.registerTask('test', ['build','jasmine']);
+    grunt.registerTask('test', ['build-annotald','browserify:test','jasmine']);
 
     grunt.registerTask('default', ['build','connect','watch']);
 };

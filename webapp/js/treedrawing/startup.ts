@@ -67,7 +67,6 @@ function assignEvents () : void {
     savedOnUnload = window.onunload;
 
     // Install global event handlers
-    document.body.onkeydown = events.handleKeyDown;
     document.body.onmouseup = events.killTextSelection;
     window.onbeforeunload = navigationWarning;
     // window.onunload = logUnload;
@@ -90,7 +89,9 @@ function assignEvents () : void {
     // $(document).mousewheel(handleMouseWheel);
 }
 
-export function startupTreedrawing (callback : Hook) : void {
+export function startupTreedrawing (exitFn : Hook,
+                                    saveFn : (s: string) => Q.Promise<boolean>)
+: void {
     // TODO: something is very slow here; profile
     assignEvents();
 
@@ -99,12 +100,13 @@ export function startupTreedrawing (callback : Hook) : void {
     });
 
     lastSavedState = $("#editpane").html();
-    shutdownCallback = callback;
+    shutdownCallback = exitFn;
+    save.saveFn = saveFn;
 }
 
 export function resetGlobals () : void {
     // TODO: encapsulation violation
-    var newGlobals = {
+    var newGlobals : { [key : string] : any; } = {
         ipnodes: [],
 
         commentTypes: [],
@@ -124,7 +126,7 @@ export function resetGlobals () : void {
 
         logDetail: false
     };
-    _.forEach(newGlobals, function (v : any, k : string) : void {
+    _.forOwn(newGlobals, function (v : any, k : string) : void {
         globals[k] = v;
     });
     contextmenu.resetGlobals();

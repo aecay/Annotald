@@ -116,3 +116,8 @@ https://stackoverflow.com/questions/14731459/github-api-fetch-all-folders-and-fi
 also: google drive file picker https://gist.github.com/Daniel15/5994054
 * alternate notification lib
 https://github.com/naoxink/notifIt
+* router
+https://github.com/andreypopp/react-router-component
+* grunt tips
+** Supercharging your Gruntfile
+   [[http://www.html5rocks.com/en/tutorials/tooling/supercharging-your-gruntfile/][Supercharging your Gruntfile]]

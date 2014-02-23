@@ -1,17 +1,15 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-/* tslint:disable:variable-name no-bitwise */
+/* tslint:disable:variable-name no-bitwise quotemark */
+
+var bar = "foo";
 
 import $ = require("jquery");
-import globals = require("./global");
 import utils = require("./utils");
 import selection = require("./selection");
 import undo = require("./undo");
 import events = require("./events");
 import conf = require("./config");
-
-var startnode = globals.startnode;
-var endnode = globals.endnode;
 
 // * Coindexation
 
@@ -23,59 +21,51 @@ var endnode = globals.endnode;
  * gapping -> no indices).  If only one node is selected, remove its index.
  */
 export function coIndex() : void {
-    if (startnode && !endnode) {
-        if (utils.getIndex($(startnode)) > 0) {
-            undo.touchTree($(startnode));
-            utils.removeIndex($(startnode));
+    var sel = selection.get();
+    var sel2 = selection.get(true);
+    if (selection.cardinality() === 1) {
+        if (utils.getIndex(sel)) {
+            undo.touchTree($(sel));
+            utils.removeIndex(sel);
         }
-    } else if (startnode && endnode) {
+    } else if (selection.cardinality() === 2) {
         // don't do anything if different token roots
-        var startRoot = utils.getTokenRoot($(startnode));
-        var endRoot = utils.getTokenRoot($(endnode));
+        var startRoot = utils.getTokenRoot($(sel));
+        var endRoot = utils.getTokenRoot($(sel2));
         if (startRoot !== endRoot) {
+            // TODO: message
             return;
         }
 
-        undo.touchTree($(startnode));
+        undo.touchTree($(sel));
         // if both nodes already have an index
-        if (utils.getIndex($(startnode)) > 0 && utils.getIndex($(endnode)) > 0) {
+        if (utils.getIndex(sel) && utils.getIndex(sel2)) {
             // and if it is the same index
-            if (utils.getIndex($(startnode)) === utils.getIndex($(endnode))) {
-                var theIndex = utils.getIndex($(startnode));
-                var types = "" + utils.getIndexType($(startnode)) +
-                    "" + utils.getIndexType($(endnode));
-                // remove it
+            if (utils.getIndex(sel) === utils.getIndex(sel2)) {
+                var types = utils.getIndexType(sel) +
+                    utils.getIndexType(sel2);
 
+                // remove it
                 if (types === "=-") {
-                    utils.removeIndex($(startnode));
-                    utils.removeIndex($(endnode));
-                    utils.appendExtension($(startnode), theIndex, "=");
-                    utils.appendExtension($(endnode), theIndex, "=");
+                    utils.setIndexType(sel2, "=");
                 } else if (types === "--") {
-                    utils.removeIndex($(endnode));
-                    utils.appendExtension($(endnode),
-                                          utils.getIndex($(startnode)),
-                                          "=");
+                    utils.setIndexType(sel2, "=");
                 } else if (types === "-=") {
-                    utils.removeIndex($(startnode));
-                    utils.removeIndex($(endnode));
-                    utils.appendExtension($(startnode), theIndex, "=");
-                    utils.appendExtension($(endnode), theIndex, "-");
+                    utils.setIndexType(sel, "=");
+                    utils.setIndexType(sel2, "-");
                 } else if (types === "==") {
-                    utils.removeIndex($(startnode));
-                    utils.removeIndex($(endnode));
+                    utils.removeIndex(sel);
+                    utils.removeIndex(sel2);
                 }
             }
-        } else if (utils.getIndex($(startnode)) > 0 &&
-                   utils.getIndex($(endnode)) === -1) {
-            utils.appendExtension($(endnode), utils.getIndex($(startnode)));
-        } else if (utils.getIndex($(startnode)) === -1 &&
-                   utils.getIndex($(endnode)) > 0) {
-            utils.appendExtension($(startnode), utils.getIndex($(endnode)));
+        } else if (utils.getIndex(sel) && !utils.getIndex(sel2)) {
+            utils.setIndex(sel2, utils.getIndex(sel));
+        } else if (!utils.getIndex(sel) && utils.getIndex(sel2)) {
+            utils.setIndex(sel, utils.getIndex(sel2));
         } else { // no indices here, so make them
             var index = utils.maxIndex(startRoot) + 1;
-            utils.appendExtension($(startnode), index);
-            utils.appendExtension($(endnode), index);
+            utils.setIndex(sel, index);
+            utils.setIndex(sel2, index);
         }
     }
 }
@@ -95,7 +85,7 @@ export function coIndex() : void {
  * @returns {Boolean} whether the operation was successful
  */
 export function moveNode(parent : Element) : boolean {
-    var parent_ip = $(startnode).parents("#sn0>.snode,#sn0").first();
+    var parent_ip = $(selection.get()).parents("#sn0>.snode,#sn0").first();
     var other_parent = $(parent).parents("#sn0>.snode,#sn0").first();
     if (parent === document.getElementById("sn0") ||
         !parent_ip.is(other_parent)) {
@@ -103,46 +93,50 @@ export function moveNode(parent : Element) : boolean {
     }
     var parent_before;
     var textbefore = utils.currentText(parent_ip);
-    if (!utils.isPossibleTarget(parent) || // can't move under a tag node
-        $(startnode).parent().children().length === 1 || // can't move an only child
-        $(parent).parents().is(startnode) || // can't move under one's own child
-        utils.isEmptyNode(startnode) // can't move an empty leaf node by itself
-       ) {
+    if (// can't move under a tag node
+        !utils.isPossibleTarget(parent) ||
+            // can't move an only child
+            $(selection.get()).parent().children().length === 1 ||
+            // can't move under one's own child
+            $(parent).parents().is(selection.get()) ||
+            // can't move an empty leaf node by itself
+            utils.isEmptyNode(selection.get())) {
         selection.clearSelection();
         return false;
-    } else if ($(startnode).parents().is(parent)) {
+    } else if ($(selection.get()).parents().is(parent)) {
         // move up if moving to a node that is already my parent
-        if ($(startnode).parent().children().first().is(startnode)) {
-            if ($(startnode).parentsUntil(parent).slice(0, -1).
+        if ($(selection.get()).parent().children().first().is(selection.get())) {
+            if ($(selection.get()).parentsUntil(parent).slice(0, -1).
                 filter(":not(:first-child)").length > 0) {
                 selection.clearSelection();
                 return false;
             }
             if (parent === document.getElementById("sn0")) {
-                undo.touchTree($(startnode));
-                undo.registerNewRootTree($(startnode));
+                undo.touchTree($(selection.get()));
+                undo.registerNewRootTree($(selection.get()));
             } else {
-                undo.touchTree($(startnode));
+                undo.touchTree($(selection.get()));
             }
-            $(startnode).insertBefore($(parent).children().filter(
-                                                 $(startnode).parents()));
+            $(selection.get()).insertBefore($(parent).children().filter(
+                                                 $(selection.get()).parents()));
             if (utils.currentText(parent_ip) !== textbefore) {
                 alert("failed what should have been a strict test");
             }
-        } else if ($(startnode).parent().children().last().is(startnode)) {
-            if ($(startnode).parentsUntil(parent).slice(0, -1).
+        } else if ($(selection.get()).parent().children().last().
+                   is(selection.get())) {
+            if ($(selection.get()).parentsUntil(parent).slice(0, -1).
                 filter(":not(:last-child)").length > 0) {
                 selection.clearSelection();
                 return false;
             }
             if (parent === document.getElementById("sn0")) {
-                undo.touchTree($(startnode));
-                undo.registerNewRootTree($(startnode));
+                undo.touchTree($(selection.get()));
+                undo.registerNewRootTree($(selection.get()));
             } else {
-                undo.touchTree($(startnode));
+                undo.touchTree($(selection.get()));
             }
-            $(startnode).insertAfter($(parent).children().
-                                     filter($(startnode).parents()));
+            $(selection.get()).insertAfter($(parent).children().
+                                     filter($(selection.get()).parents()));
             if (utils.currentText(parent_ip) !== textbefore) {
                 alert("failed what should have been a strict test");
             }
@@ -153,9 +147,9 @@ export function moveNode(parent : Element) : boolean {
         }
     } else {
         // otherwise move under my sister
-        var tokenMerge = utils.isRootNode( $(startnode) );
+        var tokenMerge = utils.isRootNode( $(selection.get()) );
         var maxindex = utils.maxIndex(utils.getTokenRoot($(parent)));
-        var movednode = $(startnode);
+        var movednode = $(selection.get());
 
         // NOTE: currently there are no more stringent checks below; if that
         // changes, we might want to demote this
@@ -169,26 +163,26 @@ export function moveNode(parent : Element) : boolean {
         // TODO: perhaps here and in the immediately following else if it is
         // possible to simplify and remove the compareDocumentPosition call,
         // since the jQuery subsumes it
-        if (parent.compareDocumentPosition(startnode) & 0x4) { // jshint ignore:line
+        if (parent.compareDocumentPosition(selection.get()) & 0x4) {
             // check whether the nodes are adjacent.  Ideally, we would like
             // to say selfAndParentsUntil, but no such jQuery fn exists, thus
             // necessitating the disjunction.
             // TODO: too strict
             // &&
-            // $(startnode).prev().is(
+            // $(selection.get()).prev().is(
             //     $(parent).parentsUntil(startnode.parentNode).last()) ||
-            // $(startnode).prev().is(parent)
+            // $(selection.get()).prev().is(parent)
 
             // parent precedes startnode
             undo.undoBeginTransaction();
             if (tokenMerge) {
-                undo.registerDeletedRootTree($(startnode));
+                undo.registerDeletedRootTree($(selection.get()));
                 undo.touchTree($(parent));
                 // TODO: this will bomb if we are merging more than 2 tokens
                 // by multiple selection.
                 utils.addToIndices(movednode, maxindex);
             } else {
-                undo.touchTree($(startnode));
+                undo.touchTree($(selection.get()));
                 undo.touchTree($(parent));
             }
             movednode.appendTo(parent);
@@ -203,20 +197,20 @@ export function moveNode(parent : Element) : boolean {
             } else {
                 undo.undoEndTransaction();
             }
-        } else if ((parent.compareDocumentPosition(startnode) & 0x2)) {
+        } else if ((parent.compareDocumentPosition(selection.get()) & 0x2)) {
             // &&
-            // $(startnode).next().is(
+            // $(selection.get()).next().is(
             //     $(parent).parentsUntil(startnode.parentNode).last()) ||
-            // $(startnode).next().is(parent)
+            // $(selection.get()).next().is(parent)
 
             // startnode precedes parent
             undo.undoBeginTransaction();
             if (tokenMerge) {
-                undo.registerDeletedRootTree($(startnode));
+                undo.registerDeletedRootTree($(selection.get()));
                 undo.touchTree($(parent));
                 utils.addToIndices(movednode, maxindex);
             } else {
-                undo.touchTree($(startnode));
+                undo.touchTree($(selection.get()));
                 undo.touchTree($(parent));
             }
             movednode.insertBefore($(parent).children().first());
@@ -246,22 +240,22 @@ export function moveNode(parent : Element) : boolean {
  * @param {Node} parent the parent to move the selection under
  */
 export function moveNodes(parent : Element) : boolean {
-    if (!startnode || !endnode) {
+    if (selection.cardinality() !== 2) {
         return;
     }
     undo.undoBeginTransaction();
-    undo.touchTree($(startnode));
+    undo.touchTree($(selection.get()));
     undo.touchTree($(parent));
-    if (startnode.compareDocumentPosition(endnode) & 0x2) { //jshint ignore:line
+    if (selection.get().compareDocumentPosition(selection.get(true)) & 0x2) {
         // endnode precedes startnode, reverse them
-        var temp = startnode;
-        startnode = endnode;
-        endnode = temp;
+        var temp = selection.get();
+        selection.set(selection.get(true));
+        selection.set(temp, true);
     }
-    if (startnode.parentNode === endnode.parentNode) {
+    if (selection.get().parentNode === selection.get(true).parentNode) {
         // collect startnode and its sister up until endnode
-        $(startnode).add($(startnode).nextUntil($(endnode))).
-            add($(endnode)).
+        $(selection.get()).add($(selection.get()).nextUntil($(selection.get(true)))).
+            add($(selection.get(true))).
             wrapAll('<div xxx="newnode" class="snode">XP</div>');
 
     } else {
@@ -270,15 +264,15 @@ export function moveNodes(parent : Element) : boolean {
     var toselect = $(".snode[xxx=newnode]").first();
     // BUG when making XP and then use context menu: TODO XXX
 
-    startnode = toselect.get(0);
+    selection.set(toselect.get(0));
     var res = undo.ignoringUndo(function () : void { moveNode(parent); });
     if (res) {
         undo.undoEndTransaction();
     } else {
         undo.undoAbortTransaction();
     }
-    startnode = $(".snode[xxx=newnode]").first().get(0);
-    endnode = undefined;
+    selection.set($(".snode[xxx=newnode]").first().get(0));
+    selection.clear(true);
     pruneNode();
     selection.clearSelection();
 }
@@ -292,43 +286,44 @@ export function moveNodes(parent : Element) : boolean {
  * directly dominates no non-empty terminals.
  */
 export function pruneNode() : void {
-    if (startnode && !endnode) {
-        if (utils.isLeafNode(startnode) && utils.isEmptyNode(startnode)) {
+    if (selection.cardinality() === 1) {
+        if (utils.isLeafNode(selection.get()) &&
+            utils.isEmptyNode(selection.get())) {
             // it is ok to delete leaf if it is empty/trace
-            if (utils.isRootNode($(startnode))) {
+            if (utils.isRootNode($(selection.get()))) {
                 // perversely, it is possible to have a leaf node at the root
                 // of a file.
-                undo.registerDeletedRootTree($(startnode));
+                undo.registerDeletedRootTree($(selection.get()));
             } else {
-                undo.touchTree($(startnode));
+                undo.touchTree($(selection.get()));
             }
-            var idx = utils.getIndex($(startnode));
+            var idx = utils.getIndex(selection.get());
             if (idx > 0) {
-                var root = $(utils.getTokenRoot($(startnode)));
+                var root = $(utils.getTokenRoot($(selection.get())));
                 var sameIdx = root.find('.snode').filter(function () : boolean {
-                    return utils.getIndex($(this)) === idx;
-                }).not(startnode);
+                    return utils.getIndex(this) === idx;
+                }).not(selection.get());
                 if (sameIdx.length === 1) {
-                    var osn = startnode;
-                    startnode = sameIdx.get(0);
+                    var osn = selection.get();
+                    selection.set(sameIdx.get(0));
                     coIndex();
-                    startnode = osn;
+                    selection.set(osn);
                 }
             }
-            $(startnode).remove();
+            $(selection.get()).remove();
             selection.clearSelection();
             selection.updateSelection();
             return;
-        } else if (utils.isLeafNode(startnode)) {
+        } else if (utils.isLeafNode(selection.get())) {
             // but other leaves are not deleted
             return;
-        } else if (startnode === document.getElementById("sn0")) {
+        } else if (selection.get() === document.getElementById("sn0")) {
             return;
         }
 
-        var toselect = $(startnode).children().first();
-        undo.touchTree($(startnode));
-        $(startnode).replaceWith($(startnode).children());
+        var toselect = $(selection.get()).children().first();
+        undo.touchTree($(selection.get()));
+        $(selection.get()).replaceWith($(selection.get()).children());
         selection.clearSelection();
         selection.selectNode(toselect.get(0));
         selection.updateSelection();
@@ -354,12 +349,13 @@ export function pruneNode() : void {
 export function makeLeaf(before : boolean,
                          label : string = "NP-SBJ",
                          word : string = "*con",
-                         target? : Node) : void {
-    if (!(target || startnode)) {
+                         target? : Node) : void
+{
+    if (!(target || selection.get())) {
         return;
     }
     if (target === undefined) {
-        target = startnode;
+        target = selection.get();
     }
 
     undo.undoBeginTransaction();
@@ -379,18 +375,18 @@ export function makeLeaf(before : boolean,
 
     var doCoindex = false;
 
-    if (endnode) {
-        var startRoot = utils.getTokenRoot($(startnode));
-        var endRoot = utils.getTokenRoot($(endnode));
+    if (selection.get(true)) {
+        var startRoot = utils.getTokenRoot($(selection.get()));
+        var endRoot = utils.getTokenRoot($(selection.get(true)));
         if (startRoot === endRoot) {
             word = "*ICH*";
-            label = utils.getLabel($(endnode));
+            label = utils.getLabel($(selection.get(true)));
             if (utils.startsWith(label, "W")) {
                 word = "*T*";
                 label = label.substr(1).replace(/-[0-9]+$/, "");
             } else if (label.split("-").indexOf("CL") > -1) {
                 word = "*CL*";
-                label = utils.getLabel($(endnode)).replace("-CL", "");
+                label = utils.getLabel($(selection.get(true))).replace("-CL", "");
                 if (label.substring(0, 3) === "PRO") {
                     label = "NP";
                 }
@@ -416,11 +412,11 @@ export function makeLeaf(before : boolean,
         newleafJQ.insertAfter(target);
     }
     if (doCoindex) {
-        startnode = newleafJQ.get(0);
+        selection.set(newleafJQ.get(0));
         coIndex();
     }
-    startnode = null;
-    endnode = null;
+    selection.clear();
+    selection.clear(true);
     selection.selectNode(newleafJQ.get(0));
     selection.updateSelection();
     if (isRootLevel) {
@@ -459,40 +455,42 @@ export function leafAfter() : void {
  */
 export function makeNode(label? : string) : void {
     // check if something is selected
-    if (!startnode) {
+    if (!selection.get()) {
         return;
     }
     if (!label) {
         label = "XP";
     }
-    var rootLevel = utils.isRootNode($(startnode));
+    var rootLevel = utils.isRootNode($(selection.get()));
     undo.undoBeginTransaction();
     if (rootLevel) {
-        undo.registerDeletedRootTree($(startnode));
+        undo.registerDeletedRootTree($(selection.get()));
     } else {
-        undo.touchTree($(startnode));
+        undo.touchTree($(selection.get()));
     }
-    var parent_ip = $(startnode).parents("#sn0>.snode,#sn0").first();
+    var parent_ip = $(selection.get()).parents("#sn0>.snode,#sn0").first();
     var parent_before = parent_ip.clone();
     var newnode = '<div class="snode ' + label + '">' + label + ' </div>\n';
     // make end = start if only one node is selected
-    if (!endnode) {
+    if (!selection.get(true)) {
         // if only one node, wrap around that one
-        $(startnode).wrapAll(newnode);
+        $(selection.get()).wrapAll(newnode);
     } else {
-        if (startnode.compareDocumentPosition(endnode) & 0x2) { // jshint ignore:line
+        if (selection.get().compareDocumentPosition(
+            selection.get(true)) & 0x2) { // jshint ignore:line
             // startnode and endnode in wrong order, reverse them
-            var temp = startnode;
-            startnode = endnode;
-            endnode = temp;
+            var temp = selection.get();
+            selection.set(selection.get(true));
+            selection.set(temp, true);
         }
 
         // check if they are really sisters XXXXXXXXXXXXXXX
-        if ($(startnode).siblings().is(endnode)) {
+        if ($(selection.get()).siblings().is(selection.get(true))) {
             // then, collect startnode and its sister up until endnode
             var oldtext = utils.currentText(parent_ip);
-            $(startnode).add($(startnode).nextUntil($(endnode))).add(
-                $(endnode)).wrapAll(newnode);
+            $(selection.get()).add($(selection.get()).nextUntil(
+                $(selection.get(true)))).add(
+                $(selection.get(true))).wrapAll(newnode);
             // undo if this messed up the text order
             if (utils.currentText(parent_ip) !== oldtext) {
                 // TODO: is this plausible? can we remove the check?
@@ -506,7 +504,7 @@ export function makeNode(label? : string) : void {
         }
     }
 
-    var toselect = $(startnode).parent();
+    var toselect = $(selection.get()).parent();
 
     selection.clearSelection();
 
@@ -535,16 +533,17 @@ export function makeNode(label? : string) : void {
  * appropriate ordered list of possible extensions.
  */
 export function toggleExtension(extension : string,
-                                extensionList? : string []) : boolean {
-    if (!startnode || endnode) {
+                                extensionList? : string []) : boolean
+{
+    if (selection.cardinality() !== 1) {
         return false;
     }
 
     if (!extensionList) {
-        if (utils.guessLeafNode(startnode)) {
+        if (utils.guessLeafNode(selection.get())) {
             extensionList = conf.leafExtensions;
-        } else if (utils.getLabel($(startnode)).split("-")[0] === "IP" ||
-                   utils.getLabel($(startnode)).split("-")[0] === "CP") {
+        } else if (utils.getLabel($(selection.get())).split("-")[0] === "IP" ||
+                   utils.getLabel($(selection.get())).split("-")[0] === "CP") {
             // TODO: should FRAG be a clause?
             // TODO: make configurable
             extensionList = conf.clauseExtensions;
@@ -558,14 +557,14 @@ export function toggleExtension(extension : string,
         return false;
     }
 
-    undo.touchTree($(startnode));
-    var textnode = utils.textNode($(startnode));
+    undo.touchTree($(selection.get()));
+    var textnode = utils.textNode($(selection.get()));
     var oldlabel = $.trim(textnode.text());
     // Extension is not de-dashed here.  toggleStringExtension handles it.
     // The new config format however requires a dash-less extension.
     var newlabel = utils.toggleStringExtension(oldlabel, extension, extensionList);
     textnode.replaceWith(newlabel + " ");
-    utils.updateCssClass($(startnode), oldlabel);
+    utils.updateCssClass($(selection.get()), oldlabel);
 
     return true;
 }
@@ -585,16 +584,16 @@ export function toggleExtension(extension : string,
  * for that key, the first value specified in the object is the default.
  */
 export function setLabel(labels : string[]) : boolean {
-    if (!startnode || endnode) {
+    if (selection.cardinality() !== 1) {
         return false;
     }
 
-    var textnode = utils.textNode($(startnode));
+    var textnode = utils.textNode($(selection.get()));
     var oldlabel = $.trim(textnode.text());
     var newlabel = utils.lookupNextLabel(oldlabel, labels);
 
     // TODO: restore
-    // if (utils.guessLeafNode($(startnode))) {
+    // if (utils.guessLeafNode($(selection.get()))) {
     //     if (typeof testValidLeafLabel !== "undefined") {
     //         if (!testValidLeafLabel(newlabel)) {
     //             return false;
@@ -608,10 +607,10 @@ export function setLabel(labels : string[]) : boolean {
     //     }
     // }
 
-    undo.touchTree($(startnode));
+    undo.touchTree($(selection.get()));
 
     textnode.replaceWith(newlabel + " ");
-    utils.updateCssClass($(startnode), oldlabel);
+    utils.updateCssClass($(selection.get()), oldlabel);
 
     return true;
 }

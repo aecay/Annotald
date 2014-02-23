@@ -4,6 +4,7 @@
     "dependencies": {
         "jquery": "latest",
         "jquery-mousewheel": "latest",
-        "vex": "latest"
+        "vex": "latest",
+        "localforage": "*"
     }
 }

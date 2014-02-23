@@ -1,6 +1,9 @@
-/*global DOMParser: false, exports: false */
+/*global DOMParser: false, exports: true, XMLSerializer: false,
+ require: false */
 
 /*jshint browser: true */
+
+var $ = require("jquery");
 
 function makeWnode (xmlNode) {
     var wnode = document.createElement("span"),
@@ -12,16 +15,15 @@ function makeWnode (xmlNode) {
 
 function makeSnode (xmlNode) {
     var snode = document.createElement("div"),
-        label = xmlNode.getAttribute("label"),
         cn = xmlNode.childNodes,
         atts = xmlNode.attributes,
         c, a, i;
     snode.className = "snode";
-    snode.appendChild(document.createTextNode(label + " "));
     for (i = 0; i < cn.length; i++) {
         c = cn[i];
         if (c.nodeType === 3 && c.textContent.trim() !== "") {
             snode.appendChild(makeWnode(c));
+            snode.setAttribute("data-nodetype", xmlNode.nodeName);
         } else if (c.nodeType === 1) {
             snode.appendChild(makeSnode(c));
         }
@@ -52,38 +54,53 @@ exports.parseXmlToHtml = function parseXmlToHtml (xml) {
 };
 
 function nodeToXml (doc, node, root) {
-    var name, i;
+    var name, i, recurse = true;
     if (root) {
         name = "sentence";
     } else {
-        if (node.nodeType === 1) {
-            // Element node
-            name = "nonterminal";
+        if (node.children.length === 1 &&
+            node.children[0].classList.contains("wnode")) {
+            // Terminal
+            name = node.attributes["data-nodetype"].value;
+            recurse = false;
         } else {
             // Text node
-            name = "terminal";
+            name = "nonterminal";
         }
     }
-    var s = doc.createNode(name),
+    var s = doc.createElement(name),
         attrs = node.attributes;
     for (i = 0; i < attrs.length; i++) {
-        s.setAttribute(attrs[i].name, attrs[i].value);
+        var attr = attrs[i];
+        if (attr.name === "data-metadata") {
+            // TODO: handle metadata
+        } else if (attr.name === "data-nodetype") {
+            // do nothing
+        } else if (/^data-/.test(attr.name)) {
+            s.setAttribute(attrs[i].name.replace(/^data-/, ""),
+                           attrs[i].value);
+        }
     }
-    if (node.nodeType === 1) {
+    if (recurse) {
         for (i = 0; i < node.childNodes.length; i++) {
-            if (node.childNodes[i].nodeType === 1 ||
-               node.childNodes[i].nodeType === 3) {
+            if (node.childNodes[i].nodeType === 1) {
                 // Element node or text node
-                s.appendChild(nodeToXml(node.childNodes[i]));
+                s.appendChild(nodeToXml(doc, node.childNodes[i]));
             }
         }
+    } else {
+        var tn = doc.createTextNode(node.textContent);
+        s.appendChild(tn);
     }
     return s;
 }
 
 exports.parseHtmlToXml = function parseHtmlToXml (node) {
-    var doc = document.implementation.createDocument(null, "corpus", null);
-    node.each(function () {
-        doc.appendChild(nodeToXml(doc, this, true));
+    var doc = document.implementation.createDocument("foo", "", null);
+    var corpus = document.createElementNS("foo", "corpus");
+    doc.appendChild(corpus);
+    $(node).each(function () {
+        corpus.appendChild(nodeToXml(doc, this, true));
     });
+    return (new XMLSerializer).serializeToString(doc).replace(/ xmlns="foo"/, "");
 };
