@@ -13,7 +13,10 @@ var typescriptifyCached = cacheify(typescriptify, dbt);
 
 var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
                                   "brace/theme/xcode","brace/mode/javascript",
-                                  "q","dropbox","lodash"];
+                                  "q","dropbox","lodash","growl",
+                                  "br-mousetrap"],
+    annotaldBrowserifyTransforms = [typescriptifyCached, reactifyCached,
+                                    "browserify-shim", "brfs"];
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -57,7 +60,7 @@ module.exports = function (grunt) {
                 options: {
                     debug: true,
                     external: annotaldBrowserifyExternal,
-                    transform: [typescriptifyCached, reactifyCached, "browserify-shim"],
+                    transform: annotaldBrowserifyTransforms,
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points',
                         'webapp/js/treedrawing/bindings.ts:treedrawing/bindings',
@@ -71,8 +74,8 @@ module.exports = function (grunt) {
                 src: 'test/spec/*.js',
                 dest: 'test/build/spec-entry.js',
                 options: {
-                    transform: [typescriptifyCached, reactifyCached,
-                                "browserify-shim", istanbulify],
+                    transform: annotaldBrowserifyTransforms.concat(
+                        [istanbulify]),
                     external: annotaldBrowserifyExternal
                 }
             },
@@ -80,8 +83,7 @@ module.exports = function (grunt) {
                 src: 'test/spec/*.js',
                 dest: 'test/build/spec-entry-debug.js',
                 options: {
-                    transform: [typescriptifyCached, reactifyCached,
-                                "browserify-shim"],
+                    transform: annotaldBrowserifyTransforms,
                     external: annotaldBrowserifyExternal,
                     debug: true
                 }

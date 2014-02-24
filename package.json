@@ -40,7 +40,8 @@
         "through": "^2.3.4",
         "esprima": "^1.0.4",
         "istanbul": "^0.2.4",
-        "load-grunt-tasks": "^0.3.0"
+        "load-grunt-tasks": "^0.3.0",
+        "brfs": "^0.2.1"
     },
     "browser": {
         "localforage": "./bower_components/localforage/dist/localforage.js"
