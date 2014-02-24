@@ -32,8 +32,8 @@ exports.TreeEditor = React.createClass({
             })]).then(function () {
                 treedrawing.startupTreedrawing(that.exit,
                                                that.props.file.write);
-            }, function (err) {
-                console.log(err);
+            }).catch(function (err) {
+                console.log(err.stack);
             });
     }
 });
