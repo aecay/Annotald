@@ -28,53 +28,53 @@ describe("The label converter", function () {
         }
     };
     it("should match simple objects against templates correctly", function () {
-        expect(M("x", "y", { x: "y" }));
-        expect(!M("x", "y", { x: "z" }));
-        expect(M("x", "y", { x: "y", a: "b" }));
-        expect(!M("x", "y", {}));
-        expect(!M("x", "y", { a: "b" }));
+        expect(M("x", "y", { x: "y" })).toBe(true);
+        expect(!M("x", "y", { x: "z" })).toBe(true);
+        expect(M("x", "y", { x: "y", a: "b" })).toBe(true);
+        expect(!M("x", "y", {})).toBe(true);
+        expect(!M("x", "y", { a: "b" })).toBe(true);
     });
     it("should match complex nodes correctly", function () {
-        expect(M("x", { y : "z" }, { x: { y: "z" }}));
-        expect(!M("x", { y : "z" }, { x: { y: "a" }}));
-        expect(!M("x", { y : "z" }, { x: { a: "z" }}));
-        expect(!M("x", { y : "z" }, { x: "y" }));
+        expect(M("x", { y : "z" }, { x: { y: "z" }})).toBe(true);
+        expect(!M("x", { y : "z" }, { x: { y: "a" }})).toBe(true);
+        expect(!M("x", { y : "z" }, { x: { a: "z" }})).toBe(true);
+        expect(!M("x", { y : "z" }, { x: "y" })).toBe(true);
     });
     it("should match node categories", function () {
         var node = $('<div data-category="X"></div>').get(0);
-        expect(N(node, { category: "X" }));
-        expect(!N(node, { category: "Y" }));
+        expect(N(node, { category: "X" })).toBe(true);
+        expect(!N(node, { category: "Y" })).toBe(true);
     });
     it("should match node subcategories", function () {
         var node = $('<div data-subcategory="X"></div>').get(0);
-        expect(N(node, { subcategory: "X" }));
-        expect(!N(node, { subcategory: "Y" }));
+        expect(N(node, { subcategory: "X" })).toBe(true);
+        expect(!N(node, { subcategory: "Y" })).toBe(true);
     });
     it("should match node categories with subcategories", function () {
         var node = $('<div data-category="X" data-subcategory="Y"></div>').get(0);
-        expect(N(node, { category: "X", subcategory: "Y" }));
-        expect(!N(node, { subcategory: "Y" }));
-        expect(!N(node, { category: "X" }));
-        expect(!N(node, { category: "X", subcategory: "Z" }));
-        expect(!N(node, { category: "Z", subcategory: "Y" }));
+        expect(N(node, { category: "X", subcategory: "Y" })).toBe(true);
+        expect(!N(node, { subcategory: "Y" })).toBe(true);
+        expect(!N(node, { category: "X" })).toBe(true);
+        expect(!N(node, { category: "X", subcategory: "Z" })).toBe(true);
+        expect(!N(node, { category: "Z", subcategory: "Y" })).toBe(true);
     });
     it("should match node metadata", function () {
         var node = $('<div data-category="X" data-subcategory="Y"></div>').get(0);
         node.setAttribute("data-metadata",
                           JSON.stringify({ a: "b", x: { y: "z", q: "w" }}));
-        expect(N(node, { category: "X" }));
-        expect(N(node, { category: "X", subcategory: "Y" }));
-        expect(N(node, { category: "X", subcategory: "Y", metadata: { a: "b"}}));
-        expect(N(node, { category: "X", subcategory: "Y", metadata: { x: { y: "z" }}}));
-        expect(N(node, { metadata: { a: "b"}}));
-        expect(N(node, { metadata: { x: { y: "z" }}}));
-        expect(N(node, { metadata: { a: "b", x: { y: "z" }}}));
+        expect(N(node, { category: "X" })).toBe(true);
+        expect(N(node, { category: "X", subcategory: "Y" })).toBe(true);
+        expect(N(node, { category: "X", subcategory: "Y", metadata: { a: "b"}})).toBe(true);
+        expect(N(node, { category: "X", subcategory: "Y", metadata: { x: { y: "z" }}})).toBe(true);
+        expect(N(node, { metadata: { a: "b"}})).toBe(true);
+        expect(N(node, { metadata: { x: { y: "z" }}})).toBe(true);
+        expect(N(node, { metadata: { a: "b", x: { y: "z" }}})).toBe(true);
 
-        expect(!N(node, { metadata: { a: "c" }}));
-        expect(!N(node, { metadata: { x: { y: "w" }}}));
-        expect(!N(node, { metadata: { x: "y" }}));
-        expect(!N(node, { metadata: { e: "f" }}));
-        expect(!N(node, { metadata: { a: "b", x: { y: "z" }, e: "f" }}));
+        expect(!N(node, { metadata: { a: "c" }})).toBe(true);
+        expect(!N(node, { metadata: { x: { y: "w" }}})).toBe(true);
+        expect(!N(node, { metadata: { x: "y" }})).toBe(true);
+        expect(!N(node, { metadata: { e: "f" }})).toBe(true);
+        expect(!N(node, { metadata: { a: "b", x: { y: "z" }, e: "f" }})).toBe(true);
     });
     it("should properly discern valid subcats", function () {
         expect(1);
