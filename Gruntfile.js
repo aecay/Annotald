@@ -32,6 +32,7 @@ module.exports = function (grunt) {
                     ,'webapp/js/ext/dropbox.js'
                     ,'webapp/js/ext/growl.js'
                     ,'node_modules/lodash/dist/lodash.js'
+                    ,'node_modules/br-mousetrap/mousetrap.js'
                 ],
                 dest: 'webapp/build/ext.js',
                 options: {
@@ -45,7 +46,8 @@ module.exports = function (grunt) {
                             'node_modules/q/q.js:q',
                             'webapp/js/ext/dropbox.js:dropbox',
                             'webapp/js/ext/growl.js:growl',
-                            'node_modules/lodash/dist/lodash.js:lodash'
+                            'node_modules/lodash/dist/lodash.js:lodash',
+                            'node_modules/br-mousetrap/mousetrap.js:br-mousetrap'
                            ]
                 }
             },
