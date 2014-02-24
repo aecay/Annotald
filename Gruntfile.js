@@ -62,11 +62,7 @@ module.exports = function (grunt) {
                     external: annotaldBrowserifyExternal,
                     transform: annotaldBrowserifyTransforms,
                     alias: [
-                        'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points',
-                        'webapp/js/treedrawing/bindings.ts:treedrawing/bindings',
-                        'webapp/js/treedrawing/contextmenu.ts:treedrawing/contextmenu',
-                        'webapp/js/treedrawing/user-style.ts:treedrawing/user-style',
-                        'webapp/js/treedrawing/config.ts:treedrawing/config'
+                        'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points'
                     ]
                 }
             },
