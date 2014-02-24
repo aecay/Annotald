@@ -38,8 +38,9 @@ require("./entry-points");      // TODO: is this necessary?
 export function quitTreeDrawing (e : Event, force : boolean) : void {
     // unAutoIdle();
     if (!force && $("#editpane").html() !== lastSavedState) {
+
         displayError("Cannot exit, unsaved changes exist.  <a href='#' " +
-                     "onclick='quitServer(null, true);return false;'>Force</a>");
+                     "onclick='quitTreedrawing(null, true);return false;'>Force</a>");
     } else {
         document.body.onkeydown = savedOnKeydown;
         document.body.onmouseup = savedOnMouseup;
@@ -51,6 +52,8 @@ export function quitTreeDrawing (e : Event, force : boolean) : void {
         shutdownCallback();
     }
 }
+// TODO: this is a hack!
+window["quitTreedrawing"] = quitTreeDrawing;
 
 function navigationWarning () : string {
     if ($("#editpane").html() !== lastSavedState) {
