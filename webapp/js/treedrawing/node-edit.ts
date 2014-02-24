@@ -14,6 +14,7 @@ import startup = require("./startup");
 import conf = require("./config");
 import bindings = require("./bindings");
 import strucEdit = require("./struc-edit");
+import labelConvert = require("./label-convert");
 
 // * Editing parts of the tree
 
@@ -514,3 +515,47 @@ export function splitWord () : void {
     $("#splitWordInput").focus();
 }
 splitWord["async"] = true;
+
+
+/**
+ * Set the label of a node intelligently
+ *
+ * Given a list of labels, this function will attempt to find the node's
+ * current label in the list.  If it is successful, it sets the node's label
+ * to the next label in the list (or the first, if the node's current label is
+ * the last in the list).  If not, it sets the label to the first label in the
+ * list.
+ *
+ * @param labels a list of labels.  This can also be an object -- if so, the
+ * base label (without any dash tags) of the target node is looked up as a
+ * key, and its corresponding value is used as the list.  If there is no value
+ * for that key, the first value specified in the object is the default.
+ */
+export function setLabel(labels : string[]) : boolean {
+    if (selection.cardinality() !== 1) {
+        return false;
+    }
+
+    var sel = selection.get();
+
+    var label = _.find(labels, function (l : string) : boolean {
+        return labelConvert.nodeMatchesLabel(sel, l);
+    });
+
+    if (!label) {
+        return false;
+    }
+
+    var newlabel : string = labels.slice(1).concat(
+        [labels[0]])[labels.indexOf(label)];
+
+    undo.touchTree($(selection.get()));
+
+    labelConvert.setLabelForNode(label, sel, undefined, true);
+    labelConvert.setLabelForNode(newlabel, sel);
+
+    // TODO: should be handled by onchange handler...
+    utils.updateCssClass($(selection.get()), label);
+
+    return true;
+}
