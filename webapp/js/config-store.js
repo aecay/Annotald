@@ -3,7 +3,9 @@
 var localForage = require("localforage");
 
 exports.listConfigs = function listConfigs () {
-    return localForage.getItem("configs");
+    return localForage.getItem("configs").then(function (x) {
+        return x || {};
+    });
 };
 
 exports.setConfig = function setConfig (name, value) {
@@ -23,7 +25,7 @@ exports.getConfig = function getConfig (name) {
 exports.deleteConfig = function deleteConfig (name) {
     return localForage.getItem("configs").then(function (configs) {
         configs = configs || {};
-        configs[name] = undefined;
+        delete configs[name];
         return localForage.setItem("configs", configs);
     });
 };
