@@ -7,22 +7,38 @@ import selection = require("./selection");
 import xSearch = require("./search");
 import view = require("./view");
 import nodeFormatter = require("./node-formatter");
+import bindings = require("./bindings");
+import contextmenu = require("./contextmenu");
+import userStyle = require("./user-style");
+import config = require("./config");
+import globals = require("./global");
 
-export var nf = nodeFormatter;
+var exp = {
+    bindings: bindings,
+    commands: {
+        leafAfter: s.leafAfter,
+        leafBefore: s.leafBefore,
+        setLabel: n.setLabel,
+        makeNode: s.makeNode,
+        coIndex: s.coIndex,
+        splitWord: n.splitWord,
+        toggleExtension: s.toggleExtension,
+        pruneNode: s.pruneNode,
+        undo: xUndo.undo,
+        redo: xUndo.redo,
+        editNode: n.editNode,
+        clearSelection: selection.clearSelection,
+        displayRename: n.displayRename,
+        search: xSearch.search,
+        toggleLemmata: view.toggleLemmata,
+        toggleCollapsed: view.toggleCollapsed
+    },
+    config: config,
+    contextmenu : contextmenu,
+    // TODO: don't expose all this
+    globals: globals,
+    nodeFormatter: nodeFormatter,
+    userStyle: userStyle
+};
 
-export var leafAfter = s.leafAfter;
-export var leafBefore = s.leafBefore;
-export var setLabel = s.setLabel;
-export var makeNode = s.makeNode;
-export var coIndex = s.coIndex;
-export var splitWord = n.splitWord;
-export var toggleExtension = s.toggleExtension;
-export var pruneNode = s.pruneNode;
-export var undo = xUndo.undo;
-export var redo = xUndo.redo;
-export var editNode = n.editNode;
-export var clearSelection = selection.clearSelection;
-export var displayRename = n.displayRename;
-export var search = xSearch.search;
-export var toggleLemmata = view.toggleLemmata;
-export var toggleCollapsed = view.toggleCollapsed;
+export = exp;
