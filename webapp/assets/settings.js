@@ -1,4 +1,4 @@
-// Copyright (c) 2011, 2012 Anton Karl Ingason, Aaron Ecay
+// Copyright (c) 2011, 2012, 2014 Anton Karl Ingason, Aaron Ecay
 
 // This file is part of the Annotald program for annotating
 // phrase-structure treebanks in the Penn Treebank style.
@@ -19,10 +19,12 @@
 /*global require: false */
 
 var e = require("treedrawing/entry-points"),
-    b = require("treedrawing/bindings"),
-    cm = require("treedrawing/contextmenu"),
-    us = require("treedrawing/user-style"),
-    c = require("treedrawing/config");
+    b = e.bindings,
+    cm = e.contextmenu,
+    us = e.userStyle,
+    c = e.config,
+    cmds = e.commands,
+    A = b.applyArgs;
 
 
 /*
@@ -40,11 +42,13 @@ c.logDetail = true;
  * which phrasal categories case pertains to (though they themselves are not
  * marked)
  */
+// TODO: enable
 c.displayCaseMenu = false; // This feature is inoperative, pending modularization
-c.caseTags = ["N","NS","NPR","NPRS",
-                "PRO","D","NUM",
-                "ADJ","ADJR","ADJS",
-                "Q","QR","QS"];
+// TODO: convert these into sensible defaults, e.g. NS should be N+some metadata
+c.caseCategories = ["N","NS","NPR","NPRS",
+                    "PRO","D","NUM",
+                    "ADJ","ADJR","ADJS",
+                    "Q","QR","QS"];
 c.casePhrases = ["NP","QP","ADJP"];
 c.caseMarkers = ["N", "A", "D", "$"];
 /*
@@ -62,6 +66,8 @@ c.caseBarriers = ["IP","CP","NP"];
  * generator.  Samples and documentation for this method have yet to be
  * written.
  */
+// TODO: replacement in new system? just the label -> metadata code plus error
+// callback?
 var testValidPhraseLabel = undefined;
 var testValidLeafLabel   = undefined;
 
@@ -72,6 +78,7 @@ var testValidLeafLabel   = undefined;
  * clausal nodes (IP and CP), and those that apply to non-leaf, non-clause
  * nodes.
  */
+// TODO: remove for new format
 c.extensions        = ["SBJ","RSP","LFD","PRN","SPE","XXX"];
 c.clauseExtensions = ["RSP","LFD","SBJ","PRN","SPE","XXX"];
 c.leafExtensions   = [];
@@ -81,6 +88,7 @@ c.leafExtensions   = [];
  * extensions) get a different background color so that the annotator can
  * see the "floor" of the current clause
  */
+// TODO: new format
 c.ipnodes = ["IP-SUB","IP-MAT","IP-IMP","IP-INF","IP-PPL","RRC"];
 
 // Types of comments.
@@ -95,44 +103,35 @@ c.commentTypes = ["COM", "TODO", "MAN"];
  * This can for example be tested here:
  * http://www.asquare.net/javascript/tests/KeyCode.html
  */
-b.addCommand({ keycode: 65 }, e.leafAfter ); // a
-b.addCommand({ keycode: 66 }, e.leafBefore); // b
-b.addCommand({ keycode: 69 }, e.setLabel, ["CP-ADV","CP-CMP"]); //e
-b.addCommand({ keycode: 88 }, e.makeNode, "XP"); // x
-b.addCommand({ keycode: 88, shift: true }, e.setLabel, ["XP"]);
-b.addCommand({ keycode: 67 }, e.coIndex); // c
-b.addCommand({ keycode: 67, shift: true }, e.toggleCollapsed); // shift + c
-b.addCommand({ keycode: 82 }, e.setLabel, ["CP-REL","CP-FRL","CP-CAR",
-                                         "CP-CLF"]); // r
-b.addCommand({ keycode: 83 }, e.setLabel, ["IP-SUB","IP-MAT","IP-IMP"]); // s
-b.addCommand({ keycode: 86 }, e.setLabel, ["IP-SMC","IP-INF",
-                                         "IP-INF-PRP"]); // v
-b.addCommand({ keycode: 84 }, e.setLabel, ["CP-THT","CP-THT-PRN","CP-DEG",
-                                         "CP-QUE"]); // t
-b.addCommand({ keycode: 71 }, e.setLabel, ["ADJP","ADJP-SPR","NP-MSR",
-                                         "QP"]); // g
-b.addCommand({ keycode: 70 }, e.setLabel, ["PP","ADVP","ADVP-TMP","ADVP-LOC",
-                                         "ADVP-DIR"]); // f
-b.addCommand({ keycode: 50 }, e.setLabel, ["NP","NP-PRN","NP-POS",
-                                         "NP-COM"]); // 2
-// b.addCommand({ keycode: 50, shift: true }, splitWord); // 2
-b.addCommand({ keycode: 52 }, e.toggleExtension, "PRN"); // 4
-b.addCommand({ keycode: 53 }, e.toggleExtension, "SPE"); // 5
-b.addCommand({ keycode: 81 }, e.setLabel, ["CONJP","ALSO","FP"]); // q
-b.addCommand({ keycode: 87 }, e.setLabel, ["NP-SBJ","NP-OB1","NP-OB2",
-                                         "NP-PRD"]); // w
-b.addCommand({ keycode: 68 }, e.pruneNode); // d
-b.addCommand({ keycode: 90 }, e.undo); // z
-b.addCommand({ keycode: 76 }, e.editNode); // l
-b.addCommand({ keycode: 32 }, e.clearSelection); // spacebar
-b.addCommand({ keycode: 192 }, e.toggleLemmata); // `
-b.addCommand({ keycode: 76, ctrl: true }, e.displayRename); // ctrl + l
-
-b.addCommand({ keycode: 191 }, e.search); // forward slash
-
-
-
-
+b.keyBindings = {
+    a: cmds.leafAfter,
+    b: cmds.leafBefore,
+    e: A(cmds.setLabel, ["CP-ADV","CP-CMP"]),
+    x: A(cmds.makeNode, "XP"),
+    "shift+x": A(cmds.setLabel, "XP"),
+    c: cmds.coIndex,
+    "shift+c": cmds.toggleCollapsed,
+    r: A(cmds.setLabel, ["CP-REL","CP-FRL","CP-CAR", "CP-CLF"]),
+    s: A(cmds.setLabel, ["IP-SUB","IP-MAT","IP-IMP"]),
+    v: A(cmds.setLabel, ["IP-SMC","IP-INF", "IP-INF-PRP"]),
+    t: A(cmds.setLabel, ["CP-THT","CP-THT-PRN","CP-DEG", "CP-QUE"]),
+    g: A(cmds.setLabel, ["ADJP","ADJP-SPR","NP-MSR", "QP"]),
+    f: A(cmds.setLabel, ["PP","ADVP","ADVP-TMP","ADVP-LOC", "ADVP-DIR"]),
+    "2": A(cmds.setLabel, ["NP","NP-PRN","NP-POS", "NP-COM"]),
+    // TODO: replace with toggleMetadata
+    "4": A(cmds.toggleExtension, "PRN"),
+    "5": A(cmds.toggleExtension, "SPE"),
+    q: A(cmds.setLabel, ["CONJP","ALSO","FP"]),
+    w: A(cmds.setLabel, ["NP-SBJ","NP-OB1","NP-OB2", "NP-PRD"]),
+    d: cmds.pruneNode,
+    z: cmds.undo,
+    l: cmds.editLabel,
+    "space": cmds.clearSelection,
+    "`": cmds.toggleLemmata,
+    "mod+l": cmds.displayRename,
+    "/": cmds.search,
+    "@": cmds.splitWord
+};
 
 /*
  * Default phrase label suggestions in context menu
@@ -178,3 +177,24 @@ cm.addConLeafBefore("CODE"   , "{COM:XXX}" );
 // and CSS rule(s) to apply to it.
 
 us.styleDashTag("FLAG", "color: red");
+
+// TODO: set properly
+e.globals.labelMapping = {
+    defaults: {
+        SPE: { directSpeech: "yes"},
+        PRN: { parenthetical: "yes" }
+    },
+    defaultSubcategories: [],
+    byLabel: {
+        IP: {
+            subcategories: ["MAT", "SUB"]
+        },
+        NP: {
+            subcategories: ["SBJ","OB1","OB2"],
+            metadataKeys: {
+                LFD: { leftDislocated: "yes" },
+                RSP: { resumptive: "yes" }
+            }
+        }
+    }
+};
