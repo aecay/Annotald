@@ -23,7 +23,6 @@ export function addKeyDownHook(fn : KeydownHook) : void {
 export function applyArgs (fn : (...args : any[]) => void, ...args : any[])
 : (e : KeyboardEvent) => void {
     return function (e : KeyboardEvent) : void {
-        args.unshift(e);
         fn.apply(undefined, args);
     }
 }
