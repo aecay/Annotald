@@ -40,22 +40,23 @@ function isValidSubcategoryForCategory (subcat : string,
 export function matchMetadataAgainstObject (key : string, value : any,
                                             object : { [key : string] : any })
 : boolean {
-    if (!object[key]) {
+    if (!object.hasOwnProperty(key)) {
         return false;
     }
     if (typeof object[key] === "string") {
         return object[key] === value;
     }
-    return _.all(_.forOwn(object[key],
-                          function (v : any, k : string) : boolean {
-                              if (!value[k]) {
-                                  return false;
-                              }
-                              return matchMetadataAgainstObject(k, value[k], v);
-                          }));
+    return _.all(_.map(value,
+                       function (v : any, k : string) : boolean {
+                           if (!object[key].hasOwnProperty(k)) {
+                               return false;
+                           }
+                           return matchMetadataAgainstObject(k, v, object[key]);
+                       }));
 }
 
 export function nodeMatchesSpec (node : Element, spec : MatchSpec) : boolean {
+    var res = true;
     if (spec.category) {
         if (node.getAttribute("data-category") !== spec.category) {
             return false;
@@ -68,14 +69,21 @@ export function nodeMatchesSpec (node : Element, spec : MatchSpec) : boolean {
     }
     if (spec.metadata) {
         var md = JSON.parse(node.getAttribute("data-metadata"));
-        var res = _.all(_.forOwn(spec.metadata, function (value : any,
-                                                          key : string)
-                                 : boolean {
-                                     return matchMetadataAgainstObject(
-                                         key, value, md);
-                                 }));
+        res = _.all(_.forOwn(spec.metadata, function (value : any,
+                                                      key : string)
+                             : boolean {
+                                 return matchMetadataAgainstObject(
+                                     key, value, md);
+                             }));
     }
     return res;
+}
+
+export function nodeMatchesLabel(n : Element,
+                                 l : string,
+                                 mapping : LabelMap = globals.labelMapping)
+: boolean {
+    return nodeMatchesSpec(n, labelToMatchSpec(l, mapping))
 }
 
 export function labelToMatchSpec (label : string, mapping : LabelMap)
@@ -102,10 +110,10 @@ export function labelToMatchSpec (label : string, mapping : LabelMap)
 }
 
 /*
-use the deep-diff package
+  use the deep-diff package
 
-make setlabel take two lists: one for nonterminals and one for terminals
-  */
+  make setlabel take two lists: one for nonterminals and one for terminals
+*/
 
 export function setLabelForNode (label : string,
                                  node : Element,
