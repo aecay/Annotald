@@ -1,11 +1,9 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-var dummy;
-
 import _ = require("lodash");
 
-import globals = require("./global"); dummy = require("./global.ts");
-import metadata = require("./metadata"); dummy = require("./metadata.ts");
+import globals = require("./global");
+import metadata = require("./metadata");
 
 export interface MatchSpec {
     category?: string;
