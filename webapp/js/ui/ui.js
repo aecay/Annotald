@@ -1,4 +1,4 @@
-/*global require: false, exports: true */
+/*global require: false, exports: true, history: false */
 
 /*jshint browser: true, devel: true */
 
@@ -7,50 +7,11 @@ var React = require("react"),
     ConfigsList = require("./config").ConfigsList,
     FileChooser = require("./file").FileChooser,
     TreeEditor = require("./tree-editor").TreeEditor,
-    $ = require("jquery");
+    $ = require("jquery"),
+    DropboxFile = require("../file/dropbox.ts");
 
-exports.AnnotaldUI = React.createClass({
-    getInitialState: function () {
-        return { view: this.initialView({}) };
-    },
+var WelcomeUI = React.createClass({
     render: function () {
-        return this.state.view;
-    },
-
-    componentDidMount: function () {
-        var that = this;
-        $(document).on("ChangeView", function (event, params) {
-            that.changeView(params);
-        });
-    },
-
-    /* TODO: we probably want to do this with some nicer sort of router
-     * technology, to bind the states together, check on each entry that the
-     * required params have been passed, and allow modularity (regustering of
-     * new views in child modules, without the parent needing to know about
-     * it...), as well as code reuse (since we might want something like this
-     * in the tree editor as well)
-     */
-    changeView: function (params) {
-        switch (params.view) {
-        case "Welcome":
-            this.setState({view : this.initialView(params)});
-            break;
-        case "EditTree":
-            this.setState({view: TreeEditor({ file: params.file,
-                                              // TODO: hackasaurus!!!
-                                              config: $("#config-chooser").val()
-                                            })});
-            break;
-        case "EditConfig":
-            this.setState({view: ConfigEditor({ name: params.name })});
-            break;
-        default:
-            this.setState({view: React.DOM.div("Don't know about view: " +
-                                               params.view)});
-        }
-    },
-    initialView: function (params) {
         return React.DOM.div(
             {},
             React.DOM.h1({}, "Welcome to Annotald"),
@@ -64,6 +25,92 @@ exports.AnnotaldUI = React.createClass({
                               }})),
             React.DOM.div({style: { width: "30%",
                                     float: "right" }},
-                          ConfigsList({name: params.name })));
+                          ConfigsList()));
+    }
+});
+
+exports.AnnotaldUI = React.createClass({
+    getInitialState: function () {
+        var s = history.state;
+        if (s) {
+            return this.restoreState(s);
+        }
+        return { view: WelcomeUI({}) };
+    },
+    render: function () {
+        return this.state.view;
+    },
+    componentDidMount: function () {
+        var that = this;
+        $(document).on("ChangeView", function (event, params) {
+            var view = params.view;
+            delete params.view;
+            that.changeView(view, params);
+        });
+    },
+    restoreState: function (state) {
+        var params = state.params;
+        switch (state.view) {
+        case "EditTree":
+            if (!params.hasOwnProperty("file")) {
+                switch (params.fileType) {
+                case "Local":
+                    state.view = "Welcome";
+                    state.params = {};
+                    break;
+                case "Dropbox":
+                    params.file = DropboxFile.DropboxFile(params.serialization);
+                    delete params.fileType;
+                    delete params.serialization;
+                    break;
+                }
+            }
+            break;
+        }
+        return this.getView(state.view, state.params);
+    },
+    getView: function (view, params) {
+        switch (view) {
+        case "Welcome":
+            return WelcomeUI(params);
+        case "EditTree":
+            return  TreeEditor({ file: params.file,
+                                 // TODO: hackasaurus!!!
+                                 config: params.config || $("#config-chooser").val()
+                               });
+        case "EditConfig":
+            return ConfigEditor({ name: params.name });
+        default:
+            return React.DOM.div("Don't know about view: " + view);
+        }
+    },
+
+    changeView: function (view, params) {
+        this.setState({ view: this.getView(view, params) });
+        switch (view) {
+        case "Welcome":
+            history.replaceState({ view: "Welcome",
+                                   params: params },
+                              "Welcome",
+                              "#welcome");
+            break;
+        case "EditTree":
+            history.replaceState({ view: "EditTree",
+                                   params: { fileType: params.file.fileType,
+                                             serialization: params.file.serialize(),
+                                             config: params.config
+                                           }},
+                              "Edit tree",
+                              "#edit-tree");
+            break;
+        case "EditConfig":
+            history.replaceState({ view: "EditConfig",
+                                   params: params },
+                                 "Edit config",
+                                 "#edit-config");
+            break;
+        default:
+            break;
+        }
     }
 });

@@ -12,8 +12,7 @@ var React = require("react"),
 
 exports.TreeEditor = React.createClass({
     exit: function () {
-        $(document).trigger("ChangeView", { view: "Welcome",
-                                            name: this.props.config });
+        $(document).trigger("ChangeView", { view: "Welcome" });
     },
     render: function () {
         return template;

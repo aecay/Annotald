@@ -11,7 +11,8 @@ var React = require("react"),
     Q = require("q"),
     FileChooser = require("./file").FileChooser,
     $ = require("jquery"),
-    _ = require("lodash");
+    _ = require("lodash"),
+    localForage = require("localforage");
 require("brace/mode/javascript");
 require("brace/theme/xcode");
 
@@ -81,6 +82,10 @@ exports.ConfigsList = React.createClass({
         return { names: [], adding: false };
     },
 
+    getDefaultProps: function () {
+        return { name: "default" };
+    },
+
     componentWillMount: function () {
         this.updateFromDb();
     },
@@ -92,11 +97,11 @@ exports.ConfigsList = React.createClass({
     },
 
     componentDidMount: function () {
-        if (this.state.name) {
-            // TODO: does this even work? and can it be done without
-            // getDOMNode?
-            $(this.refs.config.getDOMNode()).val(this.state.name);
-        }
+        localForage.getItem("lastConfig").then(function (c) {
+            if (c) {
+                $(this.refs.config.getDOMNode()).val(c);
+            }
+        });
     },
 
     render: function () {
@@ -118,6 +123,9 @@ exports.ConfigsList = React.createClass({
             that.doDelete(that.refs.config.getDOMNode().value);
             return false;
         }
+        function change () {
+            localForage.setItem("lastConfig", that.refs.config.getDOMNode().value);
+        }
         if (this.state.adding) {
             addForm = <form onSubmit={add}>
                 <input type="text" placeholder="New config name" ref="newName" />
@@ -132,7 +140,7 @@ exports.ConfigsList = React.createClass({
                 href="#">Add new</a>;
         }
         return (<div id="configs-list">
-            <select ref="config" id="config-chooser">
+            <select ref="config" id="config-chooser" onChange={change}>
             {this.state.names.map(renderConfig)}
             </select><span> </span>
             <a href="#" onClick={edit}>edit</a> <span> &ndash; </span>
