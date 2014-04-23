@@ -118,6 +118,16 @@ also: google drive file picker https://gist.github.com/Daniel15/5994054
 https://github.com/naoxink/notifIt
 * router
 https://github.com/andreypopp/react-router-component
+https://github.com/mephux/annex
 * grunt tips
 ** Supercharging your Gruntfile
    [[http://www.html5rocks.com/en/tutorials/tooling/supercharging-your-gruntfile/][Supercharging your Gruntfile]]
+* lua in browser
+https://github.com/blixt/js-luaworker
+* forms
+http://newforms.readthedocs.org/en/latest/
+* multiline strings
+https://github.com/sindresorhus/multiline
+* files in browser
+combine https://gildas-lormeau.github.io/zip.js/fs-api.html for uploads
+with https://www.npmjs.org/package/browserify-fs
