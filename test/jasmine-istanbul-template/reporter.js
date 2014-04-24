@@ -1,5 +1,5 @@
 /* jshint camelcase: false */
-/* globals jasmine, phantom, __coverage__ */
+/*global jasmine, phantom, __coverage__ */
 /**
  * Reports the coverage results after the test have run.
  *
