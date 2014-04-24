@@ -1,0 +1,8 @@
+text = txt:[^()-]+ lemma:("-" [^()-]+ )? {
+if (lemma) {
+    lemma = lemma.join("").substr(1);
+}
+return {
+    text: txt.join(""),
+    lemma: lemma
+}; }

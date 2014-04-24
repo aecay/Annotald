@@ -14,7 +14,7 @@ var typescriptifyCached = cacheify(typescriptify, dbt);
 var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
                                   "brace/theme/xcode","brace/mode/javascript",
                                   "q","dropbox","lodash","growl",
-                                  "br-mousetrap"],
+                                  "br-mousetrap","pegjs"],
     annotaldBrowserifyTransforms = [typescriptifyCached, reactifyCached,
                                     "browserify-shim", "brfs"];
 
@@ -36,6 +36,7 @@ module.exports = function (grunt) {
                     ,'webapp/js/ext/growl.js'
                     ,'node_modules/lodash/dist/lodash.js'
                     ,'node_modules/br-mousetrap/mousetrap.js'
+                    ,'node_modules/pegjs/lib/peg.js'
                 ],
                 dest: 'webapp/build/ext.js',
                 options: {
@@ -50,7 +51,8 @@ module.exports = function (grunt) {
                             'webapp/js/ext/dropbox.js:dropbox',
                             'webapp/js/ext/growl.js:growl',
                             'node_modules/lodash/dist/lodash.js:lodash',
-                            'node_modules/br-mousetrap/mousetrap.js:br-mousetrap'
+                            'node_modules/br-mousetrap/mousetrap.js:br-mousetrap',
+                            'node_modules/pegjs/lib/peg.js:pegjs'
                            ]
                 }
             },

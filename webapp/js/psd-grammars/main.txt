@@ -1,0 +1,46 @@
+corpus = tree+
+
+obligws = [ \t\n]
+ws = obligws*
+
+tree = ws "( " tree:(idwithtree / leafastree) ")" ws { return tree; }
+idwithtree = tree:nonterminal id:id? { return { id: id, tree: tree }; }
+id = ws "(ID " id:[A-Za-z0-9.,-]+ ")" ws { return id.join(""); }
+leafastree = leaf:leaf { return { tree: leaf }; }
+
+nonterminal = ws "(" label:ntlabel index:index? obligws desc:(leaf / nonterminal)+ ")" ws {
+    return { label: label,
+             index: index,
+             desc: desc };
+}
+ntlabel = ntlabelpiece ("-" ntlabelpiece)* { return text(); }
+ntlabelpiece = [A-Z][A-Z0-9]+
+
+leaf = ws leaf:( comment / noncommentleaf ) ws {
+    return leaf;
+}
+noncommentleaf = "(" label:leaflabel index:index? " " rhs:leafrhs ")" {
+    rhs.label = label;
+    rhs.index = index;
+    return rhs;
+}
+leafrhs = trace / ec / comment / text
+trace = "*" tracetype:[A-Z]+ "*" index { return {
+    type: "trace",
+    index: index,
+    tracetype: tracetype
+}; }
+ec = ec:(fullec / zeroec) { ec.type = "ec"; return ec; }
+fullec = "*" ectype:[a-z]+ "*" { return { ectype: ectype}; }
+zeroec = "0" { return { ectype: ectype}; }
+
+comment = "(CODE " com:(structuredcomment / freecomment) ")" {
+    com.type = "comment"; return com;
+}
+structuredcomment = "{" comtype:[A-Z]+ ":" text:[^)}]+ "}" {
+    return { comtype: comtype, text: text };
+}
+freecomment = text:[^)]+ { return { text: text }; }
+
+index = idxtype:idxtype index:[0-9]+ { return { idxtype: idxtype, index: index }; }
+idxtype = [-=] { return text === "=" ? "gap" : "regular" ; }

@@ -74,3 +74,4 @@ doc/README.asciidoc
 /test/build/spec-entry.js
 /test/build/spec-entry-debug.js
 /_SpecRunner.html
+/webapp/js/parse-psd.js
