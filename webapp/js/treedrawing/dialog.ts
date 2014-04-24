@@ -4,7 +4,6 @@
 
 import $ = require("jquery");
 
-import events = require("./events");
 import bindings = require("./bindings");
 
 var dialogShowing : boolean = false;

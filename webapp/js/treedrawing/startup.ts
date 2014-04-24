@@ -40,7 +40,8 @@ export function quitTreeDrawing (e : Event, force : boolean) : void {
     if (!force && $("#editpane").html() !== lastSavedState) {
 
         displayError("Cannot exit, unsaved changes exist.  <a href='#' " +
-                     "onclick='quitTreedrawing(null, true);return false;'>Force</a>");
+                     "onclick='quitTreedrawing(null, true);return false;'>" +
+                     "Force</a>");
     } else {
         document.body.onkeydown = savedOnKeydown;
         document.body.onmouseup = savedOnMouseup;
@@ -53,7 +54,9 @@ export function quitTreeDrawing (e : Event, force : boolean) : void {
     }
 }
 // TODO: this is a hack!
+/* tslint:disable:no-string-literal */
 window["quitTreedrawing"] = quitTreeDrawing;
+/* tslint:enable:no-string-literal */
 
 function navigationWarning () : string {
     if ($("#editpane").html() !== lastSavedState) {

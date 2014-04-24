@@ -1,5 +1,18 @@
 ///<reference path="./../../../types/all.d" />
 
+// IE continues to strike: https://typescript.codeplex.com/workitem/1598
+// Ugh.
+interface MutationObserver {
+    observe(target : Node, options : MutationObserverInit) : void;
+    takeRecords() : MutationRecord[];
+    disconnect() : void;
+}
+declare var MutationObserver: {
+    prototype : MutationObserver;
+    new (callback: (arr : MutationRecord[],
+                    observer : MutationObserver) => any) : MutationObserver;
+};
+
 import $ = require("jquery");
 import _ = require("lodash");
 import startup = require("./startup");

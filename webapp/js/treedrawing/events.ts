@@ -7,7 +7,6 @@ import _ = require("lodash");
 
 import globals = require("./global"); dummy = require("./global");
 import contextmenu = require("./contextmenu"); dummy = require("./contextmenu");
-import bindings = require("./bindings"); dummy = require("./bindings");
 import undo = require("./undo"); dummy = require("./undo");
 import selection = require("./selection"); dummy = require("./selection");
 import edit = require("./struc-edit"); dummy = require("./struc-edit");

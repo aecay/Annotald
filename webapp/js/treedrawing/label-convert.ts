@@ -83,7 +83,7 @@ export function nodeMatchesLabel(n : Element,
                                  l : string,
                                  mapping : LabelMap = globals.labelMapping)
 : boolean {
-    return nodeMatchesSpec(n, labelToMatchSpec(l, mapping))
+    return nodeMatchesSpec(n, labelToMatchSpec(l, mapping));
 }
 
 export function labelToMatchSpec (label : string, mapping : LabelMap)

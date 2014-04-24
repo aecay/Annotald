@@ -24,7 +24,7 @@ export function applyArgs (fn : (...args : any[]) => void, ...args : any[])
 : (e : KeyboardEvent) => void {
     return function (e : KeyboardEvent) : void {
         fn.apply(undefined, args);
-    }
+    };
 }
 
 function wrapBinding (fn : (e : KeyboardEvent) => void)
@@ -67,11 +67,11 @@ M.stopCallback = function stopCallabck(e : KeyboardEvent,
     }
 
     // stop for input, select, and textarea
-    return element.tagName == 'INPUT' ||
-        element.tagName == 'SELECT' ||
-        element.tagName == 'TEXTAREA' ||
-        (element.contentEditable && element.contentEditable == 'true');
-}
+    return element.tagName === 'INPUT' ||
+        element.tagName === 'SELECT' ||
+        element.tagName === 'TEXTAREA' ||
+        (element.contentEditable && element.contentEditable === 'true');
+};
 
 export function inhibit () : void {
     bindingsInhibited = true;
@@ -81,8 +81,9 @@ export function uninhibit () : void {
     bindingsInhibited = false;
 }
 
-startup.addStartupHook(function () {
-    _.each(keyBindings, function (v : (e : KeyboardEvent) => void, k : string) {
+startup.addStartupHook(function () : void {
+    _.each(keyBindings, function (v : (e : KeyboardEvent) => void,
+                                  k : string) : void {
         M.bind(k, wrapBinding(v));
-    })
+    });
 });

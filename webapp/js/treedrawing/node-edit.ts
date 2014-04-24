@@ -516,7 +516,6 @@ export function splitWord () : void {
 }
 splitWord["async"] = true;
 
-
 /**
  * Set the label of a node intelligently
  *
