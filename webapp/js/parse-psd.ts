@@ -13,5 +13,6 @@ var icelandicLeaf = fs.readFileSync(__dirname + "/psd-grammars/icelandic-leaf.tx
 
 export function parseCorpus (corpus : string) : any {
     var parser = peg.buildParser(grammar + icelandicText + icelandicLeaf);
-    return parser.parse(corpus);
+    var res = parser.parse(corpus);
+    return res;
 }

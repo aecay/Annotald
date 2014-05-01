@@ -8,19 +8,18 @@ var parsePsd = require("../../webapp/js/parse-psd.ts"),
     _ = require("lodash");
 
 function L(label, text, lemma, index) {
-    if (typeof lemma === "undefined") lemma = null;
-    return {
+    var ret = {
         label: label,
-        text: text,
-        lemma: lemma,
-        index: index
+        text: text
     };
+    if (typeof lemma !== "undefined") ret.lemma = lemma;
+    if (typeof index !== "undefined") ret.index = index;
+    return ret;
 }
 
 describe("The PSD parser", function () {
     it("should parse a leaf properly", function () {
         expect(P("( (FOO bar))")).toEqual(
             [{ tree: L("FOO", "bar") }]);
-        expect(_.isEqual(P("( (FOO bar))"), [{ tree: L("FOO", "bar") }])).toBeTrue();
     });
 });
