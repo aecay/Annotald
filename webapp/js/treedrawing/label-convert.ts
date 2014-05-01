@@ -37,22 +37,26 @@ function isValidSubcategoryForCategory (subcat : string,
             mapping.byLabel[cat].subcategories.indexOf(subcat) >= 0);
 }
 
-export function matchMetadataAgainstObject (key : string, value : any,
-                                            object : { [key : string] : any })
-: boolean {
-    if (!object.hasOwnProperty(key)) {
-        return false;
-    }
-    if (typeof object[key] === "string") {
-        return object[key] === value;
-    }
-    return _.all(_.map(value,
-                       function (v : any, k : string) : boolean {
-                           if (!object[key].hasOwnProperty(k)) {
-                               return false;
-                           }
-                           return matchMetadataAgainstObject(k, v, object[key]);
-                       }));
+function matchObjects(o1 : { [key : string] : any },
+                             o2 : { [key : string] : any }) : boolean
+{
+    var ret = true;
+    _.forOwn(o1, function (value : any, key : string) : boolean {
+        if (!_.has(o2, key)) {
+            ret = false;
+            return false;
+        } else if (_.isObject(value)) {
+            if (!matchObjects(value, o2[key])) {
+                ret = false;
+                return false;
+            }
+        } else if (!_.isEqual(value, o2[key])) {
+            ret = false;
+            return false;
+        }
+        return true;
+    });
+    return ret;
 }
 
 export function nodeMatchesSpec (node : Element, spec : MatchSpec) : boolean {
@@ -69,12 +73,11 @@ export function nodeMatchesSpec (node : Element, spec : MatchSpec) : boolean {
     }
     if (spec.metadata) {
         var md = JSON.parse(node.getAttribute("data-metadata"));
-        res = _.all(_.forOwn(spec.metadata, function (value : any,
-                                                      key : string)
-                             : boolean {
-                                 return matchMetadataAgainstObject(
-                                     key, value, md);
-                             }));
+        res = _.all(_.map(spec.metadata, function (value : any,
+                                                   key : string)
+                          : boolean {
+                              return matchObjects(spec.metadata, md);
+                          }));
     }
     return res;
 }
