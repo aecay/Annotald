@@ -21,7 +21,7 @@ leaf = ws leaf:( comment / noncommentleaf ) ws {
 }
 noncommentleaf = "(" label:leaflabel index:index? " " rhs:leafrhs ")" {
     rhs.label = label;
-    rhs.index = index;
+    if (index) rhs.index = index;
     return rhs;
 }
 leafrhs = trace / ec / comment / text
