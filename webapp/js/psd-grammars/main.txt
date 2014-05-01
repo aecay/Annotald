@@ -4,17 +4,29 @@ obligws = [ \t\n]
 ws = obligws*
 
 tree = ws "( " tree:(idwithtree / leafastree) ")" ws { return tree; }
-idwithtree = tree:nonterminal id:id? { return { id: id, tree: tree }; }
+idwithtree = tree:nonterminal id:id? {
+    var ret = { tree: tree };
+    if (id) ret.id = id;
+    return ret;
+}
 id = ws "(ID " id:[A-Za-z0-9.,-]+ ")" ws { return id.join(""); }
 leafastree = leaf:leaf { return { tree: leaf }; }
 
 nonterminal = ws "(" label:ntlabel index:index? obligws desc:(leaf / nonterminal)+ ")" ws {
-    return { label: label,
-             index: index,
-             desc: desc };
+    var ret = label;
+    if (index) ret.index = index;
+    ret.desc = desc;
+    return ret;
 }
-ntlabel = ntlabelpiece ("-" ntlabelpiece)* { return text(); }
-ntlabelpiece = [A-Z][A-Z0-9]+
+ntlabel = cat:ntlabelpiece subcat:("-" ntlabelpiece)* {
+var ret = {
+    category: cat
+};
+    if (subcat && subcat.length > 0) ret.subcategory = subcat.join("-");
+    return ret;
+}
+
+ntlabelpiece = [A-Z][A-Z0-9]+ { return text(); }
 
 leaf = ws leaf:( comment / noncommentleaf ) ws {
     return leaf;
