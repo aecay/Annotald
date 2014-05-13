@@ -1,0 +1,27 @@
+{
+  "version": "v4",
+  "repo": "borisyankov/DefinitelyTyped",
+  "ref": "master",
+  "path": "types",
+  "bundle": "types/all.d.ts",
+  "installed": {
+    "q-io/Q-io.d.ts": {
+      "commit": "9371c65e5a288612195b4dac93dd9b57dc41911a"
+    },
+    "node/node.d.ts": {
+      "commit": "9371c65e5a288612195b4dac93dd9b57dc41911a"
+    },
+    "jquery/jquery.d.ts": {
+      "commit": "9371c65e5a288612195b4dac93dd9b57dc41911a"
+    },
+    "lodash/lodash.d.ts": {
+      "commit": "9371c65e5a288612195b4dac93dd9b57dc41911a"
+    },
+    "q/Q.d.ts": {
+      "commit": "9371c65e5a288612195b4dac93dd9b57dc41911a"
+    },
+    "pegjs/pegjs.d.ts": {
+      "commit": "9371c65e5a288612195b4dac93dd9b57dc41911a"
+    }
+  }
+}
