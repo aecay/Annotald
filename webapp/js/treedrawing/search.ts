@@ -4,7 +4,7 @@ import $ = require("jquery");
 import startup = require("./startup");
 import utils = require("./utils");
 import dialog = require("./dialog");
-var logger = require("../ui/log");
+import log = require("../ui/log");
 
 // TODO: anchor right end of string, so that NP does not match NPR, only NP or
 // NP-X (???)
@@ -252,7 +252,7 @@ function searchDelNode(e : Event) : void {
     var tmp = $("#searchnodes").children(".searchnode:not(.newsearchnode)");
     if (tmp.length === 1 && tmp.is(node) &&
         node.children(".searchnode").length === 0) {
-        logger.warning("Cannot remove only search term!");
+        log.warning("Cannot remove only search term!");
         return;
     }
     var child = node.children(".searchnode").first();

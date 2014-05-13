@@ -6,7 +6,7 @@ import selection = require("./selection");
 import startup = require("./startup");
 import utils = require("./utils");
 
-var logger = require("../ui/log");
+import logger = require("../ui/log");
 
 // TODO: organize this code
 

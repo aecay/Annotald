@@ -1,18 +1,16 @@
-/*global require: false, exports: true */
-
 var notify = require("growl").growl;
 
-exports.error = function (text) {
+export function error (text : string) : void {
     notify.error({ title: "Error",
                    message: text });
 };
 
-exports.warning = function (text) {
+export function warning (text : string) : void {
     notify.warning({ title: "Warning",
                      message: text });
 };
 
-exports.notice = function (text) {
+export function notice (text : string) : void {
     notify.notice({ message: text,
                     title: ""});
 };

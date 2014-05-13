@@ -6,7 +6,7 @@ import file = require("./file");
 
 import Q = require ("q");
 var DropboxCore = require("../ext/dropbox");
-var notify = require("../ui/log");
+import notify = require("../ui/log");
 import $ = require("jquery");
 
 declare var Dropbox;

@@ -6,7 +6,7 @@ import $ = require("jquery");
 import _ = require("lodash");
 import utils = require("./utils");
 import undo = require("./undo");
-var logger = require("../ui/log");
+import log = require("../ui/log");
 import selection = require("./selection");
 import events = require("./events");
 import dialog = require("./dialog");
@@ -249,7 +249,7 @@ export function displayRename () : void {
                         // }
                     }
                     if (newword + newlemma === "") {
-                        logger.warning("Cannot create an empty leaf.");
+                        log.warning("Cannot create an empty leaf.");
                         return;
                     }
                     replNode = leafEditorReplacement(newlabel, newword,
@@ -471,17 +471,17 @@ export function splitWord () : void {
     function doSplit () : void {
         var words = $("#splitWordInput").val().split("@");
         if (words.join("") !== origWord) {
-            logger.warning("The two new words don't match the original.  Aborting");
+            log.warning("The two new words don't match the original.  Aborting");
             undo.undoAbortTransaction();
             return;
         }
         if (words.length < 0) {
-            logger.warning("You have not specified where to split the word.");
+            log.warning("You have not specified where to split the word.");
             undo.undoAbortTransaction();
             return;
         }
         if (words.length > 2) {
-            logger.warning("You can only split in one place at a time.");
+            log.warning("You can only split in one place at a time.");
             undo.undoAbortTransaction();
             return;
         }
