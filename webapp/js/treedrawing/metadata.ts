@@ -15,7 +15,9 @@ function setInDict (dict : { [key: string] : any },
 : { [key: string] : any } {
     if (typeof val === "string") {
         if (remove) {
+            /* tslint:disable:no-unused-expression */
             delete dict[key];
+            /* tslint:enable:no-unused-expression */
         } else {
             dict[key] = val;
         }
@@ -23,7 +25,9 @@ function setInDict (dict : { [key: string] : any },
         _.forOwn(val, function (v : any, k : string) : void {
             dict[key] = setInDict(dict[key] || {}, k, v, remove);
             if (_.isEmpty(dict[key])) {
+                /* tslint:disable:no-unused-expression */
                 delete dict[key];
+                /* tslint:enable:no-unused-expression */
             }
         });
     }
