@@ -1,6 +1,6 @@
 ///<reference path="./../../types/all.d.ts" />
 
-var peg = require("pegjs");
+import peg = require("pegjs");
 var fs = require("fs");
 
 var grammar = fs.readFileSync(__dirname + "/psd-grammars/main.txt");
