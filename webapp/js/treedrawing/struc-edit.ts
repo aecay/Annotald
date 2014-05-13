@@ -346,8 +346,8 @@ export function pruneNode() : void {
  */
 export function makeLeaf(before : boolean,
                          label : string = "NP-SBJ",
-                         word : string = "*con",
-                         target? : Node) : void
+                         word : string = "*con*",
+                         target? : Element) : void
 {
     if (!(target || selection.get())) {
         return;

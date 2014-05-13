@@ -141,7 +141,7 @@ function setCaseOnTag(node : JQuery, theCase : string) : () => void {
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
-function doConLeaf(conleaf : ConLeaf, node : Node) : () => void {
+function doConLeaf(conleaf : ConLeaf, node : Element) : () => void {
     return function () : void {
         edit.makeLeaf(conleaf.before, conleaf.label, conleaf.word, node);
         hideContextMenu();
