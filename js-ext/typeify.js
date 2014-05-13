@@ -24,6 +24,7 @@ function compile(file, data, cb) {
 
     childproc.exec("tsc -m commonjs " + file, { encoding: "utf8" }, function (error, stdout, stderr) {
         if ((stdout && stdout.length > 0) || (stderr && stderr.length > 0)) {
+            console.log("Err: " + file);
             var tce = new TypescriptCompileError();
             tce.stdout = stdout.toString();
             tce.stderr = stderr.toString();
