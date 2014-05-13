@@ -62,15 +62,15 @@ M.stopCallback = function stopCallabck(e : KeyboardEvent,
     }
 
     // if the element has the class "mousetrap" then no need to stop
-    if (element.classList.contains('mousetrap')) {
+    if (element.classList.contains("mousetrap")) {
         return false;
     }
 
     // stop for input, select, and textarea
-    return element.tagName === 'INPUT' ||
-        element.tagName === 'SELECT' ||
-        element.tagName === 'TEXTAREA' ||
-        (element.contentEditable && element.contentEditable === 'true');
+    return element.tagName === "INPUT" ||
+        element.tagName === "SELECT" ||
+        element.tagName === "TEXTAREA" ||
+        (element.contentEditable && element.contentEditable === "true");
 };
 
 export function inhibit () : void {
