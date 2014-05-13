@@ -54,8 +54,9 @@ export function editComment () : void {
                   '<input type="button"' +
                   'id="commentEditButton" value="Save" /></div>');
     $("input:radio[name=commentType]").val([commentType]);
-    $("#commentEditBox").focus().get(0).setSelectionRange(commentText.length,
-                                                          commentText.length);
+    (<HTMLInputElement>$("#commentEditBox").focus().get(0))
+        .setSelectionRange(commentText.length,
+                           commentText.length);
     function editCommentDone (change : boolean) : void {
         if (change) {
             var newText = $.trim($("#commentEditBox").val());
