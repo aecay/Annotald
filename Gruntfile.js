@@ -218,19 +218,17 @@ module.exports = function (grunt) {
                 }
             }
         },
-        "tpm-install": {
-            options: {
-                dev: true
-            },
-            all: {
-                src: ["package.json","bower.json"],
-                dest: "types/"
-            }
-        },
         "tpm-index": {
             all: {
                 src: "types/**/*.d.ts",
                 dest: "types/all.d.ts"
+            }
+        },
+        tsd: {
+            refresh: {
+                command: "reinstall",
+                latest: true,
+                config: "tsd.json"
             }
         }
     });
