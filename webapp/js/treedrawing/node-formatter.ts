@@ -7,7 +7,7 @@ interface MutationObserver {
     takeRecords() : MutationRecord[];
     disconnect() : void;
 }
-declare var MutationObserver: {
+declare var MutationObserver : {
     prototype : MutationObserver;
     new (callback: (arr : MutationRecord[],
                     observer : MutationObserver) => any) : MutationObserver;
@@ -47,8 +47,22 @@ function snodeChange (records : MutationRecord[],
         formatSnode(record.target);
     });
 }
-
 var snodeMO = new MutationObserver(snodeChange);
+
+function snode0Addition (records : MutationRecord[],
+                         observer : MutationObserver) : void
+{
+    _.each(records, function (record : MutationRecord) : void {
+        _.each(record.addedNodes, function (node : Node) : void {
+            if (node instanceof HTMLElement &&
+                (<HTMLElement>node).classList.contains("snode")) {
+                formatSnode(node);
+                observeSnode(<Element>node);
+            }
+        });
+    });
+}
+var snode0MO = new MutationObserver(snode0Addition);
 
 startup.addStartupHook(function () : void {
     $(".snode").each(function () : void {
@@ -58,6 +72,8 @@ startup.addStartupHook(function () : void {
         formatSnode(this);
         observeSnode(this);
     });
+    snode0MO.observe(document.getElementById("sn0"),
+                     { childList: true, subtree: true });
 });
 
 export function observeSnode (snode : Element) : void {
