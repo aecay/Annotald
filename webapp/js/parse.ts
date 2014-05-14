@@ -1,23 +1,20 @@
-/*global DOMParser: false, exports: true, XMLSerializer: false,
- require: false */
+///<reference path="./../../types/all.d.ts" />
 
-/*jshint browser: true */
+import $ = require("jquery");
 
-var $ = require("jquery");
-
-function makeWnode (xmlNode) {
-    var wnode = document.createElement("span"),
-        tn = document.createTextNode(xmlNode.textContent);
+function makeWnode (xmlNode : Node) : Node {
+    var wnode = document.createElement("span");
+    var tn = document.createTextNode(xmlNode.textContent);
     wnode.className = "wnode";
     wnode.appendChild(tn);
     return wnode;
 }
 
-function makeSnode (xmlNode) {
-    var snode = document.createElement("div"),
-        cn = xmlNode.childNodes,
-        atts = xmlNode.attributes,
-        c, a, i;
+function makeSnode (xmlNode : Node) : Node {
+    var snode = document.createElement("div");
+    var cn = xmlNode.childNodes;
+    var atts = xmlNode.attributes;
+    var c, a, i;
     snode.className = "snode";
     for (i = 0; i < cn.length; i++) {
         c = cn[i];
@@ -35,7 +32,7 @@ function makeSnode (xmlNode) {
     return snode;
 }
 
-exports.parseXmlToHtml = function parseXmlToHtml (xml) {
+export function parseXmlToHtml (xml : string) : Node {
     var dom = new DOMParser().parseFromString(xml, "text/xml"),
         sn0 = document.createElement("div"),
         rootElement = dom.childNodes[0],
@@ -53,13 +50,25 @@ exports.parseXmlToHtml = function parseXmlToHtml (xml) {
     return sn0;
 };
 
-function nodeToXml (doc, node, root) {
+function terminalNodeToString (node : HTMLElement) : string {
+    var wnode;
+    for (var i = 0; i < node.children.length; i++) {
+        if (node.children[i].nodeType === 1 &&
+            (<HTMLElement>node.children[i]).classList.contains("wnode")) {
+            wnode = node.children[i];
+            break;
+        }
+    }
+    return wnode.textContent;
+}
+
+function nodeToXml (doc : Document, node : HTMLElement, root? : boolean) : Node {
     var name, i, recurse = true;
     if (root) {
         name = "sentence";
     } else {
         if (node.children.length === 1 &&
-            node.children[0].classList.contains("wnode")) {
+            (<HTMLElement>node.children[0]).classList.contains("wnode")) {
             // Terminal
             name = node.attributes["data-nodetype"].value;
             recurse = false;
@@ -84,22 +93,22 @@ function nodeToXml (doc, node, root) {
     if (recurse) {
         for (i = 0; i < node.childNodes.length; i++) {
             if (node.childNodes[i].nodeType === 1) {
-                // Element node or text node
-                s.appendChild(nodeToXml(doc, node.childNodes[i]));
+                // Element node
+                s.appendChild(nodeToXml(doc, <HTMLElement>node.childNodes[i]));
             }
         }
     } else {
-        var tn = doc.createTextNode(node.textContent);
+        var tn = doc.createTextNode(terminalNodeToString(<HTMLElement>node));
         s.appendChild(tn);
     }
     return s;
 }
 
-exports.parseHtmlToXml = function parseHtmlToXml (node) {
+export function parseHtmlToXml (node : Node) : string {
     var doc = document.implementation.createDocument("foo", "", null);
     var corpus = document.createElementNS("foo", "corpus");
     doc.appendChild(corpus);
-    $(node).each(function () {
+    $(node).children().each(function () : void {
         corpus.appendChild(nodeToXml(doc, this, true));
     });
     return (new XMLSerializer).serializeToString(doc).replace(/ xmlns="foo"/, "");
