@@ -6,13 +6,13 @@ var React = require("react"),
     configStore = require("../config-store"),
     ace = require("brace"),
     notify = require("./log"),
-    fileLocal = require("../file-local"),
+    // TODO: conditional for node webkit
+    fileLocal = require("../file/local"),
     vex = require("vex"),
     Q = require("q"),
     FileChooser = require("./file").FileChooser,
     $ = require("jquery"),
-    _ = require("lodash"),
-    localForage = require("localforage");
+    _ = require("lodash");
 require("brace/mode/javascript");
 require("brace/theme/xcode");
 
@@ -97,7 +97,7 @@ exports.ConfigsList = React.createClass({
     },
 
     componentDidMount: function () {
-        localForage.getItem("lastConfig").then(function (c) {
+        configStore.getLastConfig().then(function (c) {
             if (c) {
                 $(this.refs.config.getDOMNode()).val(c);
             }
@@ -124,7 +124,7 @@ exports.ConfigsList = React.createClass({
             return false;
         }
         function change () {
-            localForage.setItem("lastConfig", that.refs.config.getDOMNode().value);
+            configStore.setLastConfig(that.refs.config.getDOMNode().value);
         }
         if (this.state.adding) {
             addForm = <form onSubmit={add}>
