@@ -8,6 +8,7 @@ import selection = require("./selection");
 import undo = require("./undo");
 import events = require("./events");
 import conf = require("./config");
+import lc = require("./label-convert");
 
 // * Coindexation
 
@@ -396,7 +397,7 @@ export function makeLeaf(before : boolean,
         }
     }
 
-    var newleaf = "<div class='snode " + label + "'>" + label +
+    var newleaf = "<div class='snode' data-nodetype='leaf'>" +
         "<span class='wnode'>" + word;
     if (lemma !== "") {
         newleaf += "<span class='lemma'>-" + lemma +
@@ -409,6 +410,7 @@ export function makeLeaf(before : boolean,
     } else {
         newleafJQ.insertAfter(target);
     }
+    lc.setLabelForNode(label, newleafJQ.get(0));
     if (doCoindex) {
         selection.set(newleafJQ.get(0));
         coIndex();
