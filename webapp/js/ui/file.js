@@ -24,7 +24,7 @@ var RecentFileItem = React.createClass({
             {},
             this.props.type,
             ": ",
-            this.props.params.path,
+            this.props.params.path || this.props.params.name,
             " ",
             React.DOM.a({
                 onClick: this.open,
@@ -84,11 +84,14 @@ exports.FileChooser = React.createClass({
                 {},
                 // TODO: deduce this automatically from registered file types
                 this.fileChoice(fileLocal, "Local file"),
-                this.fileChoice(fileDropbox.DropboxFile, "Dropbox file")),
-            RecentFileList({
-                filesPromise: recent.getRecentFiles(),
-                callback: this.props.callback
-            })
+                this.fileChoice(fileDropbox.DropboxFile, "Dropbox file"),
+                React.DOM.li({},
+                             "Recent files:",
+                             React.DOM.br({}),
+                             RecentFileList({
+                                 filesPromise: recent.getRecentFiles(),
+                                 callback: this.props.callback
+                             })))
         );
     }
 });
