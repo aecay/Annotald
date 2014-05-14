@@ -1,8 +1,14 @@
-/*global require: false, exports: true */
+/*global require: false, exports: true, process: false */
 
 var React = require("react"),
-    fileLocal = require("../file/local.ts"),
-    fileDropbox = require("../file/dropbox.ts");
+    fileDropbox = require("../file/dropbox.ts"),
+    fileLocal;
+
+if (process.env.ENV === "node-webkit") {
+    fileLocal = require("../file/nw-file.ts").NwFile;
+} else {
+    fileLocal = require("../file/local.ts").LocalFile;
+}
 
 exports.FileChooser = React.createClass({
     open: function (module) {
@@ -24,7 +30,7 @@ exports.FileChooser = React.createClass({
     render: function () {
         return React.DOM.ul(
             {},
-            this.fileChoice(fileLocal.LocalFile, "Local file"),
+            this.fileChoice(fileLocal, "Local file"),
             this.fileChoice(fileDropbox.DropboxFile, "Dropbox file"));
     }
 });
