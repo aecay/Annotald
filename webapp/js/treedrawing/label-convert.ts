@@ -140,7 +140,8 @@ export function setLabelForNode (label : string,
         var submapping = mapping.byLabel[category].metadataKeys || {};
         _.map(pieces, function (piece : string) : void {
             var action : LabelMapAction = submapping[piece] ||
-                mapping.defaults[piece];
+                mapping.defaults[piece] ||
+                { key : piece, value: "yes" };
             if (!action) {
                 return;
             }
