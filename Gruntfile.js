@@ -217,7 +217,7 @@ module.exports = function (grunt) {
         },
         watch: {
             annotald: {
-                files: ['webapp/js/**/*.js'],
+                files: ['webapp/js/**/*.js', 'webapp/js/**/*.ts'],
                 tasks: ['build-annotald']
             },
             css: {
