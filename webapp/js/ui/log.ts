@@ -1,3 +1,4 @@
+///<reference path="./../../../types/all.d.ts" />
 var notify = require("growl").growl;
 
 export function error (text : string) : void {
