@@ -19,3 +19,7 @@ interface MousetrapStatic {
 }
 
 declare var Mousetrap: MousetrapStatic;
+
+declare module "br-mousetrap" {
+    export = Mousetrap;
+}
