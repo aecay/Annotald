@@ -2,7 +2,7 @@
 
 var parser = require("../parse");
 import log = require("../ui/log");
-var lastSavedState : string = require("./global").lastSavedState;
+import globals = require("./global");
 import $ = require("jquery");
 import Q = require("q");
 
@@ -28,7 +28,7 @@ export function save(e : Event, extraArgs? : any) : void {
         saveFn(parser.parseHtmlToXml($("#sn0"))).then(function () : void {
             log.notice("Save success");
             saveInProgress = false;
-            lastSavedState = lss;
+            globals.lastSavedState = lss;
         }, function (err : any) : void {
             log.error("Save error: " + err);
             saveInProgress = false;
