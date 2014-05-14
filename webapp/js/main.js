@@ -10,14 +10,16 @@ var ui = require("./ui/ui"),
     cs = require("./config-store"),
     $ = require("jquery"),
     fs = require("fs"),
-    _ = require("lodash");
+    _ = require("lodash"),
+    bulk = require("bulk-require");
+var dummy = bulk(__dirname, ["**/*.ts"]);
 
 cs.listConfigs().then(function (configs) {
     // TODO: this doesn't finish in time for the config to actually show up on
     // the first run; the menu will be empty
     if (! _.contains(_.keys(configs), "default")) {
         return cs.setConfig("default", fs.readFileSync(
-            __dirname + "/../assets/settings.js"));
+            __dirname + "/../assets/settings.js", "utf8"));
     }
     return undefined;
 }).then(function () {
