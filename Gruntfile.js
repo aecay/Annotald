@@ -6,17 +6,25 @@ var cacheify = require("cacheify"),
     dbt = level("./cache-ts"),
     typescriptify = require("./js-ext/typeify"),
     reactify = require("reactify"),
-    istanbulify = require("./test/istanbulify");
+    istanbulify = require("./test/istanbulify"),
+    envify = require("envify/custom");
 
 var reactifyCached = cacheify(reactify, dbr);
 var typescriptifyCached = cacheify(typescriptify, dbt);
 
+function envifyMod(e) {
+    return function (f) {
+        envify()(f, e);
+    };
+}
+
 var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
                                   "brace/theme/xcode","brace/mode/javascript",
                                   "q","dropbox","lodash","growl",
-                                  "br-mousetrap","pegjs"],
-    annotaldBrowserifyTransforms = [typescriptifyCached, reactifyCached,
-                                    "browserify-shim", "brfs"];
+                                  "br-mousetrap","pegjs","level-browserify"],
+    annotaldBrowserifyTransforms = [typescriptifyCached,
+                                    reactifyCached,
+                                    "brfs"];
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -24,10 +32,11 @@ module.exports = function (grunt) {
         browserify: {
             external: {
                 src: [
-                    'bower_components/jquery/jquery.js'
+                    'bower_components/jquery/dist/jquery.js'
                     ,'bower_components/vex/js/vex.dialog.js'
                     ,'bower_components/vex/js/vex.js'
                     ,'node_modules/react/react.js'
+                    ,'node_modules/level-browserify/browser.js'
                     ,'node_modules/brace/index.js'
                     ,'node_modules/brace/theme/xcode.js'
                     ,'node_modules/brace/mode/javascript.js'
@@ -40,7 +49,7 @@ module.exports = function (grunt) {
                 ],
                 dest: 'webapp/build/ext.js',
                 options: {
-                    alias: ['bower_components/jquery/jquery.js:jquery',
+                    alias: ['bower_components/jquery/dist/jquery.js:jquery',
                             'node_modules/react/react.js:react',
                             'bower_components/vex/js/vex.dialog.js:vex-dialog',
                             'bower_components/vex/js/vex.js:vex',
@@ -52,7 +61,8 @@ module.exports = function (grunt) {
                             'webapp/js/ext/growl.js:growl',
                             'node_modules/lodash/dist/lodash.js:lodash',
                             'node_modules/br-mousetrap/mousetrap.js:br-mousetrap',
-                            'node_modules/pegjs/lib/peg.js:pegjs'
+                            'node_modules/pegjs/lib/peg.js:pegjs',
+                            'node_modules/level-browserify/browser.js:level-browserify'
                            ]
                 }
             },
@@ -60,9 +70,27 @@ module.exports = function (grunt) {
                 src: ['webapp/js/main.js'],
                 dest: 'webapp/build/web.js',
                 options: {
-                    debug: true,
+                    bundleOptions: {
+                        debug: true
+                    },
                     external: annotaldBrowserifyExternal,
-                    transform: annotaldBrowserifyTransforms,
+                    transform: annotaldBrowserifyTransforms.concat([
+                        envify({ENV: "browser"})]),
+                    alias: [
+                        'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points'
+                    ]
+                }
+            },
+            annotaldNw: {
+                src: ['webapp/js/main.js'],
+                dest: 'webapp/build/web-nw.js',
+                options: {
+                    bundleOptions: {
+                        debug: true
+                    },
+                    external: annotaldBrowserifyExternal,
+                    transform: annotaldBrowserifyTransforms.concat([
+                        envify({ENV: "node-webkit"})]),
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points'
                     ]
@@ -94,6 +122,24 @@ module.exports = function (grunt) {
                 }
             }
         },
+        nodewebkit: {
+            options: {
+                "app_name": "Annotald",
+                // TODO: read from package.json
+                "app_version": "FOO",
+                "build_dir": "webapp/build",
+                win: false,
+                mac: false,
+                linux32: false,
+                linux64: true,
+                "keep_nw": true
+            },
+            src: ["webapp/build/package.json",
+                  "webapp/build/web-nw.js",
+                  "webapp/build/ext.js",
+                  "webapp/build/main.html",
+                  "webapp/build/min.css"]
+        },
         jasmine: {
             test: {
                 src: [],
@@ -101,6 +147,7 @@ module.exports = function (grunt) {
                     vendor: ["test/ace-polyfill-fix.js",
                              "node_modules/polymer-weakmap/weakmap.js",
                              "node_modules/mutationobservers/MutationObserver.js",
+                             "test/IndexedDBShim.min.js",
                              "webapp/build/ext.js"],
                     specs: "test/build/spec-entry.js",
                     template: require("./test/jasmine-istanbul-template/template"),
@@ -193,6 +240,10 @@ module.exports = function (grunt) {
             oauth_receiver: {
                 src: "webapp/html/oauth_receiver.html",
                 dest: "webapp/build/oauth_receiver.html"
+            },
+            nw_pkg: {
+                src: "webapp/nw-package.json",
+                dest: "webapp/build/package.json"
             }
         },
         clean: {
@@ -245,11 +296,14 @@ module.exports = function (grunt) {
                                           // 'uglify:annotald'
                                           //, 'clean:build'
                                          ]);
+    grunt.registerTask('build-annotald-nw', ['browserify:annotaldNw']);
     grunt.registerTask('build-css', ['cssmin']);
     grunt.registerTask('build-html', ['copy:main','copy:oauth_receiver']);
 
     grunt.registerTask('build', ['build-external','build-annotald',
                                  'build-css','build-html']);
+    grunt.registerTask('build-nw', ['build-external','build-annotald-nw',
+                                    'build-css','build-html','copy:nw_pkg']);
     grunt.registerTask('test', ['build-annotald','browserify:test','jasmine']);
 
     grunt.registerTask('default', ['build','connect','watch']);
