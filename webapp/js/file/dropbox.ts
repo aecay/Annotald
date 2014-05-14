@@ -56,8 +56,8 @@ export class DropboxFile implements file.AnnotaldFile {
         };
     }
 
-    write (s : string) : Q.Promise<boolean> {
-        var deferred = Q.defer<boolean>();
+    write (s : string) : Q.Promise<void> {
+        var deferred = Q.defer<void>();
         client.authenticate(function (error : any, client : any) : void {
             if (error) {
                 notify.error("Error authenticating to Dropbox: " + error);
@@ -70,7 +70,7 @@ export class DropboxFile implements file.AnnotaldFile {
                     deferred.reject(error);
                 } else {
                     notify.notice("File saved to Dropbox");
-                    deferred.resolve(true);
+                    deferred.resolve(undefined);
                 }
             });
         });

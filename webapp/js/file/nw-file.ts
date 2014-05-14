@@ -62,13 +62,13 @@ export class NwFile implements file.AnnotaldFile {
         };
     }
 
-    write (s : string) : Q.Promise<boolean> {
-        var deferred = Q.defer<boolean>();
+    write (s : string) : Q.Promise<void> {
+        var deferred = Q.defer<void>();
         fs.writeFile(this.path, s, null, function (err : any) : void {
             if (err) {
-                deferred.resolve(false);
+                deferred.reject(err);
             } else {
-                deferred.resolve(true);
+                deferred.resolve(undefined);
             }
         });
         recent.recordFileAccess(this);

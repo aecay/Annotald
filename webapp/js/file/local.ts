@@ -7,77 +7,88 @@ import file = require("./file");
 import Q = require ("q");
 var vex = require("vex");
 import recent = require("./recent");
-
-var saveMsg = "A new tab will open with the contents of the parsed file;" +
-        " please use the browser's \"Save As\" feature to save" +
-        " the contents of the tab";
+var db = require("../db");
 
 export class LocalFile implements file.AnnotaldFile {
-    private path;
-    private content;
+    private name;
     fileType = "Local";
 
     constructor (params : any) {
-        this.path = params.path;
-        this.content = params.content;
+        this.name = params.name;
     }
 
     static prompt () : Q.Promise<LocalFile> {
-        var that = this;
         var deferred = Q.defer<LocalFile>();
+        var that = this;
+
+        function dialog2Cb (fileText : string) : void {
+            var name =  (<HTMLInputElement>
+                         document.getElementById(
+                             "file-name-input")).value;
+            db.get("files", {}).then(function (files : any) : void {
+                files[name] = fileText;
+                db.put("files", files).then(function () : void {
+                    deferred.resolve(new that({
+                        name: name
+                    }));
+                });
+            });
+        }
+
+        function fileReaderCb (event : any) : void {
+            vex.dialog.open({ message: "Please name this file",
+                              input: '<div class="vex-custom-field-wrapper"><label' +
+                              ' for="name">Name</label><div' +
+                              ' class="vex-custom-input-wrapper">' +
+                              '<input name="name"' +
+                              ' type="text" id="file-name-input"/></div></div>',
+                              callback: dialog2Cb.bind(null, event.target.result),
+                              buttons: [{text: "OK", type: "submit"}]});
+        }
+
+        function dialog1Cb () : void {
+            var files = (<HTMLInputElement>
+                             document.getElementById(
+                                 "local-file-input")).files;
+            if (files.length === 0) {
+                deferred.reject("no file selected");
+                return;
+            }
+            var file = files[0];
+            var fr = new FileReader();
+            fr.onload = fileReaderCb;
+            // TODO: error handling
+            fr.readAsText(file);
+        }
+
         vex.dialog.open({ message: "Please choose a file",
                           input: '<div class="vex-custom-field-wrapper"><label' +
                           ' for="file">File</label><div' +
                           ' class="vex-custom-input-wrapper"><input name="file"' +
                           ' type="file" id="local-file-input"/></div></div>',
-                          callback: function () : void {
-                              var file = (<HTMLInputElement>
-                                          document.getElementById(
-                                              "local-file-input")).
-                                  files[0],
-                              fr = new FileReader();
-                              fr.onload = function (event : any) : void {
-                                  // TODO: path
-                                  deferred.resolve(new that({
-                                      content: event.target.result
-                                  }));
-                              };
-                              // TODO: error handling
-                              fr.readAsText(file);
-                          },
+                          callback: dialog1Cb,
                           buttons: [{text: "OK", type: "submit"}]});
         return deferred.promise;
     }
 
     serialize () : Object {
         return {
-            path: this.path,
-            content: this.content
+            name: this.name
         };
     }
 
-    write (s : string) : Q.Promise<boolean> {
-        var deferred = Q.defer<boolean>();
-        // TODO: add path hint from this.path
-        vex.dialog.alert({ message: (saveMsg + "."),
-                           callback: function () : void {
-                               window.open('data:text/plain,' +
-                                           encodeURIComponent(s));
-                               deferred.resolve(true);
-                           }});
+    write (s : string) : Q.Promise<void> {
         recent.recordFileAccess(this);
-        return deferred.promise;
+        return db.get("files", {}).then((files : any) : Q.Promise<boolean> => {
+            files[this.name] = s;
+            return db.put("files", files);
+        });
     }
 
     read () : Q.Promise<string> {
-        var deferred = Q.defer<string>();
-        if (!this.content) {
-            deferred.reject("Cannot read local files in the web version");
-        } else {
-            deferred.resolve(this.content);
-            recent.recordFileAccess(this);
-        }
-        return deferred.promise;
+        recent.recordFileAccess(this);
+        return db.get("files", {}).then(
+            (files : any) : string => files[this.name]);
     }
 }
 file.registerFileType("Local",

@@ -3,7 +3,7 @@
 import Q = require("q");
 
 export interface AnnotaldFile {
-    write (content : string) : Q.Promise<boolean>;
+    write (content : string) : Q.Promise<void>;
     serialize () : Object;
     fileType : string;
     read () : Q.Promise<string>;
