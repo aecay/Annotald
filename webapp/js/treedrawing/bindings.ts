@@ -5,6 +5,7 @@ import _ = require("lodash");
 import startup = require("./startup");
 import globals = require("./global");
 import undo = require("./undo");
+import $ = require("jquery");
 
 // TODO: doc
 export var keyBindings : { [key: string] : (e : KeyboardEvent) => void };
