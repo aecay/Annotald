@@ -125,7 +125,7 @@ b.keyBindings = {
     w: A(cmds.setLabel, ["NP-SBJ","NP-OB1","NP-OB2", "NP-PRD"]),
     d: cmds.pruneNode,
     z: cmds.undo,
-    l: cmds.editLabel,
+    l: cmds.editNode,
     "space": cmds.clearSelection,
     "`": cmds.toggleLemmata,
     "mod+l": cmds.displayRename,
