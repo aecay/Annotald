@@ -31,10 +31,6 @@ var WelcomeUI = React.createClass({
 
 exports.AnnotaldUI = React.createClass({
     getInitialState: function () {
-        var s = history.state;
-        if (s) {
-            return this.restoreState(s);
-        }
         return { view: WelcomeUI({}) };
     },
     render: function () {
@@ -48,7 +44,11 @@ exports.AnnotaldUI = React.createClass({
             that.changeView(view, params);
         });
     },
-    restoreState: function (state) {
+    componentWillMount: function () {
+        var state = history.state;
+        if (!state) {
+            return;
+        }
         var params = state.params;
         switch (state.view) {
         case "EditTree":
@@ -67,7 +67,7 @@ exports.AnnotaldUI = React.createClass({
             }
             break;
         }
-        return this.getView(state.view, state.params);
+        this.setState({ view: this.getView(state.view, state.params)});
     },
     getView: function (view, params) {
         switch (view) {
