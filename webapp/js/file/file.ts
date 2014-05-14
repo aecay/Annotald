@@ -1,15 +1,26 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-export interface File {
-    read () : Q.Promise<string>;
+import Q = require("q");
+
+export interface AnnotaldFile {
     write (content : string) : Q.Promise<boolean>;
     serialize () : Object;
+    fileType : string;
+    read () : Q.Promise<string>;
 }
 
 export interface IFilePrompt {
-    prompt () : Q.Promise<File>;
+    prompt () : Q.Promise<AnnotaldFile>;
 }
 
-export interface IFileStatic {
-    fileType : string;
+var fileTypeRegistry : { [key : string] : (params : any) => AnnotaldFile } = {};
+
+export function registerFileType (type : string,
+                                  cls : (params : any) => AnnotaldFile)
+: void {
+    fileTypeRegistry[type] = cls;
+}
+
+export function reconstituteFile (type : string, params : any) : AnnotaldFile {
+    return fileTypeRegistry[type](params);
 }

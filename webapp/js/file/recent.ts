@@ -1,15 +1,22 @@
 ///<reference path="./../../../types/all.d.ts" />
 
 import file = require("./file");
+import _ = require("lodash");
+var db = require("../db");
 
-var recentFiles : { fileType: string; params: any; }[] = [];
-
-export function recordFileAccess (type: string, params: any) : void {
-    recentFiles.push({ fileType: type, params: params });
+export function recordFileAccess (file : file.AnnotaldFile) : void {
+    var record = { fileType: file.fileType, params: file.serialize() };
+    db.get("recentFiles", []).done(
+        function (rf : { fileType: string; params: any; }[]) : Q.Promise<void> {
+            rf.push(record);
+            if (rf.length > 5) {
+                rf = rf.slice(0, 5);
+            }
+            return db.put("recentFiles", rf);
+        });
 }
 
-export class RecentFile {
-    // static prompt () : Q.Promise<File> {
-    //     // TODO
-    // }
+export function getRecentFiles ()
+: Q.Promise<{ fileType: string; params: any; }[]> {
+    return db.get("recentFiles", []);
 }

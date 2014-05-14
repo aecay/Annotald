@@ -3,6 +3,7 @@
 /* tslint:disable:quotemark */
 
 import file = require("./file");
+import recent = require("./recent");
 import Q = require("q");
 var vex = require("vex");
 import fs = require("fs");
@@ -16,18 +17,15 @@ export interface NwFileParams {
     content?: string;
 }
 
-export class NwFile implements file.File {
+export class NwFile implements file.AnnotaldFile {
     private path;
     private content;
+    fileType = "NW";
 
     constructor (params : NwFileParams) {
         this.path = params.path;
         this.content = params.content;
     }
-
-    /* tslint:disable:no-unused-variable */
-    static fileType = "NW";
-    /* tslint:enable:no-unused-variable */
 
     static prompt () : Q.Promise<NwFile> {
         var that = this;
@@ -73,6 +71,7 @@ export class NwFile implements file.File {
                 deferred.resolve(true);
             }
         });
+        recent.recordFileAccess(this);
         return deferred.promise;
     }
 
@@ -89,6 +88,9 @@ export class NwFile implements file.File {
                 }
             });
         }
+        recent.recordFileAccess(this);
         return deferred.promise;
     }
 }
+file.registerFileType("NW",
+                      (params : any) : file.AnnotaldFile => new NwFile(params));

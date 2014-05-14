@@ -3,6 +3,7 @@
 /* tslint:disable:variable-name */
 
 import file = require("./file");
+import recent = require("./recent");
 
 import Q = require ("q");
 var DropboxCore = require("../ext/dropbox");
@@ -15,18 +16,15 @@ var client = new DropboxCore.Client({ key: "rw6m6r2gi34luhp" });
 client.authDriver(new DropboxCore.AuthDriver.Popup(
     { receiverUrl : "/html/oauth_receiver.html" }));
 
-export class DropboxFile implements file.File {
+export class DropboxFile implements file.AnnotaldFile {
     private path;
     private content;
+    fileType = "Dropbox";
 
     constructor (params : any) {
         this.path = params.path;
         this.content = params.content;
     }
-
-    /* tslint:disable:no-unused-variable */
-    static fileType = "Dropbox";
-    /* tslint:enable:no-unused-variable */
 
     static prompt (allowedExtensions : string[] = [".psdx"]) :
     Q.Promise<DropboxFile> {
@@ -76,6 +74,7 @@ export class DropboxFile implements file.File {
                 }
             });
         });
+        recent.recordFileAccess(this);
         return deferred.promise;
     }
 
@@ -102,6 +101,9 @@ export class DropboxFile implements file.File {
                 });
             });
         }
+        recent.recordFileAccess(this);
         return deferred.promise;
     }
 }
+file.registerFileType("Dropbox",
+                      (params : any) : file.AnnotaldFile => new DropboxFile(params));

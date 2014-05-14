@@ -6,23 +6,21 @@ import file = require("./file");
 
 import Q = require ("q");
 var vex = require("vex");
+import recent = require("./recent");
 
 var saveMsg = "A new tab will open with the contents of the parsed file;" +
         " please use the browser's \"Save As\" feature to save" +
         " the contents of the tab";
 
-export class LocalFile implements file.File {
+export class LocalFile implements file.AnnotaldFile {
     private path;
     private content;
+    fileType = "Local";
 
     constructor (params : any) {
         this.path = params.path;
         this.content = params.content;
     }
-
-    /* tslint:disable:no-unused-variable */
-    static fileType = "Local";
-    /* tslint:enable:no-unused-variable */
 
     static prompt () : Q.Promise<LocalFile> {
         var that = this;
@@ -53,8 +51,8 @@ export class LocalFile implements file.File {
 
     serialize () : Object {
         return {
-            // TODO
-            // path : this.path
+            path: this.path,
+            content: this.content
         };
     }
 
@@ -67,15 +65,20 @@ export class LocalFile implements file.File {
                                            encodeURIComponent(s));
                                deferred.resolve(true);
                            }});
+        recent.recordFileAccess(this);
         return deferred.promise;
     }
 
     read () : Q.Promise<string> {
         var deferred = Q.defer<string>();
         if (!this.content) {
-            deferred.reject("Cannot read files in the web version");
+            deferred.reject("Cannot read local files in the web version");
+        } else {
+            deferred.resolve(this.content);
+            recent.recordFileAccess(this);
         }
-        deferred.resolve(this.content);
         return deferred.promise;
     }
 }
+file.registerFileType("Local",
+                      (params : any) : file.AnnotaldFile => new LocalFile(params));
