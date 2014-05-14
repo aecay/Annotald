@@ -119,6 +119,19 @@ https://github.com/naoxink/notifIt
 * router
 https://github.com/andreypopp/react-router-component
 https://github.com/mephux/annex
+
+https://github.com/flatiron/director
+
+https://medium.com/react-tutorials/8aaec65a546c
+
+https://stackoverflow.com/questions/21951734/react-js-custom-events-for-communicating-with-parent-nodes
+
+https://stackoverflow.com/questions/21903604/is-there-any-proper-way-to-integrate-d3-js-graphics-into-facebook-react-applicat
+
+https://stackoverflow.com/questions/20795323/editing-a-rich-data-structure-in-react-js
+
+https://www.npmjs.org/package/react-pushstate-mixin
+https://www.npmjs.org/package/react-bacon
 * grunt tips
 ** Supercharging your Gruntfile
    [[http://www.html5rocks.com/en/tutorials/tooling/supercharging-your-gruntfile/][Supercharging your Gruntfile]]
