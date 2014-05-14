@@ -24,7 +24,8 @@ var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
                                   "br-mousetrap","pegjs","level-browserify"],
     annotaldBrowserifyTransforms = [typescriptifyCached,
                                     reactifyCached,
-                                    "brfs"];
+                                    "brfs",
+                                    "bulkify"];
 
 module.exports = function (grunt) {
     grunt.initConfig({
