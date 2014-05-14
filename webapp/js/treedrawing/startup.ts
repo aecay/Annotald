@@ -6,8 +6,8 @@ export interface Hook { () : void; };
  * circular dependency issues.
  */
 
-var startupHooks : Hook[] = [],
-    shutdownHooks : Hook[] = [],
+var startupHooks : Hook[],
+    shutdownHooks : Hook[],
     savedOnKeydown,
     savedOnMouseup,
     savedOnBeforeUnload,
@@ -15,15 +15,20 @@ var startupHooks : Hook[] = [],
     shutdownCallback;
 
 export function addStartupHook (fn : Hook) : void {
+    if (!startupHooks) {
+        startupHooks = [];
+    }
     startupHooks.push(fn);
 }
 
 export function addShutdownHook (fn : Hook) : void {
+    if (!shutdownHooks) {
+        shutdownHooks = [];
+    }
     shutdownHooks.push(fn);
 };
 
 import globals = require("./global");
-var lastSavedState = globals.lastSavedState;
 import $ = require("jquery");
 import _ = require("lodash");
 import log = require("../ui/log");
@@ -38,7 +43,7 @@ require("./entry-points");      // TODO: is this necessary?
 
 export function quitTreeDrawing (e : Event, force : boolean) : void {
     // unAutoIdle();
-    if (!force && $("#editpane").html() !== lastSavedState) {
+    if (!force && $("#editpane").html() !== globals.lastSavedState) {
 
         displayError("Cannot exit, unsaved changes exist.  <a href='#' " +
                      "onclick='quitTreedrawing(null, true);return false;'>" +
@@ -60,7 +65,7 @@ window["quitTreedrawing"] = quitTreeDrawing;
 /* tslint:enable:no-string-literal */
 
 function navigationWarning () : string {
-    if ($("#editpane").html() !== lastSavedState) {
+    if ($("#editpane").html() !== globals.lastSavedState) {
         return "Unsaved changes exist, are you sure you want to leave the page?";
     }
     return undefined;
@@ -106,7 +111,7 @@ export function startupTreedrawing (exitFn : Hook,
         hook();
     });
 
-    lastSavedState = $("#editpane").html();
+    globals.lastSavedState = $("#editpane").html();
     shutdownCallback = exitFn;
     save.saveFn = saveFn;
 }
