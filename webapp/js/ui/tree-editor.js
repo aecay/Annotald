@@ -28,11 +28,10 @@ exports.TreeEditor = React.createClass({
             this.props.file.read().then(function (content) {
                 var html = parser.parseXmlToHtml(content);
                 $("#editpane").html(html);
-            })]).then(function () {
+            })]).done(function () {
                 treedrawing.startupTreedrawing(that.exit,
-                                               that.props.file.write);
-            }).catch(function (err) {
-                console.log(err.stack);
+                                               that.props.file.write.bind(
+                                                   that.props.file));
             });
     }
 });
