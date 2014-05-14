@@ -1,4 +1,4 @@
-var M = require("br-mousetrap");
+import M = require("br-mousetrap");
 
 import _ = require("lodash");
 
