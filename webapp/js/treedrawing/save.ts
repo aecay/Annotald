@@ -1,6 +1,6 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-var parser = require("../parse");
+import parser = require("../parse");
 import log = require("../ui/log");
 import globals = require("./global");
 import $ = require("jquery");
@@ -25,13 +25,14 @@ export function save(e : Event, extraArgs? : any) : void {
         log.notice("Saving...");
         saveInProgress = true;
         var lss = $("#editpane").html();
-        saveFn(parser.parseHtmlToXml($("#sn0"))).then(function () : void {
-            log.notice("Save success");
-            saveInProgress = false;
-            globals.lastSavedState = lss;
-        }, function (err : any) : void {
-            log.error("Save error: " + err);
-            saveInProgress = false;
-        });
+        saveFn(parser.parseHtmlToXml(document.getElementById("sn0"))).then(
+            function () : void {
+                log.notice("Save success");
+                saveInProgress = false;
+                globals.lastSavedState = lss;
+            }, function (err : any) : void {
+                log.error("Save error: " + err);
+                saveInProgress = false;
+            });
     }
 };
