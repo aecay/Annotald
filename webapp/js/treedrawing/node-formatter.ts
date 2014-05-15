@@ -16,8 +16,12 @@ declare var MutationObserver : {
 import $ = require("jquery");
 import _ = require("lodash");
 import startup = require("./startup");
+import metadata = require("./metadata");
 
-function formatSnode (snode : Node) : void {
+function formatSnode (snode : Element) : void {
+    if (snode.getAttribute("data-freezeWatch")) {
+        return;
+    }
     var textNode = snode.childNodes[0];
     if (textNode.nodeType !== 3) {
         var newTN = document.createTextNode("");
@@ -38,13 +42,21 @@ function formatSnode (snode : Node) : void {
     }
     tv += " ";
     textNode.nodeValue = tv;
+
+    // Lemma
+    var wnode = $(snode).children(".wnode");
+    var lemma = metadata.getMetadata(snode)["lemma"];
+    if (wnode.length > 0 && lemma) {
+        $(snode).find(".lemma").remove();
+        wnode.append($("<span class='lemma'>-" + lemma + "</span>"));
+    }
 }
 
 function snodeChange (records : MutationRecord[],
                       observer : MutationObserver) : void
 {
     _.each(records, function (record : MutationRecord) : void {
-        formatSnode(record.target);
+        formatSnode(<Element>record.target);
     });
 }
 var snodeMO = new MutationObserver(snodeChange);
@@ -56,7 +68,7 @@ function snode0Addition (records : MutationRecord[],
         _.each(record.addedNodes, function (node : Node) : void {
             if (node instanceof HTMLElement &&
                 (<HTMLElement>node).classList.contains("snode")) {
-                formatSnode(node);
+                formatSnode(<Element>node);
                 observeSnode(<Element>node);
             }
         });
@@ -66,7 +78,7 @@ var snode0MO = new MutationObserver(snode0Addition);
 
 startup.addStartupHook(function () : void {
     $(".snode").each(function () : void {
-        if (this.id === "sn0") {
+        if (this.id === "sn0" || this.getAttribute("data-freezeWatch")) {
             return;
         }
         formatSnode(this);
