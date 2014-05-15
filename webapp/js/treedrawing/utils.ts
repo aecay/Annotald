@@ -102,18 +102,6 @@ export function updateCssClass(node : JQuery, oldlabel? : string) : void {
 // ** Predicates
 
 /**
- * Indicate whether a node has a lemma associated with it.
- *
- * @param {JQuery} node
- * @returns {Boolean}
- * @private
- */
-// TODO: is private right for this one?
-export function hasLemma(node : JQuery) : boolean {
-    return node.children(".wnode").children(".lemma").length === 1;
-};
-
-/**
  * Test whether a node is a purely structural leaf.
  *
  * @param {Node} node the node to operate on
