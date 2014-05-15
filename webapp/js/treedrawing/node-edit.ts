@@ -15,6 +15,7 @@ import conf = require("./config");
 import bindings = require("./bindings");
 import strucEdit = require("./struc-edit");
 import labelConvert = require("./label-convert");
+import metadata = require("./metadata");
 
 // * Editing parts of the tree
 
@@ -105,7 +106,7 @@ function leafEditorHtml(label : string,
     word = word.replace(/'/g, "&#39;");
     label = label.replace(/'/g, "&#39;");
 
-    var editorHtml = "<div id='leafeditor' class='snode'>" +
+    var editorHtml = "<div id='leafeditor' class='snode' data-freezeWatch='true'>" +
             "<input id='leafphrasebox' class='labeledit' type='text' value='" +
             label +
             "' /><input id='leaftextbox' class='labeledit' type='text' value='" +
@@ -124,9 +125,11 @@ function leafEditorHtml(label : string,
  * Return the JQuery object with the replacement after editing a leaf node.
  * @private
  */
-function leafEditorReplacement(label : string,
+function leafEditorReplacement(type: string,
+                               label : string,
                                word : string,
-                               lemma : string) : JQuery {
+                               lemma? : string)
+: JQuery {
     if (lemma) {
         lemma = lemma.replace(/</g, "&lt;");
         lemma = lemma.replace(/>/g, "&gt;");
@@ -140,14 +143,15 @@ function leafEditorReplacement(label : string,
     // TODO: test for illegal chars in label
     label = label.toUpperCase();
 
-    var replText = "<div class='snode'>" + label +
-            " <span class='wnode'>" + word;
+    var replText = $("<div class='snode' data-nodetype='" + type +
+                     "'><span class='wnode'>" +
+                     word + "</span></div>");
     if (lemma) {
-        replText += "<span class='lemma'>-" +
-            lemma + "</span>";
+        metadata.setMetadata(replText.get(0), "lemma", lemma);
     }
-    replText += "</span></div>";
-    return $(replText);
+    labelConvert.setLabelForNode(label, replText.get(0));
+
+    return replText;
 }
 
 /**
@@ -158,8 +162,9 @@ function leafEditorReplacement(label : string,
  * non-terminal, edit the node label.
  */
 export function displayRename () : void {
-    // Lifted so we can close over it below
-    var label = utils.getLabel($(selection.get()));
+    var editTarget = selection.get();
+    var label = utils.getLabel($(editTarget));
+    var oldNodeType = editTarget.getAttribute("data-nodetype");
 
     // Inner functions
     function space(event : KeyboardEvent) : void {
@@ -194,21 +199,14 @@ export function displayRename () : void {
     $("#butredo").prop("disabled", true);
     $("#butsave").prop("disabled", true);
 
-    if ($(selection.get()).children(".wnode").length > 0) {
+    if (utils.isLeafNode(editTarget)) {
         // this is a terminal
-        var word, lemma;
+        var word = utils.wnodeString(editTarget);
+        var lemma = utils.getLemma($(editTarget));
         // is this right? we still want to allow editing of index, maybe?
         var isLeafNode = utils.guessLeafNode(selection.get());
-        if ($(selection.get()).children(".wnode").children(".lemma").length > 0) {
-            var preword = $.trim($(selection.get()).children().first().text()).
-                split("-");
-            lemma = preword.pop();
-            word = preword.join("-");
-        } else {
-            word = $.trim($(selection.get()).children().first().text());
-        }
 
-        $(selection.get()).replaceWith(leafEditorHtml(label, word, lemma));
+        $(editTarget).replaceWith(leafEditorHtml(label, word, lemma));
 
         $("#leafphrasebox,#leaftextbox,#leaflemmabox").keydown(
             function(event : KeyboardEvent) : void {
@@ -217,7 +215,8 @@ export function displayRename () : void {
                     space(event);
                 }
                 if (event.keyCode === 27) {
-                    replNode = leafEditorReplacement(label, word, lemma);
+                    replNode = leafEditorReplacement(oldNodeType, label,
+                                                     word, lemma);
                     $("#leafeditor").replaceWith(replNode);
                     postChange(replNode);
                     undo.undoAbortTransaction();
@@ -253,8 +252,8 @@ export function displayRename () : void {
                         log.warning("Cannot create an empty leaf.");
                         return;
                     }
-                    replNode = leafEditorReplacement(newlabel, newword,
-                                                     newlemma);
+                    replNode = leafEditorReplacement(oldNodeType, newlabel,
+                                                     newword, newlemma);
                     $("#leafeditor").replaceWith(replNode);
                     postChange(replNode);
                     undo.undoEndTransaction();
@@ -340,6 +339,7 @@ displayRename["async"] = true;
  * Edit the lemma of a terminal node.
  */
 export function editLemma () : void {
+    var lemmaEditTarget : Element = selection.get();
     // Inner functions
     function space (event : KeyboardEvent) : void {
         var element = (event.target || event.srcElement);
@@ -347,6 +347,7 @@ export function editLemma () : void {
         event.preventDefault();
     }
     function postChange () : void {
+        lemmaEditTarget.removeAttribute("data-freezeWatch");
         selection.clearSelection();
         selection.updateSelection();
         bindings.uninhibit();
@@ -356,25 +357,27 @@ export function editLemma () : void {
         $("#butsave").prop("disabled", false);
     }
 
+    // TODO: remove the observer in node-formatter.ts
+
     // Begin code
-    var childLemmata = $(selection.get()).children(".wnode").children(".lemma");
-    if (selection.cardinality() !== 1 || childLemmata.length !== 1) {
+    var lemma = utils.getLemma($(lemmaEditTarget));
+    if (!lemma) {
         return;
     }
     bindings.inhibit();
     $("#sn0").unbind("mousedown");
     undo.undoBeginTransaction();
-    undo.touchTree($(selection.get()));
+    undo.touchTree($(lemmaEditTarget));
     $("#butundo").prop("disabled", true);
     $("#butredo").prop("disabled", true);
     $("#butsave").prop("disabled", true);
 
-    var lemma = $(selection.get()).children(".wnode").children(".lemma").text();
-    lemma = lemma.substring(1);
+    lemmaEditTarget.setAttribute("data-freezeWatch", "true");
+
     var editor = $("<span id='leafeditor' class='wnode'><input " +
                    "id='leaflemmabox' class='labeledit' type='text' value='" +
                    lemma + "' /></span>");
-    $(selection.get()).children(".wnode").children(".lemma").replaceWith(editor);
+    $(lemmaEditTarget).children(".wnode").children(".lemma").replaceWith(editor);
     $("#leaflemmabox").keydown(
         function (event : KeyboardEvent) : void {
             if (event.keyCode === 9) {
@@ -395,8 +398,8 @@ export function editLemma () : void {
                 newlemma = newlemma.replace(">", "&gt;");
                 newlemma = newlemma.replace(/'/g, "&#39;");
 
-                $("#leafeditor").replaceWith("<span class='lemma'>-" +
-                                             newlemma + "</span>");
+                $("#leafeditor").remove();
+                metadata.setMetadata(lemmaEditTarget, "lemma", newlemma);
                 postChange();
                 undo.undoEndTransaction();
                 undo.undoBarrier();
@@ -427,21 +430,6 @@ export function editNode () : void {
 editNode["async"] = true;
 
 // * Splitting words
-
-export function addLemma(lemma : string) : void {
-    // TODO: This only makes sense for dash-format corpora
-    if (selection.cardinality() !== 1) {
-        return;
-    }
-    if (!utils.isLeafNode(selection.get()) ||
-        utils.isEmptyNode(selection.get())) {
-        return;
-    }
-    undo.touchTree($(selection.get()));
-    var theLemma = $("<span class='lemma'>-" + lemma +
-                     "</span>");
-    $(selection.get()).children(".wnode").append(theLemma);
-}
 
 export function splitWord () : void {
     if (selection.cardinality() !== 1) {
@@ -494,14 +482,14 @@ export function splitWord () : void {
         }
         utils.setLeafLabel($(selection.get()),
                            (startsWithAt ? "@" : "") + words[0] + "@");
-        var hasLemma = $(selection.get()).find(".lemma").length > 0;
+        var hasLemma = utils.getLemma($(selection.get()));
         strucEdit.makeLeaf(false,
                            secondLabel,
                            "@" + words[1] + (endsWithAt ? "@" : ""));
         if (hasLemma) {
             // TODO: move to something like foo@1 and foo@2 for the two pieces
             // of the lemmata
-            addLemma(origLemma);
+            metadata.setMetadata(selection.get(), "lemma", origLemma);
         }
         dialog.hideDialogBox();
         undo.undoEndTransaction();
