@@ -5,6 +5,7 @@
         "jquery": "latest",
         "jquery-mousewheel": "latest",
         "vex": "latest",
-        "localforage": "*"
+        "localforage": "*",
+        "mousetrap": "~1.4.6"
     }
 }
