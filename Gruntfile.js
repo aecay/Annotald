@@ -104,7 +104,7 @@ module.exports = function (grunt) {
                 dest: 'test/build/spec-entry.js',
                 options: {
                     transform: annotaldBrowserifyTransforms.concat(
-                        [istanbulify]),
+                        [istanbulify, envify({ENV: "test"})]),
                     external: annotaldBrowserifyExternal
                 }
             },
