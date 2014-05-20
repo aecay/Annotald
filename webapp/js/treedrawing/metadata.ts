@@ -23,7 +23,12 @@ function setInDict (dict : { [key: string] : any },
         }
     } else {
         _.forOwn(val, function (v : any, k : string) : void {
-            dict[key] = setInDict(dict[key] || {}, k, v, remove);
+            var dk = dict[key];
+            if (!_.isObject(dk)) {
+                dk = {};
+                dict[key] = {};
+            }
+            dict[key] = setInDict(dk, k, v, remove);
             if (_.isEmpty(dict[key])) {
                 /* tslint:disable:no-unused-expression */
                 delete dict[key];
@@ -201,4 +206,10 @@ export function updateMetadataEditor() : void {
         });
     $("#metadata").find(".key").click(metadataKeyClick);
     $("#addMetadataButton").click(addMetadataDialog);
+}
+
+export var __test__ : any = {};
+
+if (process.env.ENV === "test") {
+    __test__.setInDict = setInDict;
 }
