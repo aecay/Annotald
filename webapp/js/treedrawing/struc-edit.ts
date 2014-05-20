@@ -483,7 +483,7 @@ export function makeNode(label? : string) : void {
         $(selection.get()).wrapAll(newnode);
     } else {
         if (selection.get().compareDocumentPosition(
-            selection.get(true)) & 0x2) { // jshint ignore:line
+            selection.get(true)) & 0x2) {
             // startnode and endnode in wrong order, reverse them
             var temp = selection.get();
             selection.set(selection.get(true));
@@ -510,18 +510,15 @@ export function makeNode(label? : string) : void {
         }
     }
 
-    var toselect = $(selection.get()).parent();
-
     selection.clearSelection();
 
     if (rootLevel) {
-        undo.registerNewRootTree(toselect);
+        undo.registerNewRootTree(newnode);
     }
 
     undo.undoEndTransaction();
 
-    selection.selectNode(toselect.get(0));
-    selection.updateSelection();
+    selection.selectNode(newnode.get(0));
 }
 
 // * Label manipulation

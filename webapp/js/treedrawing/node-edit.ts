@@ -108,7 +108,8 @@ editComment["async"] = true;
  */
 function leafEditorHtml(label : string,
                         word : string,
-                        lemma : string) : JQuery {
+                        lemma : string)
+: JQuery {
     // Single quotes mess up the HTML code.
     if (lemma) {
         lemma = lemma.replace(/'/g, "&#39;");

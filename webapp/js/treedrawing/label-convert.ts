@@ -38,8 +38,8 @@ function isValidSubcategoryForCategory (subcat : string,
 }
 
 function matchObjects(o1 : { [key : string] : any },
-                             o2 : { [key : string] : any }) : boolean
-{
+                      o2 : { [key : string] : any })
+: boolean {
     var ret = true;
     _.forOwn(o1, function (value : any, key : string) : boolean {
         if (!_.has(o2, key)) {
