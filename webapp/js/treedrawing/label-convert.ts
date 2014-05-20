@@ -153,3 +153,29 @@ export function setLabelForNode (label : string,
         });
     }
 }
+
+export function toggleExtensionForNode (extension : string,
+                                        node : Element,
+                                        mapping : LabelMap = globals.labelMapping)
+: void {
+    var action = getActionForDashTag(extension, getCategory(node), mapping);
+    // TODO: should be a metadata.hasMetadata
+    if (matchObjects(action.value, metadata.getMetadata(node)[action.key])) {
+        metadata.removeMetadata(node, action.key, action.value);
+    } else {
+        metadata.setMetadata(node, action.key, action.value);
+    }
+}
+
+function getCategory (node : Element) : string {
+    return node.getAttribute("data-category");
+}
+
+function getActionForDashTag (tag : string,
+                              category : string,
+                              mapping : LabelMap = globals.labelMapping)
+: LabelMapAction {
+    return  mapping.byLabel[category].metadataKeys[tag] ||
+        mapping.defaults[tag] ||
+        { key : category, value: "yes" };
+}
