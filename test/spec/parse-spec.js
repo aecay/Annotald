@@ -2,7 +2,7 @@
 
 /* istanbulify ignore file */
 
-var parse = require('../../webapp/js/parse.js');
+var parse = require('../../webapp/js/parse');
 
 require("../string-matcher");
 
