@@ -20,8 +20,8 @@ function envifyMod(e) {
 
 var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
                                   "brace/theme/xcode","brace/mode/javascript",
-                                  "q","dropbox","lodash","growl",
-                                  "mousetrap","pegjs","level-browserify"],
+                                  "q","dropbox","lodash","growl","mousetrap",
+                                  "pegjs","level-browserify","wut"],
     annotaldBrowserifyTransforms = [typescriptifyCached,
                                     reactifyCached,
                                     "brfs",
@@ -46,6 +46,7 @@ module.exports = function (grunt) {
                     ,'webapp/js/ext/growl.js'
                     ,'node_modules/lodash/dist/lodash.js'
                     ,'js-ext/mousetrap.js'
+                    ,'js-ext/wut.js'
                     ,'node_modules/pegjs/lib/peg.js'
                 ],
                 dest: 'webapp/build/ext.js',
@@ -62,6 +63,7 @@ module.exports = function (grunt) {
                             'webapp/js/ext/growl.js:growl',
                             'node_modules/lodash/dist/lodash.js:lodash',
                             'js-ext/mousetrap.js:mousetrap',
+                            'js-ext/wut.js:wut',
                             'node_modules/pegjs/lib/peg.js:pegjs',
                             'node_modules/level-browserify/browser.js:level-browserify'
                            ]

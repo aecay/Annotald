@@ -4,6 +4,8 @@
 
 import $ = require("jquery");
 import _ = require("lodash");
+var wut = require("./../../../js-ext/wut");
+
 import utils = require("./utils");
 import undo = require("./undo");
 import log = require("../ui/log");
@@ -17,6 +19,10 @@ import strucEdit = require("./struc-edit");
 import labelConvert = require("./label-convert");
 import metadata = require("./metadata");
 
+var HP = {};
+wut.pollute(HP);
+var H = <WutFunctions>HP;
+
 // * Editing parts of the tree
 
 // TODO: document entry points better
@@ -29,9 +35,12 @@ startup.addStartupHook(function setupCommentTypes () : void {
     commentTypeCheckboxes = "Type of comment: ";
     for (var i = 0; i < commentTypes.length; i++) {
         commentTypeCheckboxes +=
-            '<input type="radio" name="commentType" value="' +
-            commentTypes[i] + '" id="commentType' + commentTypes[i] +
-            '" /> ' + commentTypes[i];
+            H.input({
+                type: "radio",
+                name: "commentType",
+                value: commentTypes[i],
+                id: "commentType" + commentTypes[i]
+            }) + " " + commentTypes[i];
     }
 });
 
@@ -49,11 +58,12 @@ export function editComment () : void {
     // regex because string does not give global search.
     commentText = commentText.replace(/_/g, " ");
     dialog.showDialogBox("Edit Comment",
-                  '<textarea id="commentEditBox">' +
-                  commentText + '</textarea><div id="commentTypes">' +
-                  commentTypeCheckboxes + '</div><div id="dialogButtons">' +
-                  '<input type="button"' +
-                  'id="commentEditButton" value="Save" /></div>');
+                         H.textarea({id: "commentEditBox"}, commentText) +
+                         H.div({ id: "commentTypes" }, commentTypeCheckboxes) +
+                         H.div({ id: "dialogButtons" },
+                               H.input( { type: "button",
+                                          id: "commentEditButton",
+                                          value: "Save"})));
     $("input:radio[name=commentType]").val([commentType]);
     (<HTMLInputElement>$("#commentEditBox").focus().get(0))
         .setSelectionRange(commentText.length,
@@ -106,17 +116,25 @@ function leafEditorHtml(label : string,
     word = word.replace(/'/g, "&#39;");
     label = label.replace(/'/g, "&#39;");
 
-    var editorHtml = "<div id='leafeditor' class='snode' data-freezeWatch='true'>" +
-            "<input id='leafphrasebox' class='labeledit' type='text' value='" +
-            label +
-            "' /><input id='leaftextbox' class='labeledit' type='text' value='" +
-            word +
-            "' " + (!utils.isEmpty(word) ? "disabled='disabled'" : "") + " />";
-    if (lemma) {
-        editorHtml += "<input id='leaflemmabox' class='labeledit' " +
-            "type='text' value='" + lemma + "' />";
-    }
-    editorHtml += "</div>";
+    var editorHtml = H.div({ id: "leafeditor",
+                             "class": "snode",
+                             "data-freezeWatch" : "true" },
+                           H.input({ id: "leafphrasebox",
+                                     "class": "labeledit",
+                                     type: "text",
+                                     value: label }),
+                           H.input(<{[key: string] : string}>_.assign({ id: "leaftextbox",
+                                              "class": "labeledit",
+                                              type: "text",
+                                              value: word
+                                            },
+                                            !utils.isEmpty(word) ?
+                                            { disabled: "disabled"} :
+                                            {})),
+                           lemma ? H.input({ id: "leaflemmabox",
+                                             "class": "labeledit",
+                                             type: "text",
+                                             value: lemma }) : "");
 
     return $(editorHtml);
 }

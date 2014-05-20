@@ -10,6 +10,12 @@ import events = require("./events");
 import conf = require("./config");
 import lc = require("./label-convert");
 
+// TODO: we should be able to import this...
+var wut = require("./../../../js-ext/wut");
+var HP = {};
+wut.pollute(HP);
+var H = <WutFunctions>HP;
+
 // * Coindexation
 
 /**
@@ -470,7 +476,7 @@ export function makeNode(label? : string) : void {
     }
     var parent_ip = $(selection.get()).parents("#sn0>.snode,#sn0").first();
     var parent_before = parent_ip.clone();
-    var newnode = '<div class="snode ' + label + '">' + label + ' </div>\n';
+    var newnode = $(H.div({ "class": "snode", "data-category" : "XP" }));
     // make end = start if only one node is selected
     if (!selection.get(true)) {
         // if only one node, wrap around that one
