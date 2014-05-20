@@ -1,6 +1,8 @@
-/*global beforeEach: false, jasmine: false */
+/*global beforeEach: false, jasmine: false, require: false */
 
 /* istanbulify ignore file */
+
+var _ = require("lodash");
 
 beforeEach(function() {
     var matchers = {
@@ -55,11 +57,22 @@ beforeEach(function() {
                                  result.pass = actual.hasAttribute(attribute);
                                  result.message = "Expected attribute '" +
                                      attribute + "' was " + (result.pass ? "" :
-                                                           "not ") + "found";
+                                                             "not ") + "found";
                              }
                          }
                          return result;
-                   }};
+                     }};
+        },
+        toDeepEqual:
+        function toDeepEqualOuter () {
+            return { compare:
+                     function toDeepEqual (actual, expected) {
+                         var result = {};
+                         result.pass = _.isEqual(actual, expected);
+                         result.message = "Expected " + JSON.stringify(actual) +
+                             " to be " + JSON.stringify(expected);
+                         return result;
+                     }};
         }
     };
 
