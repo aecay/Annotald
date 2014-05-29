@@ -31,7 +31,7 @@
         "grunt-contrib-jshint": "latest",
         "grunt-contrib-uglify": "latest",
         "grunt-contrib-watch": "latest",
-        "grunt-external-sourcemap": "~0.1.6",
+        "grunt-extract-sourcemap": "0.1.9",
         "grunt-jasmine-node": "latest",
         "grunt-node-webkit-builder": "latest",
         "grunt-tsd": "^0.1.0",

@@ -127,7 +127,7 @@ module.exports = function (grunt) {
                 }
             }
         },
-        external_sourcemap: {
+        extract_sourcemap: {
             annotald: {
                 files: {
                     "webapp/build": ["webapp/build/web.js"]
@@ -304,7 +304,7 @@ module.exports = function (grunt) {
                                           //, 'clean:build'
                                          ]);
     grunt.registerTask('build-annotald', ['browserify:annotald',
-                                          'external_sourcemap:annotald'
+                                          'extract_sourcemap:annotald'
                                           // 'uglify:annotald'
                                           //, 'clean:build'
                                          ]);
