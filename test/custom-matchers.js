@@ -1,8 +1,10 @@
-/*global beforeEach: false, jasmine: false, require: false */
+/*global beforeEach: false, jasmine: false, require: false, XMLSerializer: false,
+  Element: false */
 
 /* istanbulify ignore file */
 
 var _ = require("lodash");
+var $ = require("jquery");
 
 beforeEach(function() {
     var matchers = {
@@ -22,8 +24,8 @@ beforeEach(function() {
                              }
                              result.message = "Expected '" + actual +
                                  "' to be equal to '" + expected + "'" + "\n" +
-                                 "Common prefix: '" + expected.substring(0, i)
-                                 + "'\n" + "Differing portion: '" +
+                                 "Common prefix: '" + expected.substring(0, i) +
+                                 "'\n" + "Differing portion: '" +
                                  expected.substring(i) + "'" + " vs. '" +
                                  actual.substring(i) + "'";
                          }
@@ -71,6 +73,25 @@ beforeEach(function() {
                          result.pass = _.isEqual(actual, expected);
                          result.message = "Expected " + JSON.stringify(actual) +
                              " to be " + JSON.stringify(expected);
+                         return result;
+                     }};
+        },
+        toEqualXml:
+        function toEqualXmlOuter () {
+            return { compare:
+                     function toEqualXml (actual, expected) {
+                         if (_.isString(actual)) {
+                             actual = $.parseXML(actual);
+                         }
+                         if (_.isString(expected)) {
+                             expected = $.parseXML(expected);
+                         }
+                         var result = {};
+                         var xs = new XMLSerializer();
+                         result.pass = actual.isEqualNode(expected);
+                         result.message = "Expected " +
+                             xs.serializeToString(actual) +
+                             " to be " + xs.serializeToString(expected);
                          return result;
                      }};
         }
