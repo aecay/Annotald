@@ -10,8 +10,8 @@ import recent = require("./recent");
 var db = require("../db");
 
 export class LocalFile implements file.AnnotaldFile {
-    private name;
-    fileType = "Local";
+    private name : string;
+    fileType : string = "Local";
 
     constructor (params : any) {
         this.name = params.name;
