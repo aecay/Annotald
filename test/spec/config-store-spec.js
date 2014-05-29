@@ -1,5 +1,5 @@
 /*global describe: false, it: false, expect: false, require: false,
-  runs: false */
+  runs: false, beforeEach: false, xit: false */
 
 /* istanbulify ignore file */
 
@@ -14,7 +14,7 @@ describe("async tests", function () {
             done();
         });
     });
-    it("should fail", function (done) {
+    xit("should fail", function (done) {
         Q.when(false).then(function (r) {
             expect(r).toBeTruthy();
             done();
@@ -22,18 +22,17 @@ describe("async tests", function () {
     });
 });
 
-beforeEach(function (done) {
-    cs.listConfigs().then(function (configs) {
-        Q.all(_.map(configs, function (c) {
-            cs.deleteConfig(c);
-        })).then(function () {
-            done();
+describe("the config store", function () {
+    beforeEach(function (done) {
+        cs.listConfigs().then(function (configs) {
+            Q.all(_.map(configs, function (c) {
+                cs.deleteConfig(c);
+            })).done(function () {
+                done();
+            });
         });
     });
-});
-
-describe("the config store", function () {
-    it("should return an empty object initially", function (done) {
+    xit("should return an empty object initially", function (done) {
         cs.listConfigs().then(function (result) {
             expect(_.keys(result).length).toBe(0);
             done();
