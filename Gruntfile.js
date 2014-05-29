@@ -2,15 +2,22 @@
 
 var cacheify = require("cacheify"),
     level = require("level"),
-    dbr = level("./cache-react"),
-    dbt = level("./cache-ts"),
     typescriptify = require("./js-ext/typeify"),
     reactify = require("reactify"),
     istanbulify = require("./test/istanbulify"),
-    envify = require("envify/custom");
+    envify = require("envify/custom"),
+    brfs = require("brfs"),
+    bulkify = require("bulkify");
 
-var reactifyCached = cacheify(reactify, dbr);
-var typescriptifyCached = cacheify(typescriptify, dbt);
+function makeCached (transform, name) {
+    var cache = level("./cache/" + name);
+    return cacheify(transform, cache);
+}
+
+var reactifyCached = makeCached(reactify, "react");
+var typescriptifyCached = makeCached(typescriptify, "ts");
+var brfsCached = makeCached(brfs, "brfs");
+var bulkifyCached = makeCached(bulkify, "bulkify");
 
 function envifyMod(e) {
     return function (f) {
@@ -18,14 +25,16 @@ function envifyMod(e) {
     };
 }
 
+var envifyBrowserCached = makeCached(envify({ENV: "browser"}), "envifyBrowser");
+
 var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
                                   "brace/theme/xcode","brace/mode/javascript",
                                   "q","dropbox","lodash","growl","mousetrap",
                                   "pegjs","level-browserify","wut"],
     annotaldBrowserifyTransforms = [typescriptifyCached,
                                     reactifyCached,
-                                    "brfs",
-                                    "bulkify"];
+                                    brfsCached,
+                                    bulkifyCached];
 
 module.exports = function (grunt) {
     grunt.initConfig({
@@ -78,7 +87,7 @@ module.exports = function (grunt) {
                     },
                     external: annotaldBrowserifyExternal,
                     transform: annotaldBrowserifyTransforms.concat([
-                        envify({ENV: "browser"})]),
+                        envifyBrowserCached]),
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points'
                     ]
