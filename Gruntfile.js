@@ -121,9 +121,12 @@ module.exports = function (grunt) {
                 src: 'test/spec/*.js',
                 dest: 'test/build/spec-entry-debug.js',
                 options: {
-                    transform: annotaldBrowserifyTransforms,
+                    transform: annotaldBrowserifyTransforms.concat(
+                        [envify({ENV: "test"})]),
                     external: annotaldBrowserifyExternal,
-                    debug: true
+                    bundleOptions: {
+                        debug: true
+                    }
                 }
             }
         },
@@ -175,6 +178,7 @@ module.exports = function (grunt) {
                     vendor: ["test/ace-polyfill-fix.js",
                              "node_modules/polymer-weakmap/weakmap.js",
                              "node_modules/mutationobservers/MutationObserver.js",
+                             "test/IndexedDBShim.min.js",
                              "webapp/build/ext.js"],
                     specs: "test/build/spec-entry-debug.js",
                     keepRunner: true
@@ -316,7 +320,8 @@ module.exports = function (grunt) {
                                  'build-css','build-html']);
     grunt.registerTask('build-nw', ['build-external','build-annotald-nw',
                                     'build-css','build-html','copy:nw_pkg']);
-    grunt.registerTask('test', ['build-annotald','browserify:test','jasmine']);
+    grunt.registerTask('test', ['browserify:test','jasmine:test']);
+    grunt.registerTask('test_debug', ['browserify:test_debug','jasmine:test_debug']);
 
     grunt.registerTask('default', ['build','connect','watch']);
 };
