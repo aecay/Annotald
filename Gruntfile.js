@@ -16,8 +16,6 @@ function makeCached (transform, name) {
 
 var reactifyCached = makeCached(reactify, "react");
 var typescriptifyCached = makeCached(typescriptify, "ts");
-var brfsCached = makeCached(brfs, "brfs");
-var bulkifyCached = makeCached(bulkify, "bulkify");
 
 function envifyMod(e) {
     return function (f) {
@@ -33,8 +31,8 @@ var annotaldBrowserifyExternal = ["jquery","vex","vex-dialog","react","brace",
                                   "pegjs","level-browserify","wut"],
     annotaldBrowserifyTransforms = [typescriptifyCached,
                                     reactifyCached,
-                                    brfsCached,
-                                    bulkifyCached];
+                                    "brfs",
+                                    "bulkify"];
 
 module.exports = function (grunt) {
     grunt.initConfig({
