@@ -15,6 +15,9 @@ var WelcomeUI = React.createClass({
         return React.DOM.div(
             {},
             React.DOM.h1({}, "Welcome to Annotald"),
+            React.DOM.div({style: { width: "30%",
+                                    float: "right" }},
+                          ConfigsList()),
             React.DOM.div(
                 {style: { width: "70%" }},
                 FileChooser({ callback:
@@ -22,10 +25,7 @@ var WelcomeUI = React.createClass({
                                   $(document).trigger("ChangeView",
                                                       { view: "EditTree",
                                                         file: file });
-                              }})),
-            React.DOM.div({style: { width: "30%",
-                                    float: "right" }},
-                          ConfigsList()));
+                              }})));
     }
 });
 
