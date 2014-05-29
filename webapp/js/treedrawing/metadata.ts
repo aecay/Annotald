@@ -13,7 +13,7 @@ import selection = require("./selection"); dummy = require("./selection.ts");
 function setInDict (dict : { [key: string] : any },
                     key : string, val : any, remove? : boolean)
 : { [key: string] : any } {
-    if (typeof val === "string") {
+    if (_.isString(val)) {
         if (remove) {
             /* tslint:disable:no-unused-expression */
             delete dict[key];
