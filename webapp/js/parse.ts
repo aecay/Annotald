@@ -1,6 +1,55 @@
 ///<reference path="./../../types/all.d.ts" />
 
 import $ = require("jquery");
+import _ = require("lodash");
+
+import lc = require("./treedrawing/label-convert");
+
+export var __test__ : any = {};
+
+function nodeToAction (n : JQuery) : any {
+    var r = {};
+    if (n.children().length === 0) {
+        r[n.prop("tagName").toLowerCase()] = n.text();
+    } else {
+        var m = n.children().map(function () : any {
+            return nodeToAction($(this));
+        }).get();
+        m.unshift({});
+        r[n.prop("tagName").toLowerCase()] = _.merge.apply(null, m);
+    }
+    return r;
+
+}
+__test__.nodeToAction = nodeToAction;
+
+function parseFormatSpec (root : Element) : lc.LabelMap {
+    var r : lc.LabelMap = {
+        defaults: {},
+        defaultSubcategories: [],
+        byLabel: {}
+    };
+    var $root = $(root);
+    $root.children("dashTags").first().children().each(function () : void {
+        var y = $(this);
+        var dashTagName = y.prop("tagName");
+        var metadata = y.children().first();
+        r.defaults[dashTagName] = nodeToAction(metadata);
+    });
+    $root.children("subcategories").first().children().each(function () : void {
+        r.defaultSubcategories.push(this.tagName);
+    });
+    $root.children("byLabel").first().children().each(function () : void {
+        var x = parseFormatSpec(this);
+        // TODO: the mismatch here is ugly...
+        r.byLabel[this.tagName] = {
+            subcategories: x.defaultSubcategories,
+            metadataKeys: x.defaults
+        };
+    });
+    return r;
+}
+__test__.parseFormatSpec = parseFormatSpec;
 
 function makeWnode (xmlNode : Node) : Node {
     var wnode = document.createElement("span");

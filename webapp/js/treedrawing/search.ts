@@ -353,8 +353,8 @@ function interpretSearchNode(node : JQuery,
         }
     } else if (searchtype === "Lemma") {
         rx = RegExp("^" + $(node).children(".searchtext").val(), "i");
-        hasMatch = utils.hasLemma($(target)) &&
-            rx.test(utils.getLemma($(target)));
+        var lemma = utils.getLemma($(target));
+        hasMatch =  lemma && rx.test(lemma);
         if (!hasMatch) {
             return undefined;
         }

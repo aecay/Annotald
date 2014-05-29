@@ -2,11 +2,13 @@ text = txt:[^()-]+ lemma:("-" [^()-]+ )? {
 if (lemma) {
     lemma = lemma[1].join("");
     return {
+        type: "text",
         text: txt.join(""),
         lemma: lemma
     };
 } else {
     return {
+        type: "text",
         text: txt.join("")
     };
 }

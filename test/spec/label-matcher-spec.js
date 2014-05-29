@@ -14,14 +14,14 @@ describe("The label converter", function () {
             NP: {
                 subcategories: ["SBJ","OB1"],
                 metadataKeys: {
-                    LFD: { key: "left-disloc", value: "yes" },
-                    TMP: { key: "semantic", value: { fn: "temporal" }}
+                    LFD: { "left-disloc": "yes" },
+                    TMP: { "semantic": { fn: "temporal" }}
                 }
             },
             IP: {
                 subcategories: ["MAT","SUB"],
                 metadataKeys: {
-                    TMP: { key: "foo", value: "bar"}
+                    TMP: {"foo": "bar"}
                 }
             }
         }
