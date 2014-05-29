@@ -9,6 +9,19 @@ var vex = require("vex");
 import recent = require("./recent");
 var db = require("../db");
 
+// TODO: factor these out into a util library
+export function listFiles () : Q.Promise<string[]> {
+    return db.get("files").then((x : {[key : string] : string}) : string[] => {
+        return Object.keys(x);
+    });
+}
+
+export function readFile (name : string) : Q.Promise<string> {
+    return db.get("files").then((x : {[key : string] : string}) : string => {
+        return x[name];
+    });
+}
+
 export class LocalFile implements file.AnnotaldFile {
     private name : string;
     fileType : string = "Local";
