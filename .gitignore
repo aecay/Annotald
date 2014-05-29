@@ -20,8 +20,7 @@ doc/README.asciidoc
 
 /node_modules/
 /bower_components/
-/cache-ts/
-/cache-react/
+/cache/
 /types/all.d.ts
 /.grunt/
 /test/runner.html
