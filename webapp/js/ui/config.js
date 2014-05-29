@@ -1,6 +1,6 @@
 /** @jsx React.DOM */
 /*jshint ignore:start */
-/*global require: false, exports: true */
+/*global require: false, exports: true, Blob: false */
 
 var React = require("react"),
     configStore = require("../config-store"),
@@ -140,6 +140,7 @@ exports.ConfigsList = React.createClass({
                 href="#">Add new</a>;
         }
         return (<div id="configs-list">
+                <h2>Config files:</h2>
             <select ref="config" id="config-chooser" onChange={change}>
             {this.state.names.map(renderConfig)}
             </select><span> </span>
@@ -204,7 +205,9 @@ var ConfigEditor = exports.ConfigEditor = React.createClass({
      * @method Export this config to a local file.
      */
     doExport: function () {
-        fileLocal.writeFile(null, this.editor.getValue());
+        var url = window.URL.createObjectURL(new Blob([this.editor.getValue()]));
+        window.open(url, "_blank");
+        window.URL.revokeObjectURL(url);
     },
 
     // React methods
