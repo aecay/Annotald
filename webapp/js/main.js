@@ -11,21 +11,26 @@ var ui = require("./ui/ui"),
     $ = require("jquery"),
     fs = require("fs"),
     _ = require("lodash"),
-    bulk = require("bulk-require");
-var dummy = bulk(__dirname, ["**/*.ts"]);
+    bulk = require("bulk-require"),
+    db = require("./db");
+bulk(__dirname, ["**/*.ts", "!**/flymake_*"]);
 
 cs.listConfigs().then(function (configs) {
-    // TODO: this doesn't finish in time for the config to actually show up on
-    // the first run; the menu will be empty
     if (! _.contains(_.keys(configs), "default")) {
         return cs.setConfig("default", fs.readFileSync(
             __dirname + "/../assets/settings.js", "utf8"));
     }
     return undefined;
 }).then(function () {
+    return db.get("formats", {});
+}).then(function (formats) {
+    if (! _.contains(_.keys(formats), "icelandic")) {
+        return db.setIn("formats", "icelandic", fs.readFileSync(
+            __dirname + "/psd-grammars/icelandic-format.xml", "utf8"));
+    }
+    return undefined;
+}).done(function () {
     $(function () {
         React.renderComponent(ui.AnnotaldUI(), document.getElementById("mainui"));
     });
-}).catch(function (e) {
-    console.log(e.stack);
 });
