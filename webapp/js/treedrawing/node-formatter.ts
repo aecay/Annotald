@@ -23,7 +23,7 @@ function formatSnode (snode : Element) : void {
         return;
     }
     var textNode = snode.childNodes[0];
-    if (textNode.nodeType !== 3) {
+    if (!textNode || textNode.nodeType !== 3) {
         var newTN = document.createTextNode("");
         snode.insertBefore(newTN, textNode);
         textNode = newTN;
@@ -45,6 +45,25 @@ function formatSnode (snode : Element) : void {
 
     // Lemma
     var wnode = $(snode).children(".wnode");
+    var nodeType = snode.getAttribute("data-nodetype");
+    if (nodeType && _.contains(["trace", "ec", "comment"], nodeType)) {
+        if (wnode.length === 0) {
+            wnode = $(document.createElement("span"));
+            wnode.addClass("wnode");
+            wnode.addClass("autoWnode")
+            $(snode).append(wnode);
+            if (nodeType === "trace") {
+                wnode.text("*" + snode.getAttribute("data-tracetype") + "*");
+            } else if (nodeType === "ec") {
+                wnode.text("*" + snode.getAttribute("data-ectype") + "*");
+            }
+            // TODO: how to manage the text here?
+            // else if (nodeType === "comment") {
+            //     wnode.text("{" + snode.getAttribute("data-comtype") +
+            //                snode.getAttribute("data-ectype") + "}");
+            // }
+        }
+    }
     var lemma = metadata.getMetadata(snode)["lemma"];
     if (wnode.length > 0 && lemma) {
         $(snode).find(".lemma").remove();
