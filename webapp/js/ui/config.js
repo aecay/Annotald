@@ -3,7 +3,7 @@
 /*global require: false, exports: true, Blob: false */
 
 var React = require("react"),
-    configStore = require("../config-store"),
+    db = require("../db"),
     ace = require("brace"),
     notify = require("./log"),
     // TODO: conditional for node webkit
@@ -14,6 +14,7 @@ var React = require("react"),
     $ = require("jquery"),
     _ = require("lodash");
 require("brace/mode/javascript");
+require("brace/mode/xml");
 require("brace/theme/xcode");
 
 function vexSubmit(name) {
@@ -27,19 +28,22 @@ function vexSubmit(name) {
  * @class
  * @classdesc A list of all loaded configs
  */
-exports.ConfigsList = React.createClass({
-    // Misc methods
+exports.TextFileList = React.createClass({
 
+    // Misc methods
     updateFromDb: function () {
         var that = this;
-        configStore.listConfigs().then(function (configs) {
+        db.get(that.props.path).then(function (configs) {
             that.setState({ names: _.keys(configs) });
         });
     },
-    // Event handlers
 
+    // Event handlers
     doEdit: function (name) {
-        $(document).trigger("ChangeView", { view: "EditConfig", name: name });
+        $(document).trigger("ChangeView", { view: "EditTextFile",
+                                            name: name,
+                                            path: this.props.path,
+                                            mode: this.props.mode });
         return false;
     },
 
@@ -53,7 +57,7 @@ exports.ConfigsList = React.createClass({
                                   { callback:
                                     function (file) {
                                         file.read().then(function (content) {
-                                            configStore.setConfig(name, content).
+                                            db.setIn(that.props.path, name, content).
                                                 then(function () {
                                                     that.doEdit(name);
                                                 });
@@ -69,7 +73,7 @@ exports.ConfigsList = React.createClass({
 
     doDelete: function (name) {
         var that = this;
-        configStore.deleteConfig(name).then(function () {
+        db.deleteIn(this.props.path, name).then(function () {
             notify.notice("Config " + name + " deleted.");
             that.updateFromDb();
         }, function () {
@@ -97,9 +101,10 @@ exports.ConfigsList = React.createClass({
     },
 
     componentDidMount: function () {
-        configStore.getLastConfig().then(function (c) {
+        var that = this;
+        db.get("__last_" + this.props.path, null).then(function (c) {
             if (c) {
-                $(this.refs.config.getDOMNode()).val(c);
+                $(that.refs.config.getDOMNode()).val(c);
             }
         });
     },
@@ -111,6 +116,7 @@ exports.ConfigsList = React.createClass({
                 {name}
                 </option>;
         }
+        // TODO: surely we can use event.target and get rid of these wrapper fns?
         function edit () {
             that.doEdit(that.refs.config.getDOMNode().value);
             return false;
@@ -124,7 +130,8 @@ exports.ConfigsList = React.createClass({
             return false;
         }
         function change () {
-            configStore.setLastConfig(that.refs.config.getDOMNode().value);
+            db.set("__last_" + this.props.path,
+                   that.refs.config.getDOMNode().value);
         }
         if (this.state.adding) {
             addForm = <form onSubmit={add}>
@@ -139,15 +146,16 @@ exports.ConfigsList = React.createClass({
                                                return false;}}
                 href="#">Add new</a>;
         }
-        return (<div id="configs-list">
-                <h2>Config files:</h2>
-            <select ref="config" id="config-chooser" onChange={change}>
-            {this.state.names.map(renderConfig)}
-            </select><span> </span>
-            <a href="#" onClick={edit}>edit</a> <span> &ndash; </span>
-            <a href="#" onClick={delet}>delete</a><br />
-            {addForm}
-            </div>);
+        // TODO: more compelling title in the h2
+        return (<div id={this.props.path + "-list"}>
+                <h2>{this.props.path}:</h2>
+                <select ref="config" id={this.props.path + "-chooser"} onChange={change}>
+                {this.state.names.map(renderConfig)}
+                </select><span> </span>
+                <a href="#" onClick={edit}>edit</a> <span> &ndash; </span>
+                <a href="#" onClick={delet}>delete</a><br />
+                {addForm}
+                </div>);
     }
 });
 
@@ -156,7 +164,7 @@ exports.ConfigsList = React.createClass({
  * @class
  * @classdesc An editor for configuration files
  */
-var ConfigEditor = exports.ConfigEditor = React.createClass({
+exports.TextFileEditor = React.createClass({
 
     /** @member {Boolean} Are there unsaved changes? */
     dirty: false,
@@ -168,7 +176,7 @@ var ConfigEditor = exports.ConfigEditor = React.createClass({
      */
     doSave: function doSave () {
         var that = this;
-        configStore.setConfig(this.props.name, this.editor.getValue()).then(
+        db.setIn(this.props.path, this.props.name, this.editor.getValue()).then(
             function () {
                 that.dirty = false;
                 notify.notice("Save success");
@@ -211,7 +219,6 @@ var ConfigEditor = exports.ConfigEditor = React.createClass({
     },
 
     // React methods
-
     /**
      * @method
      */
@@ -235,14 +242,16 @@ var ConfigEditor = exports.ConfigEditor = React.createClass({
         var editor = this.editor = ace.edit("editor"),
             that = this;
         editor.setTheme("ace/theme/xcode");
-        editor.getSession().setMode("ace/mode/javascript");
-        configStore.getConfig(this.props.name).then(function (result) {
+        editor.getSession().setMode("ace/mode/" + this.props.mode);
+        db.get(this.props.path, {}).then(function (dict) {
+            return dict[that.props.name];
+        }).then(function (result) {
             editor.setValue(result);
             editor.clearSelection();
             editor.gotoLine(1,0);
             editor.scrollToLine(0);
             editor.focus();
-            this.dirty = false;
+            that.dirty = false;
             editor.on("change", function () {
                 that.dirty = true;
             });
