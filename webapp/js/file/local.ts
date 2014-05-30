@@ -22,6 +22,10 @@ export function readFile (name : string) : Q.Promise<string> {
     });
 }
 
+export function deleteFile (name : string) : Q.Promise<void> {
+    return db.deleteIn("files", name);
+}
+
 export class LocalFile implements file.AnnotaldFile {
     private name : string;
     fileType : string = "Local";
