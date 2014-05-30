@@ -50,7 +50,7 @@ function formatSnode (snode : Element) : void {
         if (wnode.length === 0) {
             wnode = $(document.createElement("span"));
             wnode.addClass("wnode");
-            wnode.addClass("autoWnode")
+            wnode.addClass("autoWnode");
             $(snode).append(wnode);
             if (nodeType === "trace") {
                 wnode.text("*" + snode.getAttribute("data-tracetype") + "*");
