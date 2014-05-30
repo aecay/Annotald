@@ -3,8 +3,8 @@
 /*jshint browser: true, devel: true */
 
 var React = require("react"),
-    ConfigEditor = require("./config").ConfigEditor,
-    ConfigsList = require("./config").ConfigsList,
+    TextFileEditor = require("./config").TextFileEditor,
+    TextFileList = require("./config").TextFileList,
     FileChooser = require("./file").FileChooser,
     TreeEditor = require("./tree-editor").TreeEditor,
     $ = require("jquery"),
@@ -17,7 +17,8 @@ var WelcomeUI = React.createClass({
             React.DOM.h1({}, "Welcome to Annotald"),
             React.DOM.div({style: { width: "30%",
                                     float: "right" }},
-                          ConfigsList()),
+                          TextFileList({ path: "configs", mode: "javascript" }),
+                          TextFileList({ path: "formats", mode: "xml" })),
             React.DOM.div(
                 {style: { width: "70%" }},
                 FileChooser({ callback:
@@ -76,10 +77,13 @@ exports.AnnotaldUI = React.createClass({
         case "EditTree":
             return  TreeEditor({ file: params.file,
                                  // TODO: hackasaurus!!!
-                                 config: params.config || $("#config-chooser").val()
+                                 config: params.config || $("#configs-chooser").val(),
+                                 fmtName: params.config || $("#formats-chooser").val()
                                });
-        case "EditConfig":
-            return ConfigEditor({ name: params.name });
+        case "EditTextFile":
+            return TextFileEditor({ name: params.name,
+                                    mode: params.mode,
+                                    path: params.path });
         default:
             return React.DOM.div("Don't know about view: " + view);
         }
