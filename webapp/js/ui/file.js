@@ -25,10 +25,19 @@ var LocalFileList = React.createClass({
         return React.DOM.ul.apply(null, [{}].concat(this.state.children));
     },
     componentDidMount: function () {
+        this.updateFiles();
+    },
+    updateFiles: function () {
         var that = this;
         local.listFiles().then(function (fileNames) {
             return Q.all(_.map(fileNames, that.fileItem));
         }).done(function (items) {
+            // It's ugly to do it this way; ideally we'd set the children to a
+            // list of strings.  But we do it this way because we need to
+            // operate async'ly on the contents of the strings.  Maybe a
+            // better way would be to set the state to strings, have a
+            // callback which sets a property of this and then forces an
+            // update (????)
             that.setState({ children: items });
         });
     },
@@ -46,6 +55,11 @@ var LocalFileList = React.createClass({
                     "open"
                 ), " – ",
                 React.DOM.a(
+                    { href: "#",
+                      onClick : that.del.bind(that, name) },
+                    "delete"
+                ), " – ",
+                React.DOM.a(
                     { href: url,
                       download: name + ".psdx" },
                     "download"
@@ -57,6 +71,13 @@ var LocalFileList = React.createClass({
         e.preventDefault();
         this.props.callback(file.reconstituteFile("Local",
                                                   { name: name }));
+    },
+    del: function (name, e) {
+        var that = this;
+        e.preventDefault();
+        local.deleteFile(name).then(function () {
+            that.updateFiles();
+        }).done();
     },
     componentWillUnmount: function () {
         _.map(this.objectUrls, function (url) {
@@ -87,7 +108,6 @@ var RecentFileItem = React.createClass({
         );
     }
 });
-
 
 var RecentFileList = React.createClass({
     getInitialState: function () {
