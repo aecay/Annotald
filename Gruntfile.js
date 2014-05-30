@@ -1,13 +1,13 @@
 /*global module: true, require: false */
 
+/* jshint laxcomma: true, quotmark: false, maxlen: 999, camelcase: false */
+
 var cacheify = require("cacheify"),
     level = require("level"),
     typescriptify = require("./js-ext/typeify"),
     reactify = require("reactify"),
     istanbulify = require("./test/istanbulify"),
-    envify = require("envify/custom"),
-    brfs = require("brfs"),
-    bulkify = require("bulkify");
+    envify = require("envify/custom");
 
 function makeCached (transform, name) {
     var cache = level("./cache/" + name);
