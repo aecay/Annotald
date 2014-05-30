@@ -23,7 +23,7 @@ function nodeToAction (n : JQuery) : any {
 }
 __test__.nodeToAction = nodeToAction;
 
-function parseFormatSpec (root : Element) : lc.LabelMap {
+export function parseFormatSpec (root : Element) : lc.LabelMap {
     var r : lc.LabelMap = {
         defaults: {},
         defaultSubcategories: [],
@@ -49,7 +49,18 @@ function parseFormatSpec (root : Element) : lc.LabelMap {
     });
     return r;
 }
-__test__.parseFormatSpec = parseFormatSpec;
+
+function parseMetaNode (xmlNode : Element) : any {
+    var r = {};
+    if ($(xmlNode).children().length > 0) {
+        $(xmlNode).children().each(function () : void {
+            r[this.tagName] = parseMetaNode(this);
+        });
+        return r;
+    } else {
+        return $(xmlNode).text();
+    }
+}
 
 function makeWnode (xmlNode : Node) : Node {
     var wnode = document.createElement("span");
@@ -65,13 +76,23 @@ function makeSnode (xmlNode : Node) : Node {
     var atts = xmlNode.attributes;
     var c, a, i;
     snode.className = "snode";
-    for (i = 0; i < cn.length; i++) {
-        c = cn[i];
-        if (c.nodeType === 3 && c.textContent.trim() !== "") {
-            snode.appendChild(makeWnode(c));
-            snode.setAttribute("data-nodetype", xmlNode.nodeName);
-        } else if (c.nodeType === 1) {
-            snode.appendChild(makeSnode(c));
+    if (cn.length === 0) {
+        // terminal node with no text: trace or ec
+        snode.setAttribute("data-nodetype", xmlNode.nodeName);
+    } else {
+        for (i = 0; i < cn.length; i++) {
+            c = cn[i];
+            if (c.nodeType === 3 && c.textContent.trim() !== "") {
+                snode.appendChild(makeWnode(c));
+                snode.setAttribute("data-nodetype", xmlNode.nodeName);
+            } else if (c.nodeType === 1) {
+                if (c.tagName === "meta") {
+                    snode.setAttribute("data-metadata",
+                                       JSON.stringify(parseMetaNode(c)));
+                } else {
+                    snode.appendChild(makeSnode(c));
+                }
+            }
         }
     }
     for (i = 0; i < atts.length; i++) {
@@ -111,6 +132,21 @@ function terminalNodeToString (node : HTMLElement) : string {
     return wnode.textContent;
 }
 
+function metadataToXml (metadata : any, name : string, doc : Document)
+: Element {
+    var e = doc.createElement(name);
+    _.forOwn(metadata, function (val : any, key : string) : void {
+        if (_.isString(val)) {
+            var n = doc.createElement(key);
+            n.appendChild(doc.createTextNode(val));
+            e.appendChild(n);
+        } else {
+            e.appendChild(metadataToXml(val, key, doc));
+        }
+    });
+    return e;
+}
+
 function nodeToXml (doc : Document, node : HTMLElement, root? : boolean) : Node {
     var name, i, recurse = true;
     if (root) {
@@ -131,9 +167,9 @@ function nodeToXml (doc : Document, node : HTMLElement, root? : boolean) : Node 
     for (i = 0; i < attrs.length; i++) {
         var attr = attrs[i];
         if (attr.name === "data-metadata") {
-            // TODO: handle metadata
+            s.appendChild(metadataToXml(JSON.parse(attrs[i].value), "meta", doc));
         } else if (attr.name === "data-nodetype") {
-            // do nothing
+            // do nothing; this case is already handled
         } else if (/^data-/.test(attr.name)) {
             s.setAttribute(attrs[i].name.replace(/^data-/, ""),
                            attrs[i].value);
@@ -157,6 +193,7 @@ export function parseHtmlToXml (node : Node) : string {
     var doc = document.implementation.createDocument("foo", "", null);
     var corpus = document.createElementNS("foo", "corpus");
     doc.appendChild(corpus);
+    $(node).find(".lemma,.autoWnode").remove();
     $(node).children().each(function () : void {
         corpus.appendChild(nodeToXml(doc, this, true));
     });

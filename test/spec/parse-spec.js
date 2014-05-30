@@ -46,7 +46,7 @@ describe("The action parser", function () {
         });
     });
     describe("parseFormatSpec", function () {
-        var pfs = parse.__test__.parseFormatSpec;
+        var pfs = parse.parseFormatSpec;
         it("should handle dashTags", function () {
             var dom = new DOMParser().parseFromString(
                 "<x><dashTags><LFD><semantics><left-dislocate>yes</left-dislocate></semantics></dashTags></x>",
