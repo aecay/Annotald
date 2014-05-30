@@ -29,6 +29,18 @@ describe("The parser", function () {
     it("should be idempotent on XML", function () {
         expect(parse.parseXmlToHtml(parse.parseHtmlToXml(html)).outerHTML).toEqualString(html);
     });
+    it("should handle text with metadata", function () {
+        expect(parse.parseXmlToHtml('<corpus><sentence id="2008.OFSI.NAR-SAG,.1">' +
+                                    '<nonterminal category="IP" subcategory="MAT">'+
+                                    '<text category="ADJS">' +
+                                    '<meta><A>yes</A>' +
+                                    '<lemma>fyrstur</lemma></meta>' +
+                                    'Fyrsta</text>' +
+                                    '</nonterminal></sentence></corpus>').outerHTML)
+            .toEqualString(
+                ""
+            );
+    });
 });
 
 describe("The action parser", function () {
