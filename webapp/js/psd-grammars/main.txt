@@ -43,7 +43,7 @@ trace = "*" tracetype:[A-Z]+ "*" index:index { return {
 }; }
 ec = ec:(fullec / zeroec) { ec.type = "ec"; return ec; }
 fullec = "*" ectype:[a-z]+ "*" { return { ectype: ectype.join("") }; }
-zeroec = "0" { return { ectype: ectype}; }
+zeroec = "0" { return { ectype: "zero" }; }
 
 comment = "(CODE " com:(structuredcomment / freecomment) ")" {
     com.type = "comment"; com.label = "CODE"; return com;
