@@ -21,7 +21,7 @@ exports.get = function (key, def) {
     return d.promise;
 };
 
-exports.put = function (key, val) {
+var put = exports.put = function (key, val) {
     var d = Q.defer();
     db.put(key, JSON.stringify(val), function (err) {
         if (err) {
@@ -29,6 +29,39 @@ exports.put = function (key, val) {
         } else {
             d.fulfill();
         }
+    });
+    return d.promise;
+};
+
+exports.deleteIn = function (path, key) {
+    var d = Q.defer();
+    db.get(path, function (err, val) {
+        if (err) {
+            d.fulfill();
+        } else {
+            var v = JSON.parse(val);
+            delete v[key];
+            put(path, v).then(function () {
+                d.fulfill();
+            });
+        }
+    });
+    return d.promise;
+};
+
+exports.setIn = function (path, key, value) {
+    var d = Q.defer();
+    db.get(path, function (err, res) {
+        var v;
+        if (err) {
+            v = {};
+        } else {
+            v = JSON.parse(res);
+        }
+        v[key] = value;
+        put(path, v).then(function () {
+            d.fulfill();
+        });
     });
     return d.promise;
 };
