@@ -24,6 +24,8 @@ function vexSubmit(name) {
     };
 }
 
+// TODO: rename this file, since it's now generic
+
 /**
  * @class
  * @classdesc A list of all loaded configs
@@ -168,6 +170,7 @@ exports.TextFileEditor = React.createClass({
 
     /** @member {Boolean} Are there unsaved changes? */
     dirty: false,
+    // TODO: warn when closing page and dirty set
 
     // Event handler functions
 
