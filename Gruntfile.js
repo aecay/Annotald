@@ -88,7 +88,8 @@ module.exports = function (grunt) {
                         envifyBrowserCached]),
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points'
-                    ]
+                    ],
+                    ignore: ["webapp/js/node-utils.js"]
                 }
             },
             annotaldNw: {
@@ -103,7 +104,8 @@ module.exports = function (grunt) {
                         envify({ENV: "node-webkit"})]),
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points'
-                    ]
+                    ],
+                    ignore: ["webapp/js/node-utils.js"]
                 }
             },
             test: {
@@ -112,7 +114,8 @@ module.exports = function (grunt) {
                 options: {
                     transform: annotaldBrowserifyTransforms.concat(
                         [istanbulify, envify({ENV: "test"})]),
-                    external: annotaldBrowserifyExternal
+                    external: annotaldBrowserifyExternal,
+                    ignore: ["webapp/js/node-utils.js"]
                 }
             },
             test_debug: {
@@ -124,7 +127,8 @@ module.exports = function (grunt) {
                     external: annotaldBrowserifyExternal,
                     bundleOptions: {
                         debug: true
-                    }
+                    },
+                    ignore: ["webapp/js/node-utils.js"]
                 }
             }
         },
