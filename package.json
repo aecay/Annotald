@@ -6,12 +6,16 @@
         "brace": "latest",
         "dropbox": "latest",
         "jquery": "2.1.1",
+        "jsdom": "0.10.6",
         "level-browserify": "^0.18.1",
         "lodash": "latest",
+        "minimist": "0.1.0",
         "pegjs": "^0.8.0",
         "q": "latest",
         "q-io": "latest",
-        "react": "latest"
+        "react": "latest",
+        "typescript-require": "0.2.6",
+        "xmldom": "0.1.19"
     },
     "devDependencies": {
         "brfs": "1.1.1",
