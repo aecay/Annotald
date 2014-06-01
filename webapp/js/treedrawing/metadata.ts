@@ -2,13 +2,10 @@
 
 /* tslint:disable:quotemark */
 
-var dummy;
+import compat = require("./../compat");
 
-import $ = require("jquery");
+var $ = compat.$;
 import _ = require("lodash");
-
-import dialog = require("./dialog"); dummy = require("./dialog.ts");
-import selection = require("./selection"); dummy = require("./selection.ts");
 
 function setInDict (dict : { [key: string] : any },
                     key : string, val : any, remove? : boolean)
@@ -116,7 +113,7 @@ function removeMetadataXmlInner (node : Element, key : string, value : any) : vo
     if (_.isString(value)) {
         c.remove();
     } else {
-        _.forOwn(value, function (v : any, k : string) :void {
+        _.forOwn(value, function (v : any, k : string) : void {
             removeMetadataXmlInner(c.get(0), k, v);
         });
         if ($(node).children().length === 0) {
@@ -273,8 +270,12 @@ export function updateMetadataEditor() : void {
     $("#addMetadataButton").click(addMetadataDialog);
 }
 
+/* tslint:disable:variable-name */
 export var __test__ : any = {};
+/* tslint:enable:variable-name */
 
 if (process.env.ENV === "test") {
-    __test__.setInDict = setInDict;
+    __test__ = {
+        setInDict: setInDict
+    };
 }

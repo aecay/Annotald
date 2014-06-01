@@ -1,11 +1,10 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-var dummy;
-
-import $ = require("jquery");
-import contextmenu = require("./contextmenu"); dummy = require("./contextmenu.ts");
-import metadataEditor = require("./metadata"); dummy = require("./metadata.ts");
-import globals = require("./global"); dummy = require("./global.ts");
+import compat = require("compat");
+var $ = compat.$;
+import contextmenu = require("./contextmenu");
+import metadataEditor = require("./metadata-ui");
+import globals = require("./global");
 
 /**
  * This variable holds the selected node, or "start" node if multiple

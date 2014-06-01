@@ -1,11 +1,11 @@
 ///<reference path="./../../types/all.d.ts" />
 
-import $ = require("jquery");
+import compat = require("./compat");
+
+var $ = compat.$;
 import _ = require("lodash");
 
 import lc = require("./treedrawing/label-convert");
-
-export var __test__ : any = {};
 
 function nodeToAction (n : JQuery) : any {
     var r = {};
@@ -21,7 +21,6 @@ function nodeToAction (n : JQuery) : any {
     return r;
 
 }
-__test__.nodeToAction = nodeToAction;
 
 export function parseFormatSpec (root : Element) : lc.LabelMap {
     var r : lc.LabelMap = {
@@ -199,3 +198,13 @@ export function parseHtmlToXml (node : Node) : string {
     });
     return (new XMLSerializer).serializeToString(doc).replace(/ xmlns="foo"/, "");
 };
+
+/* tslint:disable:variable-name */
+export var __test__ : any = {};
+/* tslint:enable:variable-name */
+
+if (process.env.ENV === "test") {
+    __test__ = {
+        nodeToAction: nodeToAction
+    };
+}
