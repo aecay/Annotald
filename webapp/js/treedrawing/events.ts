@@ -1,17 +1,15 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-var dummy;
-
 import $ = require("jquery");
 import _ = require("lodash");
 
-import globals = require("./global"); dummy = require("./global");
-import contextmenu = require("./contextmenu"); dummy = require("./contextmenu");
-import undo = require("./undo"); dummy = require("./undo");
-import selection = require("./selection"); dummy = require("./selection");
-import edit = require("./struc-edit"); dummy = require("./struc-edit");
-import metadataEditor = require("./metadata"); dummy = require("./metadata.ts");
-import dialog = require("./dialog"); dummy = require("./dialog");
+import globals = require("./global");
+import contextmenu = require("./contextmenu");
+import undo = require("./undo");
+import selection = require("./selection");
+import edit = require("./struc-edit");
+import metadataEditor = require("./metadata-ui");
+import dialog = require("./dialog");
 
 export interface ClickHook { (button : number) : void; }
 

@@ -17,9 +17,9 @@ client.authDriver(new DropboxCore.AuthDriver.Popup(
     { receiverUrl : "/html/oauth_receiver.html" }));
 
 export class DropboxFile implements file.AnnotaldFile {
-    private path;
-    private content;
-    fileType = "Dropbox";
+    private path : string;
+    private content : string;
+    fileType : string = "Dropbox";
 
     constructor (params : any) {
         this.path = params.path;

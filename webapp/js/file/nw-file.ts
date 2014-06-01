@@ -18,9 +18,9 @@ export interface NwFileParams {
 }
 
 export class NwFile implements file.AnnotaldFile {
-    private path;
-    private content;
-    fileType = "NW";
+    private path : string;
+    private content : string;
+    fileType : string = "NW";
 
     constructor (params : NwFileParams) {
         this.path = params.path;
@@ -44,7 +44,9 @@ export class NwFile implements file.AnnotaldFile {
                               fr.onload = function (event : any) : void {
                                   // TODO: path
                                   deferred.resolve(new that({
+                                      /* tslint:disable:no-string-literal */
                                       path: file["path"],
+                                      /* tslint:enable:no-string-literal */
                                       content: event.target.result
                                   }));
                               };

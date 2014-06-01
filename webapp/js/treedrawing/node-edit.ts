@@ -124,14 +124,15 @@ function leafEditorHtml(label : string,
                                      "class": "labeledit",
                                      type: "text",
                                      value: label }),
-                           H.input(<{[key: string] : string}>_.assign({ id: "leaftextbox",
-                                              "class": "labeledit",
-                                              type: "text",
-                                              value: word
-                                            },
-                                            !utils.isEmpty(word) ?
-                                            { disabled: "disabled"} :
-                                            {})),
+                           H.input(<{[key: string] : string}>_.assign(
+                               { id: "leaftextbox",
+                                 "class": "labeledit",
+                                 type: "text",
+                                 value: word
+                               },
+                               !utils.isEmpty(word) ?
+                                   { disabled: "disabled"} :
+                               {})),
                            lemma ? H.input({ id: "leaflemmabox",
                                              "class": "labeledit",
                                              type: "text",

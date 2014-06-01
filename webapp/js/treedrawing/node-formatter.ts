@@ -64,7 +64,9 @@ function formatSnode (snode : Element) : void {
             // }
         }
     }
+    /* tslint:disable:no-string-literal */
     var lemma = metadata.getMetadata(snode)["lemma"];
+    /* tslint:enable:no-string-literal */
     if (wnode.length > 0 && lemma) {
         $(snode).find(".lemma").remove();
         wnode.append($("<span class='lemma'>-" + lemma + "</span>"));
