@@ -69,12 +69,16 @@ function makeWnode (xmlNode : Node) : Node {
     return wnode;
 }
 
-function makeSnode (xmlNode : Node) : Node {
+function makeSnode (xmlNode : Element) : Node {
     var snode = document.createElement("div");
     var cn = xmlNode.childNodes;
     var atts = xmlNode.attributes;
     var c, a, i;
-    snode.className = "snode";
+    if (xmlNode.tagName === "sentence") {
+        snode.className = "sentnode";
+    } else {
+        snode.className = "snode";
+    }
     if (cn.length === 0) {
         // terminal node with no text: trace or ec
         snode.setAttribute("data-nodetype", xmlNode.nodeName);
@@ -146,9 +150,9 @@ function metadataToXml (metadata : any, name : string, doc : Document)
     return e;
 }
 
-function nodeToXml (doc : Document, node : HTMLElement, root? : boolean) : Node {
+function nodeToXml (doc : Document, node : HTMLElement) : Node {
     var name, i, recurse = true;
-    if (root) {
+    if (node.classList.contains("sentnode")) {
         name = "sentence";
     } else {
         if (node.children.length === 1 &&
@@ -194,7 +198,7 @@ export function parseHtmlToXml (node : Node) : string {
     doc.appendChild(corpus);
     $(node).find(".lemma,.autoWnode").remove();
     $(node).children().each(function () : void {
-        corpus.appendChild(nodeToXml(doc, this, true));
+        corpus.appendChild(nodeToXml(doc, this));
     });
     return (new XMLSerializer).serializeToString(doc).replace(/ xmlns="foo"/, "");
 };

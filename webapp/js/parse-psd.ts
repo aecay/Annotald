@@ -5,6 +5,7 @@ var fs = require("fs");
 import lc = require("./treedrawing/label-convert");
 import _ = require("lodash");
 import md = require("./treedrawing/metadata");
+import compat = require("./compat");
 
 var grammar = fs.readFileSync(__dirname + "/psd-grammars/main.txt", "utf8");
 
@@ -13,6 +14,8 @@ var icelandicText = fs.readFileSync(__dirname + "/psd-grammars/icelandic-text.tx
 
 var icelandicLeaf = fs.readFileSync(__dirname + "/psd-grammars/icelandic-leaf.txt",
                                     "utf8");
+
+var document : Document = compat.getDocument();
 
 // TODO: case as part of the return value
 
@@ -23,17 +26,17 @@ export function parseCorpus (corpus : string) : any {
 }
 
 export function jsToXml (root : any, spec : lc.LabelMap) : string {
-    var doc = document.implementation.createDocument("foo", "", null);
-    var corpus = document.createElementNS("foo", "corpus");
+    var doc = document.implementation.createDocument(null, null, null);
+    var corpus = doc.createElement("corpus");
     doc.appendChild(corpus);
     _.forEach(root, function (tree : any) : void {
         corpus.appendChild(jsToXmlInnerTop(tree, doc, spec));
     });
-    return (new XMLSerializer).serializeToString(doc).replace(/ xmlns="foo"/, "");
+    return compat.XmlSerializer.serializeToString(doc).replace(/ xmlns="foo"/, "");
 }
 
 function jsToXmlInnerTop (obj : any, doc : Document, spec : lc.LabelMap) : Element {
-    var s = doc.createElementNS("foo", "sentence");
+    var s = doc.createElement("sentence");
     if (obj.id) {
         s.setAttribute("id", obj.id);
     }
@@ -48,7 +51,7 @@ function jsToXmlInner (obj : any, doc : Document, spec : lc.LabelMap) : Element 
     if (obj.type) {
         var t;
         if (obj.type === "text") {
-            t = doc.createElementNS("foo", "text");
+            t = doc.createElement("text");
             t.appendChild(doc.createTextNode(obj.text));
             lc.setLabelForNode(obj.label, t, spec, false, true);
             if (obj.lemma) {

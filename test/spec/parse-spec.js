@@ -9,14 +9,14 @@ var parse = require('../../webapp/js/parse');
 var $ = require("jquery");
 
 describe("The parser", function () {
-    var xml = '<corpus><sentence category="IP" subcategory="MAT"><nonterminal' +
+    var xml = '<corpus><sentence><nonterminal category="IP" subcategory="MAT"><nonterminal' +
             ' category="NP" subcategory="SBJ"><text' +
-            ' category="PRO">I</text></nonterminal></sentence></corpus>',
-        html = '<div class="snode" id="sn0"><div class="snode"' +
+            ' category="PRO">I</text></nonterminal></nonterminal></sentence></corpus>',
+        html = '<div class="snode" id="sn0"><div class="sentnode"><div class="snode"' +
             ' data-category="IP" data-subcategory="MAT"><div class="snode"' +
             ' data-category="NP" data-subcategory="SBJ"><div class="snode"' +
             ' data-nodetype="text" data-category="PRO"><span ' +
-            'class="wnode">I</span></div></div></div></div>';
+            'class="wnode">I</span></div></div></div></div></div>';
     it("should generate correct HTML from XML", function () {
         expect(parse.parseXmlToHtml(xml).outerHTML).toEqualString(html);
     });
