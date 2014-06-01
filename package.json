@@ -5,6 +5,7 @@
         "br-mousetrap": "^1.1.3",
         "brace": "latest",
         "dropbox": "latest",
+        "jquery": "2.1.1",
         "level-browserify": "^0.18.1",
         "lodash": "latest",
         "pegjs": "^0.8.0",

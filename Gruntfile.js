@@ -40,7 +40,7 @@ module.exports = function (grunt) {
         browserify: {
             external: {
                 src: [
-                    'bower_components/jquery/dist/jquery.js'
+                    'node_modules/jquery/dist/jquery.js'
                     ,'bower_components/vex/js/vex.dialog.js'
                     ,'bower_components/vex/js/vex.js'
                     ,'node_modules/react/react.js'
@@ -58,7 +58,7 @@ module.exports = function (grunt) {
                 ],
                 dest: 'webapp/build/ext.js',
                 options: {
-                    alias: ['bower_components/jquery/dist/jquery.js:jquery',
+                    alias: ['node_modules/jquery/dist/jquery.js:jquery',
                             'node_modules/react/react.js:react',
                             'bower_components/vex/js/vex.dialog.js:vex-dialog',
                             'bower_components/vex/js/vex.js:vex',
