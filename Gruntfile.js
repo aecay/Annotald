@@ -209,11 +209,10 @@ module.exports = function (grunt) {
                 src: "webapp/build/web.js",
                 dest: "webapp/build/web.min.js",
                 options: {
-                    sourceMap: "webapp/build/web.min.js.map",
+                    sourceMap: true,
                     sourceMapIn: "webapp/build/web.js.map",
                     preserveComments: 'some',
-                    sourceMappingURL: '/web.min.js.map',
-                    sourceMapRoot: '/'
+                    sourceMapIncludeSources: true
                 }
             },
             external: {
