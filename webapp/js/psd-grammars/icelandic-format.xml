@@ -1,13 +1,13 @@
 <formatSpec>
   <dashTags>
     <LFD>
-      <left-dislocate>yes</left-dislocate>
+      <leftDislocate>yes</leftDislocate>
     </LFD>
     <RSP>
-      <left-dislocate>resume</left-dislocate>
+      <leftDislocate>resume</leftDislocate>
     </RSP>
     <SPE>
-      <direct-speech>yes</direct-speech>
+      <directSpeech>yes</directSpeech>
     </SPE>
     <PRN>
       <parenthetical>yes</parenthetical>
