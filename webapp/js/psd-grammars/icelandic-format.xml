@@ -12,6 +12,18 @@
     <PRN>
       <parenthetical>yes</parenthetical>
     </PRN>
+    <A>
+      <case>accusative</case>
+    </A>
+    <N>
+      <case>nominative</case>
+    </N>
+    <G>
+      <case>dative</case>
+    </G>
+    <D>
+      <case>dative</case>
+    </D>
   </dashTags>
   <byLabel>
     <CP>
