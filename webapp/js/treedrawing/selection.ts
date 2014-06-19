@@ -1,6 +1,6 @@
 ///<reference path="./../../../types/all.d.ts" />
 
-import compat = require("compat");
+import compat = require("../compat");
 var $ = compat.$;
 import contextmenu = require("./contextmenu");
 import metadataEditor = require("./metadata-ui");
