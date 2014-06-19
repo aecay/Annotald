@@ -58,21 +58,21 @@ function jsToXmlInner (obj : any, doc : Document, spec : lc.LabelMap) : Element 
                 md.setMetadataXml(t, "lemma", obj.lemma);
             }
             if (obj.index) {
-                t.setAttribute("index", obj.index.index);
-                t.setAttribute("idxtype", obj.index.idxtype);
+                md.setMetadataXml(t, "index", obj.index.index);
+                md.setMetadataXml(t, "idxtype", obj.index.idxtype);
             }
         } else if (obj.type === "trace") {
             t = doc.createElementNS("foo", "trace");
             lc.setLabelForNode(obj.label, t, spec, false, true);
-            t.setAttribute("index", obj.index.index);
-            t.setAttribute("idxtype", obj.index.idxtype);
+            md.setMetadataXml(t, "index", obj.index.index);
+            md.setMetadataXml(t, "idxtype", obj.index.idxtype);
             t.setAttribute("tracetype", obj.tracetype);
         } else if (obj.type === "ec") {
             t = doc.createElementNS("foo", "ec");
             lc.setLabelForNode(obj.label, t, spec, false, true);
             if (obj.index) {
-                t.setAttribute("index", obj.index.index);
-                t.setAttribute("idxtype", obj.index.idxtype);
+                md.setMetadataXml(t, "index", obj.index.index);
+                md.setMetadataXml(t, "idxtype", obj.index.idxtype);
             }
             t.setAttribute("ectype", obj.ectype);
         } else if (obj.type === "comment") {
