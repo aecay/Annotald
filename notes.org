@@ -1,4 +1,4 @@
-.* TODO Add a check-hash command to lovett CLI tool                  :feature:
+* TODO Add a check-hash command to lovett CLI tool                  :feature:
 * Docs                                                                  :doc:
 ** TODO Convert docs to RST, host on readthedocs
 ** TODO Use ArgDoc
@@ -146,3 +146,6 @@ combine https://gildas-lormeau.github.io/zip.js/fs-api.html for uploads
 with https://www.npmjs.org/package/browserify-fs
 
 also: https://stuk.github.io/jszip/
+* promises
+switch to: https://github.com/petkaantonov/bluebird
+for speed
