@@ -18,5 +18,6 @@ if (args.xml) {
         .childNodes[0];
     process.stdout.write(
         parsePsd.jsToXml(parsePsd.parseCorpus(f),
-                         parse.parseFormatSpec(iceFormat)));
+                         parse.parseFormatSpec(iceFormat),
+                         parsePsd.corpusDefs["icepahc"]));
 }
