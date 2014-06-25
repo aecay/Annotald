@@ -83,7 +83,7 @@ export function addCaseMarker (marker : string) : void {
  * @returns {Function} A function which, when called, will execute the action.
  * @private
  */
-function doToggleExtension(node : Element, extension : string) : () => void {
+function doToggleExtension(node : HTMLElement, extension : string) : () => void {
     return function () : void {
         undo.touchTree($(node));
         selection.clearSelection();
@@ -221,7 +221,7 @@ function getSuggestions(node : Element) : string[] {
  * @param {Node} nodeOrig
  * @private
  */
-function loadContextMenu(nodeOrig : Element) : void {
+function loadContextMenu(nodeOrig : HTMLElement) : void {
     var nO = $(nodeOrig),
         nodeIndex = utils.getIndex(nodeOrig),
         indexSep = "",
@@ -291,7 +291,7 @@ function loadContextMenu(nodeOrig : Element) : void {
 }
 
 export function showContextMenu(e : JQueryMouseEventObject) : void {
-    var element = <Element>e.target; // TODO: needed? || e.srcElement;
+    var element = <HTMLElement>e.target; // TODO: needed? || e.srcElement;
     if (element === document.getElementById("sn0")) {
         selection.clearSelection();
         return;

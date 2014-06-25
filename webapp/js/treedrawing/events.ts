@@ -29,7 +29,7 @@ export function addClickHook(fn : ClickHook) : void {
 }
 
 export function handleNodeClick(e : JQueryMouseEventObject) : void {
-    var element = <Element>e.target; // TODO: e.srcEmement neded?
+    var element = <HTMLElement>e.target; // TODO: e.srcEmement neded?
     metadataEditor.saveMetadata();
     if (e.button === 2) {
         // rightclick
