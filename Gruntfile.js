@@ -89,7 +89,8 @@ module.exports = function (grunt) {
                     alias: [
                         'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points'
                     ],
-                    ignore: ["webapp/js/node-utils.js"]
+                    ignore: ["webapp/js/node-utils.js"]//,
+                    //watch: true
                 }
             },
             annotaldNw: {
