@@ -39,10 +39,7 @@ exports.template = <div onContextMenu={function () {return false;}}>
         {/*TODO validator*/}
         {""}
       </div>
-      {/*TODO: show if using metadata*/}
-      <div id="metadataEditor"
-           style={{visibility:"hidden"}}
-           >
+      <div id="metadataEditor">
         <div className="menuTitle">Metadata</div>
         <div id="metadata"></div>
       </div>
