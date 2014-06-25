@@ -10,7 +10,6 @@ var React = require("react"),
     configStore = require("../config-store"),
     treedrawing = require("../treedrawing/startup.ts"),
     Q = require("q"),
-    globals = require("../treedrawing/global"),
     db = require("../db");
 
 exports.TreeEditor = React.createClass({
@@ -35,7 +34,10 @@ exports.TreeEditor = React.createClass({
                         return fmts[that.props.fmtName];
                     }).then(function (format) {
                         return psdParser.jsToXml(psdParser.parseCorpus(content),
-                                                 parser.parseFormatSpec(format));
+                                                 parser.parseFormatSpec(format),
+                                                 // TODO
+                                                 psdParser.corpusDefs.icepahc
+                                                );
                     });
                 } else {
                     return content;
