@@ -70,7 +70,7 @@ export function setMetadataXml (node : Element, key : string, value : any) : voi
     var mdNode = $(node).children("meta").first().get(0);
     if (!mdNode) {
         mdNode = node.ownerDocument.createElement("meta");
-        $(node).prepend(mdNode);
+        $(node).append(mdNode);
     }
     setMetadataXmlInner(mdNode, key, value);
 }
@@ -97,8 +97,7 @@ export function removeMetadataXml (node : Element, key : string, value : any)
 : void {
     var mdNode = $(node).children("meta").first().get(0);
     if (!mdNode) {
-        mdNode = node.ownerDocument.createElement("meta");
-        $(node).prepend(mdNode);
+        return;
     }
     removeMetadataXmlInner(mdNode, key, value);
 }
