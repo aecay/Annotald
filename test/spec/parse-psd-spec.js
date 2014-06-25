@@ -146,7 +146,9 @@ describe("The PSD parser", function () {
     });
     describe("conversion to XML", function () {
         function toXml (x) {
-            return parsePsd.jsToXml(P(x));
+            return parsePsd.jsToXml(P(x),
+                                    { defaultSubcategories: ["ABC"] },
+                                    parsePsd.corpusDefs.icepahc);
         }
         it("should convert a simple tree correctly", function () {
             expect(toXml("( (FOO bar))")).toEqualXml(
@@ -159,8 +161,8 @@ describe("The PSD parser", function () {
             expect(toXml("( (FOO bar-baz))")).toEqualXml(
                 X("corpus",
                   X("sentence",
-                    X("text", {category: "FOO"}, X("meta", X("lemma", "baz")),
-                      "bar")))
+                    X("text", {category: "FOO"}, "bar",
+                      X("meta", X("lemma", "baz")))))
             );
         });
         it("should convert a tree properly", function () {
@@ -192,8 +194,10 @@ describe("The PSD parser", function () {
                 X("corpus",
                   X("sentence",
                     X("nonterminal", {category: "FOO"},
-                      X("trace", {category: "BAR", tracetype: "T",
-                                  index: "1", idxtype: "regular"}))))
+                      X("trace", {category: "BAR", tracetype: "T"},
+                        X("meta",
+                          X("index", "1"),
+                          X("idxtype", "regular"))))))
             );
         });
         it("should convert a tree with empty category properly", function () {

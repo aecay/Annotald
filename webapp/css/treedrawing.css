@@ -53,6 +53,10 @@ body {
     color: black;
 }
 
+.meta {
+    display: none;
+}
+
 #sn0 {
     background-color: #D2B48C;
     border: 1px solid black;

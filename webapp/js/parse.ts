@@ -49,24 +49,27 @@ export function parseFormatSpec (root : Element) : lc.LabelMap {
     return r;
 }
 
-function parseMetaNode (xmlNode : Element) : any {
-    var r = {};
-    if ($(xmlNode).children().length > 0) {
-        $(xmlNode).children().each(function () : void {
-            r[this.tagName] = parseMetaNode(this);
-        });
-        return r;
-    } else {
-        return $(xmlNode).text();
-    }
-}
-
 function makeWnode (xmlNode : Node) : Node {
     var wnode = document.createElement("span");
     var tn = document.createTextNode(xmlNode.textContent);
     wnode.className = "wnode";
     wnode.appendChild(tn);
     return wnode;
+}
+
+function metaXmlToHtml(node : Element) : Element {
+    var r = document.createElement("div");
+    r.setAttribute("data-tag", node.tagName);
+    r.setAttribute("class", "meta");
+    if (node.childNodes.length === 1 && node.childNodes[0].nodeType === 3) {
+        var t = document.createTextNode(node.childNodes[0].textContent);
+        r.appendChild(t);
+    } else {
+        $(node).children().each(function () : void {
+            r.appendChild(metaXmlToHtml(this));
+        });
+    }
+    return r;
 }
 
 function makeSnode (xmlNode : Element) : Node {
@@ -90,8 +93,7 @@ function makeSnode (xmlNode : Element) : Node {
                 snode.setAttribute("data-nodetype", xmlNode.nodeName);
             } else if (c.nodeType === 1) {
                 if (c.tagName === "meta") {
-                    snode.setAttribute("data-metadata",
-                                       JSON.stringify(parseMetaNode(c)));
+                    snode.appendChild(metaXmlToHtml(c));
                 } else {
                     snode.appendChild(makeSnode(c));
                 }
@@ -135,25 +137,12 @@ function terminalNodeToString (node : HTMLElement) : string {
     return wnode.textContent;
 }
 
-function metadataToXml (metadata : any, name : string, doc : Document)
-: Element {
-    var e = doc.createElement(name);
-    _.forOwn(metadata, function (val : any, key : string) : void {
-        if (_.isString(val)) {
-            var n = doc.createElement(key);
-            n.appendChild(doc.createTextNode(val));
-            e.appendChild(n);
-        } else {
-            e.appendChild(metadataToXml(val, key, doc));
-        }
-    });
-    return e;
-}
-
 function nodeToXml (doc : Document, node : HTMLElement) : Node {
     var name, i, recurse = true;
     if (node.classList.contains("sentnode")) {
         name = "sentence";
+    } else if (node.classList.contains("meta")) {
+        name = node.getAttribute("data-tag");
     } else {
         if (node.children.length === 1 &&
             (<HTMLElement>node.children[0]).classList.contains("wnode")) {
@@ -169,9 +158,7 @@ function nodeToXml (doc : Document, node : HTMLElement) : Node {
         attrs = node.attributes;
     for (i = 0; i < attrs.length; i++) {
         var attr = attrs[i];
-        if (attr.name === "data-metadata") {
-            s.appendChild(metadataToXml(JSON.parse(attrs[i].value), "meta", doc));
-        } else if (attr.name === "data-nodetype") {
+        if (attr.name === "data-nodetype") {
             // do nothing; this case is already handled
         } else if (/^data-/.test(attr.name)) {
             s.setAttribute(attrs[i].name.replace(/^data-/, ""),
