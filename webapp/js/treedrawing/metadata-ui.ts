@@ -5,139 +5,14 @@
 import dialog = require("./dialog");
 import selection = require("./selection");
 import metadata = require("./metadata");
+import startup = require("./startup");
+import globals = require("./global");
 import compat = require("./../compat");
 var $ = compat.$;
 /* tslint:disable:variable-name */
 var React = require("react");
 /* tslint:enable:variable-name */
 var D = React.DOM;
-
-/**
- * Convert a JS disctionary to an HTML form.
- *
- * For the metadata editing code.
- * @private
- */
-function dictionaryToForm (dict : Object, level? : number) : string {
-    if (!level) {
-        level = 0;
-    }
-    var res = "";
-    if (dict) {
-        res = '<table class="metadataTable"><thead><tr><td>Key</td>' +
-            '<td>Value</td></tr></thead>';
-        for (var k in dict) {
-            if (dict.hasOwnProperty(k)) {
-                if (typeof dict[k] === "string") {
-                    res += '<tr class="strval" data-level="' + level +
-                        '"><td class="key">' + '<span style="width:"' +
-                        4 * level + 'px;"></span>' + k +
-                        '</td><td class="val"><input class="metadataField" ' +
-                        'type="text" name="' + k + '" value="' + dict[k] +
-                        '" /></td></tr>';
-                } else if (typeof dict[k] === "object") {
-                    res += '<tr class="tabhead"><td colspan=2>' + k +
-                        '</td></tr>';
-                    res += dictionaryToForm(dict[k], level + 1);
-                }
-            }
-        }
-        res += '</table>';
-    }
-    return res;
-}
-
-/**
- * Convert an HTML form into a JS dictionary
- *
- * For the metadata editing code
- * @private
- */
-function formToDictionary (form : JQuery) : Object {
-    var d = {},
-        dstack = [],
-        curlevel = 0,
-        namestack = [];
-    form.find("tr").each(function () : void {
-        if ($(this).hasClass("strval")) {
-            var key = $(this).children(".key").text();
-            var val = $(this).find(".val>.metadataField").val();
-            d[key] = val;
-            if ($(this).prop("data-level") < curlevel) {
-                var newDict = dstack.pop();
-                var nextName = namestack.pop();
-                newDict[nextName] = d;
-                d = newDict;
-            }
-        } else if ($(this).hasClass("tabhead")) {
-            namestack.push($(this).text());
-            curlevel = $(this).prop("data-level");
-            dstack.push(d);
-            d = {};
-        }
-    });
-    if (dstack.length > 0) {
-        var len = dstack.length;
-        for (var i = 0; i < len; i++) {
-            var newDict = dstack.pop();
-            var nextName = namestack.pop();
-            newDict[nextName] = d;
-            d = newDict;
-        }
-    }
-    return d;
-}
-
-export function saveMetadata () : void {
-    if ($("#metadata").html() !== "") {
-        $(selection.get()).prop("data-metadata",
-                                JSON.stringify(formToDictionary(
-                                    $("#metadata"))));
-    }
-}
-
-function metadataKeyClick(e : Event) : boolean {
-    var keyNode = e.target;
-    var html = 'Name: <input type="text" ' +
-            'id="metadataNewName" value="' + $(keyNode).text() +
-            '" /><div id="dialogButtons"><input type="button" value="Save" ' +
-        'id="metadataKeySave" /><input type="button" value="Delete" ' +
-        'id="metadataKeyDelete" /></div>';
-    dialog.showDialogBox("Edit Metadata", html);
-    // TODO: make focus go to end, or select whole thing?
-    $("#metadataNewName").focus();
-    function saveMetadataInner () : void {
-        $(keyNode).text($("#metadataNewName").val());
-        dialog.hideDialogBox();
-        saveMetadata();
-    }
-    function deleteMetadata() : void {
-        $(keyNode).parent().remove();
-        dialog.hideDialogBox();
-        saveMetadata();
-    }
-    $("#metadataKeySave").click(saveMetadataInner);
-    dialog.setInputFieldEnter($("#metadataNewName"), saveMetadataInner);
-    $("#metadataKeyDelete").click(deleteMetadata);
-    return false;
-}
-
-function addMetadataDialog() : void {
-    // TODO: allow specifying value too in initial dialog?
-    var html = 'New Name: <input type="text" id="metadataNewName" value="NEW" />' +
-            '<div id="dialogButtons"><input type="button" id="addMetadata" ' +
-            'value="Add" /></div>';
-    dialog.showDialogBox("Add Metatata", html);
-    function addMetadata () : void {
-        var oldMetadata = formToDictionary($("#metadata"));
-        oldMetadata[$("#metadataNewName").val()] = "NEW";
-        $(selection.get()).prop("data-metadata", JSON.stringify(oldMetadata));
-        updateMetadataEditor();
-        dialog.hideDialogBox();
-    }
-    $("#addMetadata").click(addMetadata);
-    dialog.setInputFieldEnter($("#metadataNewName"), addMetadata);
-}
 
 // TODO: force update on change of backing
 // TODO: proptypes
@@ -158,9 +33,58 @@ export interface MetadataTypeSpecMap {
     [key : string] : any;
 }
 
+export function parseMetadataTypes (node : Element) : MetadataTypeSpecMap {
+    var $node = $(node);
+    var r : MetadataTypeSpecMap = {
+        lemma: { type: MetadataType.TEXT },
+        "has_continuation": { type: MetadataType.BOOL }
+    };
+    $node.children().map(function () : any {
+        var c = $(this).children("metadataType");
+        if (c.length === 1) {
+            var type = c.text();
+            if (type === "text") {
+                r[this.tagName] = { type: MetadataType.TEXT };
+            } else if (type === "boolean") {
+                r[this.tagName] = { type: MetadataType.BOOL };
+            } else if (type === "choice") {
+                var cs = $(this).children("metadataChoice");
+                if (cs.length === 0) {
+                    throw new Error("Choice metadataType without any choices");
+                }
+                var cs2 = cs.map(
+                    function () : string {
+                        return this.textContent;
+                    }).get();
+                r[this.tagName] = { type: MetadataType.CHOICE,
+                                    choices: cs2};
+            } else {
+                throw new Error("Unknown metadataType: " + type);
+            }
+        } else if (c.length > 1) {
+            throw new Error("Malformed metadataType");
+        } else {
+            r[this.tagName] = parseMetadataTypes(this);
+        }
+    });
+    return r;
+}
+
+var metadataTypeSpec : MetadataTypeSpecMap;
+
+startup.addStartupHook(() : void => {
+    var mt = $(globals.format).children("metadataTypes");
+    if (mt.length === 1) {
+        metadataTypeSpec = parseMetadataTypes(mt.get(0));
+    }
+});
+
 /* tslint:disable:variable-name */
 
 var MetaChoiceContainer = React.createClass({
+    doUpdate: function () : void {
+        $(this.props.backing).text($(this.refs.select.getDOMNode()).val());
+    },
     render: function () : void {
         var options = this.props.options.map(
             (v : string) : any => {
@@ -173,29 +97,42 @@ var MetaChoiceContainer = React.createClass({
         options.shift({});
         return React.DOM.div({},
                              this.props.name + ": ",
-                             React.DOM.select.apply(null, options));
+                             React.DOM.select.apply({ ref: "select",
+                                                      onChange: this.doUpdate },
+                                                    options));
     }
 });
 
 var MetaBoolContainer = React.createClass({
+    doUpdate: function () : void {
+        $(this.props.backing).text(
+            $(this.refs.input.getDOMNode()).prop("checked") ? "yes" : "no");
+    },
     render: function () : void {
          return React.DOM.div({},
                               this.props.name + ": ",
-                              "yes ",
-                              React.DOM.input({type: "radio", value: "yes"}),
-                              "no ",
-                              React.DOM.input({type: "radio", value: "no"})
+                              React.DOM.input({
+                                  type: "checkbox",
+                                  ref: "input",
+                                  defaultChecked:
+                                  $(this.props.backing).text() === "yes",
+                                  onChange: this.doUpdate })
                              );
     }
 });
 
 var MetaTextContainer = React.createClass({
+    doUpdate: function () : void {
+        $(this.props.backing).text($(this.refs.input.getDOMNode()).val());
+    },
     render: function () : void {
          return React.DOM.div({},
                               this.props.name + ": ",
-                              React.DOM.input({type: "text",
-                                               defaultValue:
-                                               this.props.backing.textContent})
+                              React.DOM.input({ type: "text",
+                                                ref: "input",
+                                                onChange: this.doUpdate,
+                                                defaultValue:
+                                                this.props.backing.textContent})
                              );
     }
 });
@@ -264,9 +201,17 @@ export function updateMetadataEditor() : void {
     var mnode = $(selection.get()).children(".meta");
     if (mnode.length === 1) {
         React.renderComponent(MetaKeysContainer({ backing: mnode.get(0),
-                                                  typeSpec: undefined }),
+                                                  typeSpec: metadataTypeSpec }),
                               mdnode);
     } else if (mnode.length > 1) {
         throw new Error("Too many meta nodes: " + selection.get().outerHTML);
     }
+}
+
+export var __test__ : any = {};
+
+if (process.env.ENV === "test") {
+    __test__ = {
+        parseMetadataTypes: parseMetadataTypes
+    };
 }

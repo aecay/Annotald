@@ -9,3 +9,17 @@ export var labelMapping : labelConvert.LabelMap = {
     defaultSubcategories: [],
     byLabel: {}
 };
+
+export var format : Element;
+
+export function reset () : void {
+    lastEventWasMouse = false;
+    lastSavedState = "";
+    labelMapping = {
+        defaults: {},
+        defaultSubcategories: [],
+        byLabel: {}
+    };
+
+    format = undefined;
+}

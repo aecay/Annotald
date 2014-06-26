@@ -44,7 +44,6 @@ export function updateSelection (suppressRemote? : boolean) : void {
  * Remove any selection of nodes.
  */
 export function clearSelection () : void {
-    metadataEditor.saveMetadata();
     window.event.preventDefault();
     startnode = endnode = null;
     updateSelection();

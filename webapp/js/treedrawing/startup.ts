@@ -102,10 +102,13 @@ function assignEvents () : void {
 }
 
 export function startupTreedrawing (exitFn : Hook,
-                                    saveFn : (s: string) => Q.Promise<boolean>)
+                                    saveFn : (s: string) => Q.Promise<boolean>,
+                                    format : string)
 : void {
     // TODO: something is very slow here; profile
     assignEvents();
+    globals.format = <Element>(
+        new DOMParser().parseFromString(format, "text/xml").childNodes[0]);
 
     _.each(startupHooks, function (hook : Hook) : void {
         hook();
@@ -117,29 +120,6 @@ export function startupTreedrawing (exitFn : Hook,
 }
 
 export function resetGlobals () : void {
-    // TODO: encapsulation violation
-    var newGlobals : { [key : string] : any; } = {
-        ipnodes: [],
-
-        commentTypes: [],
-
-        extensions: [],
-        clauseExtensions: [],
-        leafExtensions: [],
-
-        caseBarriers: [],
-
-        displayCaseMenu: false,
-        caseTags: [],
-        casePhrases: [],
-        caseMarkers: [],
-
-        defaultConMenuGroup: [],
-
-        logDetail: false
-    };
-    _.forOwn(newGlobals, function (v : any, k : string) : void {
-        globals[k] = v;
-    });
+    globals.reset();
     contextmenu.resetGlobals();
 }

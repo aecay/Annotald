@@ -8,7 +8,6 @@ import contextmenu = require("./contextmenu");
 import undo = require("./undo");
 import selection = require("./selection");
 import edit = require("./struc-edit");
-import metadataEditor = require("./metadata-ui");
 import dialog = require("./dialog");
 
 export interface ClickHook { (button : number) : void; }
@@ -30,7 +29,6 @@ export function addClickHook(fn : ClickHook) : void {
 
 export function handleNodeClick(e : JQueryMouseEventObject) : void {
     var element = <HTMLElement>e.target; // TODO: e.srcEmement neded?
-    metadataEditor.saveMetadata();
     if (e.button === 2) {
         // rightclick
         if (selection.cardinality() === 1) {
@@ -49,14 +47,16 @@ export function handleNodeClick(e : JQueryMouseEventObject) : void {
     } else {
         // leftclick
         contextmenu.hideContextMenu();
-        if (e.shiftKey && selection.get()) {
-            selection.selectNode(element, true);
-            e.preventDefault(); // Otherwise, this sets the text
-                                // selection in the browser...
-        } else {
-            selection.selectNode(element);
-            if (e.ctrlKey) {
-                edit.makeNode("XP");
+        if (element.id !== "sn0" && !element.classList.contains("sentnode")) {
+            if (e.shiftKey && selection.get()) {
+                selection.selectNode(element, true);
+                e.preventDefault(); // Otherwise, this sets the text
+                // selection in the browser...
+            } else {
+                selection.selectNode(element);
+                if (e.ctrlKey) {
+                    edit.makeNode("XP");
+                }
             }
         }
     }

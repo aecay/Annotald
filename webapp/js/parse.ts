@@ -3,51 +3,6 @@
 import compat = require("./compat");
 
 var $ = compat.$;
-import _ = require("lodash");
-
-import lc = require("./treedrawing/label-convert");
-
-function nodeToAction (n : JQuery) : any {
-    var r = {};
-    if (n.children().length === 0) {
-        r[n.prop("tagName").toLowerCase()] = n.text();
-    } else {
-        var m = n.children().map(function () : any {
-            return nodeToAction($(this));
-        }).get();
-        m.unshift({});
-        r[n.prop("tagName").toLowerCase()] = _.merge.apply(null, m);
-    }
-    return r;
-
-}
-
-export function parseFormatSpec (root : Element) : lc.LabelMap {
-    var r : lc.LabelMap = {
-        defaults: {},
-        defaultSubcategories: [],
-        byLabel: {}
-    };
-    var $root = $(root);
-    $root.children("dashTags").first().children().each(function () : void {
-        var y = $(this);
-        var dashTagName = y.prop("tagName");
-        var metadata = y.children().first();
-        r.defaults[dashTagName] = nodeToAction(metadata);
-    });
-    $root.children("subcategories").first().children().each(function () : void {
-        r.defaultSubcategories.push(this.tagName);
-    });
-    $root.children("byLabel").first().children().each(function () : void {
-        var x = parseFormatSpec(this);
-        // TODO: the mismatch here is ugly...
-        r.byLabel[this.tagName] = {
-            subcategories: x.defaultSubcategories,
-            metadataKeys: x.defaults
-        };
-    });
-    return r;
-}
 
 function makeWnode (xmlNode : Node) : Node {
     var wnode = document.createElement("span");
@@ -126,26 +81,26 @@ export function parseXmlToHtml (xml : string) : Node {
 };
 
 function terminalNodeToString (node : HTMLElement) : string {
-    var wnode;
-    for (var i = 0; i < node.children.length; i++) {
-        if (node.children[i].nodeType === 1 &&
-            (<HTMLElement>node.children[i]).classList.contains("wnode")) {
-            wnode = node.children[i];
-            break;
-        }
-    }
-    return wnode.textContent;
+    return $(node).children(".wnode").contents().filter(function () : boolean {
+        return this.nodeType === 3;
+    }).first().text();
 }
 
 function nodeToXml (doc : Document, node : HTMLElement) : Node {
-    var name, i, recurse = true;
+    var name, i, recurse = true, isMeta = false;
     if (node.classList.contains("sentnode")) {
         name = "sentence";
     } else if (node.classList.contains("meta")) {
         name = node.getAttribute("data-tag");
+        if (node.childNodes.length === 1 &&
+            node.childNodes[0].nodeType === 3) {
+            recurse = false;
+            isMeta = true;
+        }
     } else {
-        if (node.children.length === 1 &&
-            (<HTMLElement>node.children[0]).classList.contains("wnode")) {
+        var nonMetaChildren = $(node).children().not(".meta");
+        if (nonMetaChildren.length === 1 &&
+            nonMetaChildren.first().hasClass("wnode")) {
             // Terminal
             name = node.attributes["data-nodetype"].value;
             recurse = false;
@@ -158,7 +113,8 @@ function nodeToXml (doc : Document, node : HTMLElement) : Node {
         attrs = node.attributes;
     for (i = 0; i < attrs.length; i++) {
         var attr = attrs[i];
-        if (attr.name === "data-nodetype") {
+        if (attr.name === "data-nodetype" ||
+            attr.name === "data-tag") {
             // do nothing; this case is already handled
         } else if (/^data-/.test(attr.name)) {
             s.setAttribute(attrs[i].name.replace(/^data-/, ""),
@@ -173,8 +129,21 @@ function nodeToXml (doc : Document, node : HTMLElement) : Node {
             }
         }
     } else {
-        var tn = doc.createTextNode(terminalNodeToString(<HTMLElement>node));
-        s.appendChild(tn);
+        var tn : Text;
+        if (isMeta) {
+            tn = doc.createTextNode(node.childNodes[0].textContent);
+            s.appendChild(tn);
+        } else if (name === "text") {
+            tn = doc.createTextNode(terminalNodeToString(<HTMLElement>node));
+            s.appendChild(tn);
+        }
+        var mc = $(node).children(".meta");
+        if (mc.length === 1) {
+            // Special case: recurse for the metadata
+            s.appendChild(nodeToXml(doc, mc.get(0)));
+        } else if (mc.length > 1) {
+            throw new Error("Too many meta-class elements");
+        }
     }
     return s;
 }
@@ -183,19 +152,8 @@ export function parseHtmlToXml (node : Node) : string {
     var doc = document.implementation.createDocument("foo", "", null);
     var corpus = document.createElementNS("foo", "corpus");
     doc.appendChild(corpus);
-    $(node).find(".lemma,.autoWnode").remove();
     $(node).children().each(function () : void {
         corpus.appendChild(nodeToXml(doc, this));
     });
     return (new XMLSerializer).serializeToString(doc).replace(/ xmlns="foo"/, "");
 };
-
-/* tslint:disable:variable-name */
-export var __test__ : any = {};
-/* tslint:enable:variable-name */
-
-if (process.env.ENV === "test") {
-    __test__ = {
-        nodeToAction: nodeToAction
-    };
-}

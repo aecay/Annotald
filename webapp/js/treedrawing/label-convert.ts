@@ -4,6 +4,10 @@ import _ = require("lodash");
 
 import globals = require("./global");
 import metadata = require("./metadata");
+import startup = require("./startup");
+
+import compat = require("./../compat");
+var $ = compat.$;
 
 export interface MatchSpec {
     category?: string;
@@ -208,4 +212,60 @@ function getActionForDashTag (tag : string,
     return mapping.byLabel[category].metadataKeys[tag] ||
         mapping.defaults[tag] ||
         def;
+}
+
+function nodeToAction (n : JQuery) : any {
+    var r = {};
+    if (n.children().length === 0) {
+        r[n.prop("tagName").toLowerCase()] = n.text();
+    } else {
+        var m = n.children().map(function () : any {
+            return nodeToAction($(this));
+        }).get();
+        m.unshift({});
+        r[n.prop("tagName").toLowerCase()] = _.merge.apply(null, m);
+    }
+    return r;
+
+}
+
+export function parseFormatSpec (root : Element) : LabelMap {
+    var r : LabelMap = {
+        defaults: {},
+        defaultSubcategories: [],
+        byLabel: {}
+    };
+    var $root = $(root);
+    $root.children("dashTags").first().children().each(function () : void {
+        var y = $(this);
+        var dashTagName = y.prop("tagName");
+        var metadata = y.children().first();
+        r.defaults[dashTagName] = nodeToAction(metadata);
+    });
+    $root.children("subcategories").first().children().each(function () : void {
+        r.defaultSubcategories.push(this.tagName);
+    });
+    $root.children("byLabel").first().children().each(function () : void {
+        var x = parseFormatSpec(this);
+        // TODO: the mismatch here is ugly...
+        r.byLabel[this.tagName] = {
+            subcategories: x.defaultSubcategories,
+            metadataKeys: x.defaults
+        };
+    });
+    return r;
+}
+
+startup.addStartupHook(() : void => {
+    globals.labelMapping = parseFormatSpec(globals.format);
+});
+
+/* tslint:disable:variable-name */
+export var __test__ : any = {};
+/* tslint:enable:variable-name */
+
+if (process.env.ENV === "test") {
+    __test__ = {
+        nodeToAction: nodeToAction
+    };
 }
