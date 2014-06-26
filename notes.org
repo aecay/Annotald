@@ -149,3 +149,10 @@ also: https://stuk.github.io/jszip/
 * promises
 switch to: https://github.com/petkaantonov/bluebird
 for speed
+* DIGS todos
+** TODO fix ipnodes
+** TODO fix indexing
+** TODO gussy up metadata editor ui
+** TODO metadata key add/del
+** TODO metadata subnode collapse
+** TODO icelandic and OE demos
