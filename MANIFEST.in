@@ -1,4 +1,0 @@
-include *.rst LICENSE
-recursive-include webapp *.html *.css *.js *.map
-recursive-exclude  webapp/js/backend *
-include config/settings.js config/settings.py
