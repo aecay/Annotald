@@ -4,6 +4,7 @@
 /* istanbulify ignore file */
 
 var labelConvert = require("../../webapp/js/treedrawing/label-convert.ts");
+var metadata = require("../../webapp/js/treedrawing/metadata.ts");
 var $ = require("jquery");
 
 describe("The label converter", function () {
@@ -28,23 +29,21 @@ describe("The label converter", function () {
         }
     };
 
-    // TODO: restore using something like
-    // https://github.com/i-like-robots/rewireify, and update to new function
-    // convention.
+    var M = labelConvert.__test__.matchObjects;
 
-    // it("should match simple objects against templates correctly", function () {
-    //     expect(M("x", "y", { x: "y" })).toBeTruthy();
-    //     expect(M("x", "y", { x: "z" })).toBeFalsy();
-    //     expect(M("x", "y", { x: "y", a: "b" })).toBeTruthy();
-    //     expect(M("x", "y", {})).toBeFalsy();
-    //     expect(M("x", "y", { a: "b" })).toBeFalsy();
-    // });
-    // it("should match complex nodes correctly", function () {
-    //     expect(M("x", { y : "z" }, { x: { y: "z" }})).toBeTruthy();
-    //     expect(!M("x", { y : "z" }, { x: { y: "a" }})).toBeTruthy();
-    //     expect(!M("x", { y : "z" }, { x: { a: "z" }})).toBeTruthy();
-    //     expect(!M("x", { y : "z" }, { x: "y" })).toBeTruthy();
-    // });
+    it("should match simple objects against templates correctly", function () {
+        expect(M({x: "y"}, { x: "y" })).toBeTruthy();
+        expect(M({x: "y"}, { x: "z" })).toBeFalsy();
+        expect(M({x: "y"}, { x: "y", a: "b" })).toBeTruthy();
+        expect(M({x: "y"}, {})).toBeFalsy();
+        expect(M({x: "y"}, { a: "b" })).toBeFalsy();
+    });
+    it("should match complex nodes correctly", function () {
+        expect(M({x: { y : "z" }}, { x: { y: "z" }})).toBeTruthy();
+        expect(!M({x: { y : "z" }}, { x: { y: "a" }})).toBeTruthy();
+        expect(!M({x: { y : "z" }}, { x: { a: "z" }})).toBeTruthy();
+        expect(!M({x: { y : "z" }}, { x: "y" })).toBeTruthy();
+    });
 
     it("should match node categories", function () {
         var node = $('<div data-category="X"></div>').get(0);
@@ -82,7 +81,7 @@ describe("The label converter", function () {
         expect(N(node, { metadata: { e: "f" }})).toBeFalsy();
         expect(N(node, { metadata: { a: "b", x: { y: "z" }, e: "f" }})).toBeFalsy();
     });
-    it("should properly discern valid subcats", function () {
+    xit("should properly discern valid subcats", function () {
         expect(1);
         // TODO: how to test private function?
     });
@@ -114,15 +113,76 @@ describe("The label converter", function () {
         SL("NP-TMP", node, mapping);
         expect(node).toHaveAttribute("data-category", "NP");
         expect(node).not.toHaveAttribute("data-subcategory");
-        expect(node).toHaveAttribute("data-metadata", JSON.stringify(
+        expect(metadata.getMetadata(node)).toDeepEqual(
             { semantic: { fn: "temporal" }}
-        ));
+        );
 
         SL("NP-TMP", node, mapping, true);
 
         expect(node).toHaveAttribute("data-category", "NP");
         expect(node).not.toHaveAttribute("data-subcategory");
-        expect(node).not.toHaveAttribute("data-metadata");
+        expect(metadata.getMetadata(node)).toDeepEqual({});
+    });
+
+    describe("should properly return labels for nodes", function () {
+        it("NP", function () {
+            var n = $('<div class="snode" data-category="NP">').get(0);
+            expect(labelConvert.getLabelForNode(n, mapping)).toEqual("NP");
+        });
+        it("NP-SBJ", function () {
+            var n = $('<div class="snode" data-category="NP" data-subcategory="SBJ">').get(0);
+            expect(labelConvert.getLabelForNode(n, mapping)).toEqual("NP-SBJ");
+        });
+        it("NP-LFD", function () {
+            var n = $('<div class="snode" data-category="NP">' +
+                      '<div class="meta" data-tag="meta">' +
+                      '<div class="meta" data-tag="left-disloc">yes</div>' +
+                      '</div></div>'
+                     ).get(0);
+            expect(labelConvert.getLabelForNode(n, mapping)).toEqual("NP-LFD");
+        });
+        it("NP-TMP", function () {
+            var n = $('<div class="snode" data-category="NP">' +
+                      '<div class="meta" data-tag="meta">' +
+                      '<div class="meta" data-tag="semantic">' +
+                      '<div class="meta" data-tag="fn">temporal</div>' +
+                      '</div></div></div>'
+                     ).get(0);
+            expect(labelConvert.getLabelForNode(n, mapping)).toEqual("NP-TMP");
+        });
+        it("NP-SBJ-LFD", function () {
+            var n = $('<div class="snode" data-category="NP" data-subcategory="SBJ">' +
+                      '<div class="meta" data-tag="meta">' +
+                      '<div class="meta" data-tag="left-disloc">yes</div>' +
+                      '</div></div>'
+                     ).get(0);
+            expect(labelConvert.getLabelForNode(n, mapping)).toEqual("NP-SBJ-LFD");
+        });
+        it("NP-SBJ-TMP", function () {
+            var n = $('<div class="snode" data-category="NP" data-subcategory="SBJ">' +
+                      '<div class="meta" data-tag="meta">' +
+                      '<div class="meta" data-tag="semantic">' +
+                      '<div class="meta" data-tag="fn">temporal</div>' +
+                      '</div></div></div>'
+                     ).get(0);
+            expect(labelConvert.getLabelForNode(n, mapping)).toEqual("NP-SBJ-TMP");
+        });
+        it("NP-1", function () {
+            var n = $('<div class="snode" data-category="NP">' +
+                      '<div class="meta" data-tag="meta">' +
+                      '<div class="meta" data-tag="index">1</div>' +
+                      '<div class="meta" data-tag="idxtype">regular</div>' +
+                      '</div></div>').get(0);
+            expect(labelConvert.getLabelForNode(n, mapping)).toEqual("NP-1");
+        });
+        it("NP=1", function () {
+            var n = $('<div class="snode" data-category="NP">' +
+                      '<div class="meta" data-tag="meta">' +
+                      '<div class="meta" data-tag="index">1</div>' +
+                      '<div class="meta" data-tag="idxtype">gap</div>' +
+                      '</div></div>').get(0);
+            expect(labelConvert.getLabelForNode(n, mapping)).toEqual("NP=1");
+        });
     });
 });
 
@@ -206,6 +266,49 @@ describe("The action parser", function () {
                                              }
                                          }
                                      }});
+        });
+        it("should handle nested metadata", function () {
+            var dom = new DOMParser().parseFromString(
+                "<formatSpec> <dashTags> <LFD>" +
+                    "<leftDislocate>yes</leftDislocate> </LFD> <RSP>" +
+                    "<leftDislocate>resume</leftDislocate> </RSP> <SPE>" +
+                    "<directSpeech>yes</directSpeech> </SPE> <PRN>" +
+                    "<parenthetical>yes</parenthetical> </PRN> <A> <morpho>" +
+                    "<case>accusative</case> </morpho> </A> <N> <morpho>" +
+                    "<case>nominative</case> </morpho> </N> <G> <morpho>" +
+                    "<case>genitive</case> </morpho> </G> <D> <morpho>" +
+                    "<case>dative</case> </morpho> </D> </dashTags> <byLabel>" +
+                    "<CP> <subcategories> <ADV /> <CAR /> <CLF /> <CMP /> <DEG" +
+                    "/> <EOP /> <FRL /> <QUE /> <REL /> <THT /> <TMC />" +
+                    "</subcategories> </CP> <IP> <subcategories> <IMP /> <INF" +
+                    "/> <MAT /> <PPL /> <SMC /> <SUB /> </subcategories> </IP>" +
+                    "<NP> <subcategories> <ADT /> <ADV /> <CMP /> <COM /> <MSR" +
+                    "/> <OB1 /> <OB2 /> <OB3 /> <POS /> <PRD /> <SBJ /> <TMP" +
+                    "/> </subcategories> </NP> <ADJP> <subcategories> <SPR />" +
+                    "</subcategories> </ADJP> <PP> <subcategories> <BY />" +
+                    "</subcategories> </PP> <ADVP> <subcategories> <DIR />" +
+                    "<LOC /> <TMP /> </subcategories> </ADVP> </byLabel>" +
+                    "<metadataTypes> <case>" +
+                    "<metadataType>choice</metadataType>" +
+                    "<metadataChoice>nominative</metadataChoice>" +
+                    "<metadataChoice>accusative</metadataChoice>" +
+                    "<metadataChoice>dative</metadataChoice>" +
+                    "<metadataChoice>genitive</metadataChoice> </case>" +
+                    "</metadataTypes> </formatSpec> ",
+                "text/xml").childNodes[0];
+            var res = pfs(dom);
+            expect(res.defaults).toDeepEqual(
+                {
+                    LFD: {leftdislocate: "yes"},
+                    RSP: {leftdislocate: "resume"},
+                    SPE: {directspeech: "yes"},
+                    PRN: {parenthetical: "yes"},
+                    A: {morpho: {case: "accusative"}},
+                    D: {morpho: {case: "dative"}},
+                    G: {morpho: {case: "genitive"}},
+                    N: {morpho: {case: "nominative"}}
+                }
+            );
         });
     });
 });
