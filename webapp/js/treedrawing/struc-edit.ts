@@ -90,8 +90,8 @@ export function coIndex() : void {
  * @returns {Boolean} whether the operation was successful
  */
 export function moveNode(parent : Element) : boolean {
-    var parent_ip = $(selection.get()).parents("#sn0>.snode,#sn0").first();
-    var other_parent = $(parent).parents("#sn0>.snode,#sn0").first();
+    var parent_ip = $(utils.getTokenRoot($(selection.get())));
+    var other_parent = $(utils.getTokenRoot($(parent)));
     if (parent === document.getElementById("sn0") ||
         !parent_ip.is(other_parent)) {
         parent_ip = $("#sn0");
@@ -291,48 +291,49 @@ export function moveNodes(parent : Element) : boolean {
  * directly dominates no non-empty terminals.
  */
 export function pruneNode() : void {
-    if (selection.cardinality() === 1) {
-        if (utils.isLeafNode(selection.get()) &&
-            utils.isEmptyNode(selection.get())) {
-            // it is ok to delete leaf if it is empty/trace
-            if (utils.isRootNode($(selection.get()))) {
-                // perversely, it is possible to have a leaf node at the root
-                // of a file.
-                undo.registerDeletedRootTree($(selection.get()));
-            } else {
-                undo.touchTree($(selection.get()));
-            }
-            var idx = utils.getIndex(selection.get());
-            if (idx > 0) {
-                var root = $(utils.getTokenRoot($(selection.get())));
-                var sameIdx = root.find('.snode').filter(function () : boolean {
-                    return utils.getIndex(this) === idx;
-                }).not(selection.get());
-                if (sameIdx.length === 1) {
-                    var osn = selection.get();
-                    selection.set(sameIdx.get(0));
-                    coIndex();
-                    selection.set(osn);
-                }
-            }
-            $(selection.get()).remove();
-            selection.clearSelection();
-            selection.updateSelection();
-            return;
-        } else if (utils.isLeafNode(selection.get())) {
-            // but other leaves are not deleted
-            return;
-        } else if (selection.get() === document.getElementById("sn0")) {
-            return;
-        }
-
-        var toselect = $(selection.get()).children().first();
-        undo.touchTree($(selection.get()));
-        $(selection.get()).replaceWith($(selection.get()).children());
-        selection.clearSelection();
-        selection.selectNode(toselect.get(0));
-        selection.updateSelection();
+    if (selection.cardinality() !== 1) {
+        return;
     }
+    if (utils.isLeafNode(selection.get()) &&
+        utils.isEmptyNode(selection.get())) {
+        // it is ok to delete leaf if it is empty/trace
+        if (utils.isRootNode($(selection.get()))) {
+            // perversely, it is possible to have a leaf node at the root
+            // of a file.
+            undo.registerDeletedRootTree($(selection.get()));
+        } else {
+            undo.touchTree($(selection.get()));
+        }
+        var idx = utils.getIndex(selection.get());
+        if (idx > 0) {
+            var root = $(utils.getTokenRoot($(selection.get())));
+            var sameIdx = root.find('.snode').filter(function () : boolean {
+                return utils.getIndex(this) === idx;
+            }).not(selection.get());
+            if (sameIdx.length === 1) {
+                var osn = selection.get();
+                selection.set(sameIdx.get(0));
+                coIndex();
+                selection.set(osn);
+            }
+        }
+        $(selection.get()).remove();
+        selection.clearSelection();
+        selection.updateSelection();
+        return;
+    } else if (utils.isLeafNode(selection.get())) {
+        // but other leaves are not deleted
+        return;
+    } else if (selection.get() === document.getElementById("sn0")) {
+        return;
+    }
+
+    var toselect = $(selection.get()).children().first();
+    undo.touchTree($(selection.get()));
+    $(selection.get()).replaceWith($(selection.get()).children());
+    selection.clearSelection();
+    selection.selectNode(toselect.get(0));
+    selection.updateSelection();
 }
 
 // * Creation
@@ -474,7 +475,7 @@ export function makeNode(label? : string) : void {
     } else {
         undo.touchTree($(selection.get()));
     }
-    var parent_ip = $(selection.get()).parents("#sn0>.snode,#sn0").first();
+    var parent_ip = $(utils.getTokenRoot($(selection.get())));
     var parent_before = parent_ip.clone();
     var newnode = $(H.div({ "class": "snode", "data-category" : "XP" }));
     // make end = start if only one node is selected
@@ -521,53 +522,9 @@ export function makeNode(label? : string) : void {
     selection.selectNode(newnode.get(0));
 }
 
-// * Label manipulation
-
-/**
- * Toggle a dash tag on a node
- *
- * If the node bears the given dash tag, remove it.  If not, add it.  This
- * function attempts to put multiple dash tags in the proper order, according
- * to the configuration in the `leaf_extensions`, `extensions`, and
- * `clause_extensions` variables in the `settings.js` file.
- *
- * @param {String} extension the dash tag to toggle
- * @param {String[]} [extensionList] override the guess as to the
- * appropriate ordered list of possible extensions.
- */
-export function toggleExtension(extension : string,
-                                extensionList? : string []) : boolean
-{
+export function toggleExtension (extension : string) : void {
     if (selection.cardinality() !== 1) {
-        return false;
+        return;
     }
-
-    if (!extensionList) {
-        if (utils.guessLeafNode(selection.get())) {
-            extensionList = conf.leafExtensions;
-        } else if (utils.getLabel($(selection.get())).split("-")[0] === "IP" ||
-                   utils.getLabel($(selection.get())).split("-")[0] === "CP") {
-            // TODO: should FRAG be a clause?
-            // TODO: make configurable
-            extensionList = conf.clauseExtensions;
-        } else {
-            extensionList = conf.extensions;
-        }
-    }
-
-    // Tried to toggle an extension on an inapplicable node.
-    if (extensionList.indexOf(extension) < 0) {
-        return false;
-    }
-
-    undo.touchTree($(selection.get()));
-    var textnode = utils.textNode($(selection.get()));
-    var oldlabel = $.trim(textnode.text());
-    // Extension is not de-dashed here.  toggleStringExtension handles it.
-    // The new config format however requires a dash-less extension.
-    var newlabel = utils.toggleStringExtension(oldlabel, extension, extensionList);
-    textnode.replaceWith(newlabel + " ");
-    utils.updateCssClass($(selection.get()), oldlabel);
-
-    return true;
+    lc.toggleExtensionForNode(extension, selection.get());
 }

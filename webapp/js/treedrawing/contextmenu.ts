@@ -25,6 +25,7 @@ import undo = require("./undo");
 import utils = require("./utils");
 import edit = require("./struc-edit");
 import conf = require("./config");
+import lc = require("./label-convert");
 
 interface ConLeaf {
     suggestion : string;
@@ -86,11 +87,8 @@ export function addCaseMarker (marker : string) : void {
 function doToggleExtension(node : HTMLElement, extension : string) : () => void {
     return function () : void {
         undo.touchTree($(node));
-        selection.clearSelection();
-        selection.selectNode(node);
-        edit.toggleExtension(extension);
+        lc.toggleExtensionForNode(extension, node);
         hideContextMenu();
-        selection.clearSelection();
     };
 }
 

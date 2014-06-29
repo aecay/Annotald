@@ -9,12 +9,14 @@ import undo = require("./undo");
 import selection = require("./selection");
 import edit = require("./struc-edit");
 import dialog = require("./dialog");
+import nodeFormat = require("./node-formatter");
 
 export interface ClickHook { (button : number) : void; }
 
 export function killTextSelection(e : Event) : void {
     if (dialog.isDialogShowing() ||
-        $(e.target).parents(".togetherjs,.togetherjs-modal").length > 0) {
+        $(e.target).parents(".togetherjs,.togetherjs-modal").length > 0 ||
+        $(e.target).parents("#metadataEditor").length > 0) {
         return;
     }
     var sel = window.getSelection();
@@ -50,8 +52,8 @@ export function handleNodeClick(e : JQueryMouseEventObject) : void {
         if (element.id !== "sn0" && !element.classList.contains("sentnode")) {
             if (e.shiftKey && selection.get()) {
                 selection.selectNode(element, true);
-                e.preventDefault(); // Otherwise, this sets the text
-                // selection in the browser...
+                // Otherwise, this sets the text selection in the browser...
+                e.preventDefault();
             } else {
                 selection.selectNode(element);
                 if (e.ctrlKey) {

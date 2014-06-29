@@ -17,8 +17,10 @@ import $ = require("jquery");
 import _ = require("lodash");
 import startup = require("./startup");
 import metadata = require("./metadata");
+import lc = require("./label-convert");
 
-function formatSnode (snode : Element) : void {
+// TODO: should be private; figure out how to observe metadata
+export function formatSnode (snode : HTMLElement) : void {
     if (snode.getAttribute("data-freezeWatch")) {
         return;
     }
@@ -31,17 +33,9 @@ function formatSnode (snode : Element) : void {
     if (snode.nodeType !== 1) {
         throw "Tried to format a non-snode.";
     }
-    var snodeElement = <Element>snode;
-    var tv = snodeElement.getAttribute("data-category");
-    if (snodeElement.getAttribute("data-subcategory")) {
-        tv += "-" + snodeElement.getAttribute("data-subcategory");
-    }
-    if (snodeElement.getAttribute("data-index")) {
-        tv += snodeElement.getAttribute("data-idxtype") === "gap" ? "=" : "-";
-        tv += snodeElement.getAttribute("data-index");
-    }
-    tv += " ";
-    textNode.nodeValue = tv;
+    var label = lc.getLabelForNode(snode);
+    label += " ";
+    textNode.nodeValue = label;
 
     // Lemma
     var wnode = $(snode).children(".wnode");
@@ -55,7 +49,14 @@ function formatSnode (snode : Element) : void {
             if (nodeType === "trace") {
                 wnode.text("*" + snode.getAttribute("data-tracetype") + "*");
             } else if (nodeType === "ec") {
-                wnode.text("*" + snode.getAttribute("data-ectype") + "*");
+                var ecType = snode.getAttribute("data-ectype");
+                if (ecType === "zero") {
+                    wnode.text("0");
+                } else if (ecType === "star") {
+                    wnode.text("*");
+                } else {
+                    wnode.text("*" + ecType + "*");
+                }
             }
             // TODO: how to manage the text here?
             // else if (nodeType === "comment") {
@@ -77,20 +78,62 @@ function snodeChange (records : MutationRecord[],
                       observer : MutationObserver) : void
 {
     _.each(records, function (record : MutationRecord) : void {
-        formatSnode(<Element>record.target);
+        if (record.type === "attributes") {
+            if (record.target.nodeType === 1) {
+                formatSnode(<HTMLElement>record.target);
+            }
+        } else if (record.type === "childList") {
+            // If a meta node is removed wholesale, it won't trigger as a subtree
+            // modification in snode0Addition; thus we must take care of that
+            // case here.
+            _.each(record.removedNodes, function (node : Node) : void {
+                if (node instanceof HTMLElement) {
+                    if ((<HTMLElement>node).classList.contains("meta") &&
+                        (<HTMLElement>node).getAttribute("data-tag") === "meta") {
+                        formatSnode(<HTMLElement>record.target);
+                    }
+                }
+            });
+        }
     });
 }
 var snodeMO = new MutationObserver(snodeChange);
+
+function metaNodeChange (records : MutationRecord[],
+                      observer : MutationObserver) : void
+{
+    _.each(records, function (record : MutationRecord) : void {
+        if (record.target.nodeType === 1) {
+            var p = $(<HTMLElement>record.target).parents(".snode").get(0);
+            if (p) {
+                formatSnode(p);
+            }
+        }
+    });
+}
+var metaNodeMO = new MutationObserver(metaNodeChange);
+
+function observeMetaNode (node : HTMLElement) : void {
+    metaNodeMO.observe(node, { childList: true, subtree: true });
+}
 
 function snode0Addition (records : MutationRecord[],
                          observer : MutationObserver) : void
 {
     _.each(records, function (record : MutationRecord) : void {
         _.each(record.addedNodes, function (node : Node) : void {
-            if (node instanceof HTMLElement &&
-                (<HTMLElement>node).classList.contains("snode")) {
-                formatSnode(<Element>node);
-                observeSnode(<Element>node);
+            if (node instanceof HTMLElement) {
+                if ((<HTMLElement>node).classList.contains("snode")) {
+                    formatSnode(<HTMLElement>node);
+                    observeSnode(<Element>node);
+                } else if ((<HTMLElement>node).classList.contains("meta") &&
+                           (<HTMLElement>node).getAttribute("data-tag") === "meta") {
+                    observeMetaNode(<HTMLElement>node);
+                    var p = $(<HTMLElement>node).parents(".snode").get(0);
+                    if (p) {
+                        formatSnode(p);
+                    }
+                }
             }
         });
     });
@@ -105,10 +148,17 @@ startup.addStartupHook(function () : void {
         formatSnode(this);
         observeSnode(this);
     });
+    $(".meta").filter(function () : boolean {
+        return this.getAttribute("data-tag") === "meta";
+    }).each(function () : void {
+        observeMetaNode(this);
+    });
     snode0MO.observe(document.getElementById("sn0"),
                      { childList: true, subtree: true });
 });
 
 export function observeSnode (snode : Element) : void {
-    snodeMO.observe(snode, { attributes: true });
+    // TODO: We also need the metadata to be observed; for now we handle it in
+    // the event handler
+    snodeMO.observe(snode, { attributes: true, childList: true, subtree: true });
 }

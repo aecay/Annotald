@@ -4,6 +4,8 @@ import compat = require("./compat");
 
 var $ = compat.$;
 
+import _ = require("lodash");
+
 function makeWnode (xmlNode : Node) : Node {
     var wnode = document.createElement("span");
     var tn = document.createTextNode(xmlNode.textContent);
@@ -37,24 +39,23 @@ function makeSnode (xmlNode : Element) : Node {
     } else {
         snode.className = "snode";
     }
-    if (cn.length === 0) {
+    if (["ec", "trace", "comment", "text"].indexOf(xmlNode.nodeName) > -1) {
         // terminal node with no text: trace or ec
         snode.setAttribute("data-nodetype", xmlNode.nodeName);
-    } else {
-        for (i = 0; i < cn.length; i++) {
-            c = cn[i];
-            if (c.nodeType === 3 && c.textContent.trim() !== "") {
-                snode.appendChild(makeWnode(c));
-                snode.setAttribute("data-nodetype", xmlNode.nodeName);
-            } else if (c.nodeType === 1) {
-                if (c.tagName === "meta") {
-                    snode.appendChild(metaXmlToHtml(c));
-                } else {
-                    snode.appendChild(makeSnode(c));
-                }
+    }
+    for (i = 0; i < cn.length; i++) {
+        c = cn[i];
+        if (c.nodeType === 3 && c.textContent.trim() !== "") {
+            snode.appendChild(makeWnode(c));
+        } else if (c.nodeType === 1) {
+            if (c.tagName === "meta") {
+                snode.appendChild(metaXmlToHtml(c));
+            } else {
+                snode.appendChild(makeSnode(c));
             }
         }
     }
+
     for (i = 0; i < atts.length; i++) {
         a = atts[i];
         snode.setAttribute("data-" + a.nodeName, a.nodeValue);
@@ -91,6 +92,11 @@ function nodeToXml (doc : Document, node : HTMLElement) : Node {
     if (node.classList.contains("sentnode")) {
         name = "sentence";
     } else if (node.classList.contains("meta")) {
+        if (node.childNodes.length === 0) {
+            // A metadata node could become empty from odd editing.  Handle
+            // that case here.
+            return;
+        }
         name = node.getAttribute("data-tag");
         if (node.childNodes.length === 1 &&
             node.childNodes[0].nodeType === 3) {
@@ -122,11 +128,30 @@ function nodeToXml (doc : Document, node : HTMLElement) : Node {
         }
     }
     if (recurse) {
+        // We go out of our way here to ensure that the meta node is last in
+        // the generated tree.
+        var metaXml : Node;
         for (i = 0; i < node.childNodes.length; i++) {
             if (node.childNodes[i].nodeType === 1) {
                 // Element node
-                s.appendChild(nodeToXml(doc, <HTMLElement>node.childNodes[i]));
+                var childXml = nodeToXml(doc, <HTMLElement>node.childNodes[i]);
+                if (!_.isUndefined(childXml)) {
+                    if ((<HTMLElement>node.childNodes[i]).
+                        getAttribute("data-tag") === "meta") {
+                        if (!_.isUndefined(metaXml)) {
+                            throw new Error("Duplicate metadata: " + node.outerHTML +
+                                            "metaXml was " + metaXml);
+                        } else {
+                            metaXml = childXml;
+                        }
+                    } else {
+                        s.appendChild(childXml);
+                    }
+                }
             }
+        }
+        if (!_.isUndefined(metaXml)) {
+            s.appendChild(metaXml);
         }
     } else {
         var tn : Text;
@@ -155,5 +180,15 @@ export function parseHtmlToXml (node : Node) : string {
     $(node).children().each(function () : void {
         corpus.appendChild(nodeToXml(doc, this));
     });
-    return (new XMLSerializer).serializeToString(doc).replace(/ xmlns="foo"/, "");
+    return (new XMLSerializer()).serializeToString(doc).replace(/ xmlns="foo"/, "");
 };
+
+/* tslint:disable:variable-name */
+export var __test__ : any = {};
+/* tslint:enable:variable-name */
+
+if (process.env.ENV === "test") {
+    __test__ = {
+        nodeToXml: nodeToXml
+    };
+}

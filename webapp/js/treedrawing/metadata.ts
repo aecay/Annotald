@@ -36,34 +36,36 @@ function setInDict (dict : { [key: string] : any },
     return dict;
 }
 
-export function removeMetadata (node : Element, key : string, value : any = "")
-: void {
-    var metadata = getMetadata(node);
-    metadata = setInDict(metadata, key, value, true);
-    setNodeMetaAttr(node, metadata);
-}
-
-export function setMetadata (node : Element, key : string, value : any)
-: void {
-    var metadata = getMetadata(node);
-    metadata = setInDict(metadata, key, value);
-    setNodeMetaAttr(node, metadata);
+function nodeToDict (node : Node) : any {
+    var r : any = {};
+    if (node.childNodes.length === 1 && node.childNodes[0].nodeType === 3) {
+        return node.childNodes[0].nodeValue;
+    }
+    $(node).children().each(function () : void {
+        r[this.getAttribute("data-tag")] = nodeToDict(this);
+    });
+    return r;
 }
 
 export function getMetadata (node : Element)
-: { [key: string] : any } {
-    var attr = "data-metadata";
-    return JSON.parse(node.getAttribute(attr)) || {};
+: any {
+    var metaNode = $(node).children(".meta");
+    if (metaNode.length === 0) {
+        return {};
+    }
+    return nodeToDict(metaNode.get(0));
 }
 
-function setNodeMetaAttr (node : Element, metadata : any)
-: void {
-    var attr = "data-metadata";
-    if (!metadata || _.isEmpty(metadata)) {
-        node.removeAttribute(attr);
-    } else {
-        node.setAttribute(attr, JSON.stringify(metadata));
-    }
+// TODO: remove code duplication
+
+function findKeyXml (el: Element, k: string) : JQuery {
+    return $(el).children(k);
+}
+
+function findKeyHtml (el: Element, k: string) : JQuery {
+    return $(el).children().filter(function () : boolean {
+        return this.getAttribute("data-tag") === k;
+    });
 }
 
 export function setMetadataXml (node : Element, key : string, value : any) : void {
@@ -72,25 +74,55 @@ export function setMetadataXml (node : Element, key : string, value : any) : voi
         mdNode = node.ownerDocument.createElement("meta");
         $(node).append(mdNode);
     }
-    setMetadataXmlInner(mdNode, key, value);
+    setMetadataInner(mdNode, key, value,
+                     findKeyXml,
+                     (el: Element, k: string) : JQuery => {
+                         return $(el.ownerDocument.createElement(k));
+                     });
 }
 
-function setMetadataXmlInner (node : Element, key : string, value : any) : void {
-    var c = $(node).children(key);
+export function setMetadata (node : Element, key : string, value : any)
+: void {
+    var metaNode = $(node).children(".meta");
+    if (metaNode.length === 0) {
+        metaNode = $('<div class="meta" data-tag="meta" />');
+        $(node).append(metaNode);
+    }
+    setMetadataInner(metaNode.get(0), key, value,
+                     findKeyHtml,
+                     (el: Element, k: string) : JQuery => {
+                         return $('<div class="meta" data-tag="' + k + '"/>');
+                     });
+}
+
+function setMetadataInner (node : Element,
+                           key : string,
+                           value : any,
+                           findKey : (el: Element, k: string) => JQuery,
+                           makeNewMetaElement : (el: Element, k: string) => JQuery)
+: void {
+    var c = findKey(node, key);
     if (c.length > 1) {
         throw new Error("setMetadataXmlInner: dupe key: " + key);
     } else if (c.length === 0) {
-        var el = node.ownerDocument.createElement(key);
-        node.appendChild(el);
-        c = $(el);
+        c = makeNewMetaElement(node, key);
+        $(node).append(c);
     }
     if (_.isString(value)) {
         c.text(value);
-    } else {
-        _.forOwn(value, function (v : any, k : string) : void {
-            setMetadataXmlInner(c.get(0), k, v);
+    } else if (_.isObject(value)) {
+        _.forEach(value, (val : any, k : string) : any => {
+            setMetadataInner(c.get(0), k, val, findKey, makeNewMetaElement);
         });
+    } else {
+        throw new Error("unknown value for setMetadata: " + value);
     }
+}
+
+export function removeMetadata (node : Element, key : string, value : any = "")
+: void {
+    var metaNode = $(node).children(".meta").get(0);
+    removeMetadataInner(metaNode, key, value, findKeyHtml);
 }
 
 export function removeMetadataXml (node : Element, key : string, value : any)
@@ -99,11 +131,15 @@ export function removeMetadataXml (node : Element, key : string, value : any)
     if (!mdNode) {
         return;
     }
-    removeMetadataXmlInner(mdNode, key, value);
+    removeMetadataInner(mdNode, key, value, findKeyXml);
 }
 
-function removeMetadataXmlInner (node : Element, key : string, value : any) : void {
-    var c = $(node).children(key);
+function removeMetadataInner (node : Element,
+                              key : string,
+                              value : any,
+                              findKey : (el: Element, k: string) => JQuery)
+: void {
+    var c = findKey(node, key);
     if (c.length > 1) {
         throw new Error("removeMetadataXmlInner: dupe key: " + key);
     } else if (c.length === 0) {
@@ -111,13 +147,15 @@ function removeMetadataXmlInner (node : Element, key : string, value : any) : vo
     }
     if (_.isString(value)) {
         c.remove();
-    } else {
+    } else if (_.isObject(value)) {
         _.forOwn(value, function (v : any, k : string) : void {
-            removeMetadataXmlInner(c.get(0), k, v);
+            removeMetadataInner(c.get(0), k, v, findKey);
         });
-        if ($(node).children().length === 0) {
-            $(node).remove();
-        }
+    } else {
+        throw new Error("unknown value for removeMetadata: " + value);
+    }
+    if ($(node).children().length === 0) {
+        $(node).remove();
     }
 }
 

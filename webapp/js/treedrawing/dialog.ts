@@ -6,6 +6,8 @@ import $ = require("jquery");
 
 import bindings = require("./bindings");
 
+var vex = require("vex");
+
 var dialogShowing : boolean = false;
 
 export function isDialogShowing () : boolean {
@@ -69,4 +71,26 @@ export function setInputFieldEnter(field : JQuery,
             return true;
         }
     });
+}
+
+export function prompt (message: string, callback : (s: string) => void) : void {
+    bindings.inhibit();
+    vex.dialog.prompt(
+        { message: message,
+          callback: (s : string) : void => {
+              bindings.uninhibit();
+              callback(s);
+          }}
+    );
+}
+
+export function confirm (message : string, callback : () => void) : void {
+    bindings.inhibit();
+    vex.dialog.confirm(
+        { message: message,
+          callback: () : void => {
+              bindings.uninhibit();
+              callback();
+          }}
+    );
 }

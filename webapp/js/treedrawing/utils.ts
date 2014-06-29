@@ -210,7 +210,7 @@ export function guessLeafNode(node : Node) : boolean {
  * @param {JQuery} node the node to operate on
  */
 export function getTokenRoot(node : JQuery) : Node {
-    return node.parents().addBack().filter("#sn0>.snode").get(0);
+    return node.parents().addBack().filter(".sentnode>.snode").get(0);
 };
 
 /**
@@ -304,7 +304,8 @@ export function hasDashTag(node : JQuery, tag : string) : boolean {
  * @param {JQuery} node the node to operate on
  */
 export function getIndex(node : Element) : number {
-    return parseInt(node.getAttribute("data-index"), 10);
+    var idxS = metadata.getMetadata(node).index;
+    return idxS && parseInt(idxS, 10);
 }
 
 /**
@@ -315,18 +316,18 @@ export function getIndex(node : Element) : number {
 // TODO: only used once, eliminate?
 // TODO: use enum
 export function getIndexType (node : Element) : string {
-    return node.getAttribute("data-idxtype") === "gap" ? "=" : "-";
+    return metadata.getMetadata(node).idxtype === "gap" ? "=" : "-";
 };
 
 // TODO: document
 export function setIndexType (node : Element, idxtype : string) : void {
-    node.setAttribute("data-idxtype", idxtype === "=" ? "gap" : "regular");
+    metadata.setMetadata(node, "idxtype", idxtype === "=" ? "gap" : "regular");
 }
 
 // TODO: document
 export function setIndex (node : Element, index : number) : void {
-    node.setAttribute("data-index", index.toString());
-    if (!node.getAttribute("data-idxtype")) {
+    metadata.setMetadata(node, "index", index.toString());
+    if (_.isUndefined(metadata.getMetadata(node).idxtype)) {
         setIndexType(node, "-");
     }
 }
@@ -337,9 +338,9 @@ export function setIndex (node : Element, index : number) : void {
  * @param {Node} token the token to work on
  */
 export function maxIndex(token : Node) : number {
-    return _.max(_.map($(token).find(".snode"), function () : number {
+    return _.max($(token).find(".snode").map(function () : number {
         return getIndex(this);
-    }));
+    }).get());
 }
 
 /**
@@ -349,17 +350,18 @@ export function maxIndex(token : Node) : number {
  * @param {JQuery} tokenRoot the token to operate on
  * @param {number} numberToAdd
  */
-// TODO: rwerite
 export function addToIndices(tokenRoot : JQuery, numberToAdd : number) : void {
-    var nodes = tokenRoot.find(".snode[data-index]").addBack();
+    var nodes = tokenRoot.find(".snode").addBack().filter(function () : boolean {
+        return !_.isUndefined(getIndex(this));
+    });
     nodes.each(function() : void {
         setIndex(this, getIndex(this) + numberToAdd);
     });
 };
 
 export function removeIndex(node : Element) : void {
-    node.removeAttribute("data-index");
-    node.removeAttribute("data-idxtype");
+    metadata.removeMetadata(node, "index");
+    metadata.removeMetadata(node, "idxtype");
 }
 
 // ** Case-related functions
@@ -458,6 +460,8 @@ export function setCase(node : Element, theCase : string) : void {
 
 // TODO: toggling the case requires intelligence about where the dash tag
 // should be put, which is only in toggleExtension
+
+// TODO: morpho>case or case?
 
 // function labelSetCase(label) {
 

@@ -184,19 +184,69 @@ export function setLabelForNode (label : string,
     }
 }
 
+export function getLabelForNode (node : Element,
+                                 mapping : LabelMap = globals.labelMapping)
+: string {
+    // Build the label
+    var cat = node.getAttribute("data-category");
+    // Category
+    var label = cat;
+    if (node.getAttribute("data-subcategory")) {
+        // Subcategory if applicable
+        label += "-" + node.getAttribute("data-subcategory");
+    }
+
+    // Dash tags pertaining to this category, in order specified in XML
+    var m = metadata.getMetadata(node);
+    var x = mapping.byLabel[cat];
+    if (x && x.metadataKeys) {
+        _.each(x.metadataKeys, (v : any, k : string) : void => {
+            if (matchObjects(v, m)) {
+                label += "-" + k;
+            }
+        });
+    }
+    // Global dash tags, in order specified in XML
+    if (mapping.defaults) {
+        _.each(mapping.defaults, (v : any, k : string) : void => {
+            if (matchObjects(v, m)) {
+                label += "-" + k;
+            }
+        });
+    }
+
+    // THe index, if any
+    var md : any = metadata.getMetadata(node);
+    if (!_.isUndefined(md.index)) {
+        label += md.idxtype === "gap" ? "=" : "-";
+        label += md.index;
+    }
+
+    return label;
+}
+
+export function hasExtension (node : Element,
+                              extension : string,
+                              mapping : LabelMap = globals.labelMapping)
+: boolean {
+    return matchObjects(getActionForDashTag(extension, getCategory(node), mapping),
+                        metadata.getMetadata(node));
+}
+
 export function toggleExtensionForNode (extension : string,
                                         node : Element,
                                         mapping : LabelMap = globals.labelMapping)
 : void {
     var action = getActionForDashTag(extension, getCategory(node), mapping);
-    // TODO: should be a metadata.hasMetadata
-    _.forOwn(action, (val : any, key : string) : void => {
-        if (matchObjects(val, metadata.getMetadata(node)[key])) {
+    if (hasExtension(node, extension, mapping)) {
+        _.forOwn(action, (val : any, key : string) : void => {
             metadata.removeMetadata(node, key, val);
-        } else {
+        });
+    } else {
+        _.forOwn(action, (val : any, key : string) : void => {
             metadata.setMetadata(node, key, val);
-        }
-    });
+        });
+    }
 }
 
 function getCategory (node : Element) : string {
@@ -266,6 +316,7 @@ export var __test__ : any = {};
 
 if (process.env.ENV === "test") {
     __test__ = {
-        nodeToAction: nodeToAction
+        nodeToAction: nodeToAction,
+        matchObjects: matchObjects
     };
 }
