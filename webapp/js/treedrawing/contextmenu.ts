@@ -88,6 +88,7 @@ function doToggleExtension(node : HTMLElement, extension : string) : () => void 
     return function () : void {
         undo.touchTree($(node));
         lc.toggleExtensionForNode(extension, node);
+        selection.clear();
         hideContextMenu();
     };
 }
