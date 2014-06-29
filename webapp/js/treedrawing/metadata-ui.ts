@@ -227,7 +227,7 @@ var MetaKeysContainer = React.createClass({
                                   parent: any } = {
                                       backing: this,
                                       name: name,
-                                      parent: this
+                                      parent: that
                         };
                         if (spec.type === MetadataType.CHOICE) {
                             p.options = spec.choices;
