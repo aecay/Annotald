@@ -1,28 +1,36 @@
 <formatSpec>
   <dashTags>
     <LFD>
-      <leftDislocate>yes</leftDislocate>
+      <leftdislocate>yes</leftdislocate>
     </LFD>
     <RSP>
-      <leftDislocate>resume</leftDislocate>
+      <leftdislocate>resume</leftdislocate>
     </RSP>
     <SPE>
-      <directSpeech>yes</directSpeech>
+      <directspeech>yes</directspeech>
     </SPE>
     <PRN>
       <parenthetical>yes</parenthetical>
     </PRN>
     <A>
-      <case>accusative</case>
+      <morpho>
+        <case>accusative</case>
+      </morpho>
     </A>
     <N>
-      <case>nominative</case>
+      <morpho>
+        <case>nominative</case>
+      </morpho>
     </N>
     <G>
-      <case>dative</case>
+      <morpho>
+        <case>genitive</case>
+      </morpho>
     </G>
     <D>
-      <case>dative</case>
+      <morpho>
+        <case>dative</case>
+      </morpho>
     </D>
   </dashTags>
   <byLabel>
@@ -86,5 +94,12 @@
     </ADVP>
   </byLabel>
   <metadataTypes>
+    <case>
+      <metadataType>choice</metadataType>
+      <metadataChoice>nominative</metadataChoice>
+      <metadataChoice>accusative</metadataChoice>
+      <metadataChoice>dative</metadataChoice>
+      <metadataChoice>genitive</metadataChoice>
+    </case>
   </metadataTypes>
 </formatSpec>
