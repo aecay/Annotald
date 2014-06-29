@@ -2,7 +2,7 @@
 
 /* istanbulify ignore file */
 
-var metadata = require("../../webapp/js/treedrawing/metadata.ts"),
+var metadata = require("../../src/js/treedrawing/metadata.ts"),
     setInDict = metadata.__test__.setInDict;
 
 describe("The metadata module", function () {

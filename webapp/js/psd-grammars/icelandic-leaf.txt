@@ -1,4 +1,0 @@
-leaflabel = leaflabelpiece (leaflabelpiece2)* { return text(); }
-leaflabelpiece = [A-Z][A-Z0-9$]* / [.,]
-leaflabelpiece2 = ("-" caselabelpiece) / ([-+] [A-Z][A-Z0-9$]*)
-caselabelpiece = [NDAG]

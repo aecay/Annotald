@@ -2,7 +2,7 @@
 
 /* istanbulify ignore file */
 
-var mdUi = require("../../webapp/js/treedrawing/metadata-ui.ts");
+var mdUi = require("../../src/js/treedrawing/metadata-ui.ts");
 
 function X (s) {
     return new DOMParser().parseFromString(s, "text/xml").childNodes[0];

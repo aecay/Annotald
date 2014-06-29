@@ -1,2 +1,2 @@
 var bulk = require("bulk-require");
-bulk(__dirname + "/../webapp/js/", ["**/*.ts", "!**/flymake_*"]);
+bulk(__dirname + "/../src/js/", ["**/*.ts", "!**/flymake_*"]);

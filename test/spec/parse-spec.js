@@ -5,7 +5,7 @@
 
 /* jshint quotmark: false, maxlen: 999 */
 
-var parse = require('../../webapp/js/parse.ts');
+var parse = require('../../src/js/parse.ts');
 var $ = require("jquery");
 
 describe("The parser", function () {

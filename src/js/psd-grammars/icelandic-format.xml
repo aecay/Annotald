@@ -1,0 +1,105 @@
+<formatSpec>
+  <dashTags>
+    <LFD>
+      <leftdislocate>yes</leftdislocate>
+    </LFD>
+    <RSP>
+      <leftdislocate>resume</leftdislocate>
+    </RSP>
+    <SPE>
+      <directspeech>yes</directspeech>
+    </SPE>
+    <PRN>
+      <parenthetical>yes</parenthetical>
+    </PRN>
+    <A>
+      <morpho>
+        <case>accusative</case>
+      </morpho>
+    </A>
+    <N>
+      <morpho>
+        <case>nominative</case>
+      </morpho>
+    </N>
+    <G>
+      <morpho>
+        <case>genitive</case>
+      </morpho>
+    </G>
+    <D>
+      <morpho>
+        <case>dative</case>
+      </morpho>
+    </D>
+  </dashTags>
+  <byLabel>
+    <CP>
+      <subcategories>
+        <ADV />
+        <CAR />
+        <CLF />
+        <CMP />
+        <DEG />
+        <EOP />
+        <FRL />
+        <QUE />
+        <REL />
+        <THT />
+        <TMC />
+      </subcategories>
+    </CP>
+    <IP>
+      <subcategories>
+        <IMP />
+        <INF />
+        <MAT />
+        <PPL />
+        <SMC />
+        <SUB />
+      </subcategories>
+    </IP>
+    <NP>
+      <subcategories>
+        <ADT />
+        <ADV />
+        <CMP />
+        <COM />
+        <MSR />
+        <OB1 />
+        <OB2 />
+        <OB3 />
+        <POS />
+        <PRD />
+        <SBJ />
+        <TMP />
+      </subcategories>
+    </NP>
+    <ADJP>
+      <subcategories>
+        <SPR />
+      </subcategories>
+    </ADJP>
+    <PP>
+      <subcategories>
+        <BY />
+      </subcategories>
+    </PP>
+    <ADVP>
+      <subcategories>
+        <DIR />
+        <LOC />
+        <TMP />
+      </subcategories>
+    </ADVP>
+  </byLabel>
+  <metadataTypes>
+    <case>
+      <metadataType>choice</metadataType>
+      <metadataChoice>nominative</metadataChoice>
+      <metadataChoice>accusative</metadataChoice>
+      <metadataChoice>dative</metadataChoice>
+      <metadataChoice>genitive</metadataChoice>
+    </case>
+  </metadataTypes>
+</formatSpec>

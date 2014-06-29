@@ -151,3 +151,7 @@ for speed
 ** TODO website up and running
 ** TODO test each user-facing fn
 ** TODO pretty print xml on save
+** TODO get comments working
+** TODO look for todos in code; fix
+** TODO don’t put local files in recent list
+** TODO versioning scheme for stored configs to upgrade them on new annotald versions

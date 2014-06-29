@@ -2,8 +2,8 @@
 
 /* istanbulify ignore file */
 
-var parsePsd = require("../../webapp/js/parse-psd.ts"),
-    dummy = require("../../webapp/js/parse-psd"),
+var parsePsd = require("../../src/js/parse-psd.ts"),
+    dummy = require("../../src/js/parse-psd"),
     P = parsePsd.parseCorpus,
     _ = require("lodash");
 

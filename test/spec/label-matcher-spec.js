@@ -3,8 +3,8 @@
 
 /* istanbulify ignore file */
 
-var labelConvert = require("../../webapp/js/treedrawing/label-convert.ts");
-var metadata = require("../../webapp/js/treedrawing/metadata.ts");
+var labelConvert = require("../../src/js/treedrawing/label-convert.ts");
+var metadata = require("../../src/js/treedrawing/metadata.ts");
 var $ = require("jquery");
 
 describe("The label converter", function () {

@@ -3,7 +3,7 @@
 
 /* istanbulify ignore file */
 
-var cs = require("../../webapp/js/config-store.js"),
+var cs = require("../../src/js/config-store.js"),
     _ = require("lodash"),
     Q = require("q");
 

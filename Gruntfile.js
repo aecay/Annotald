@@ -49,14 +49,14 @@ module.exports = function (grunt) {
                     ,'node_modules/brace/theme/xcode.js'
                     ,'node_modules/brace/mode/javascript.js'
                     ,'node_modules/q/q.js'
-                    ,'webapp/js/ext/dropbox.js'
-                    ,'webapp/js/ext/growl.js'
+                    ,'src/js/ext/dropbox.js'
+                    ,'src/js/ext/growl.js'
                     ,'node_modules/lodash/dist/lodash.js'
-                    ,'js-ext/mousetrap.js'
-                    ,'js-ext/wut.js'
+                    ,'src/js/ext/mousetrap.js'
+                    ,'src/js/ext/wut.js'
                     ,'node_modules/pegjs/lib/peg.js'
                 ],
-                dest: 'webapp/build/ext.js',
+                dest: 'build/webapp/ext.js',
                 options: {
                     alias: ['node_modules/jquery/dist/jquery.js:jquery',
                             'node_modules/react/react.js:react',
@@ -66,19 +66,19 @@ module.exports = function (grunt) {
                             'node_modules/brace/theme/xcode.js:brace/theme/xcode',
                             'node_modules/brace/mode/javascript.js:brace/mode/javascript',
                             'node_modules/q/q.js:q',
-                            'webapp/js/ext/dropbox.js:dropbox',
-                            'webapp/js/ext/growl.js:growl',
+                            'src/js/ext/dropbox.js:dropbox',
+                            'src/js/ext/growl.js:growl',
                             'node_modules/lodash/dist/lodash.js:lodash',
-                            'js-ext/mousetrap.js:mousetrap',
-                            'js-ext/wut.js:wut',
+                            'src/js/ext/mousetrap.js:mousetrap',
+                            'src/js/ext/wut.js:wut',
                             'node_modules/pegjs/lib/peg.js:pegjs',
                             'node_modules/level-browserify/browser.js:level-browserify'
                            ]
                 }
             },
             annotald: {
-                src: ['webapp/js/main.js'],
-                dest: 'webapp/build/web.js',
+                src: ['src/js/main.js'],
+                dest: 'build/webapp/web.js',
                 options: {
                     bundleOptions: {
                         debug: true
@@ -87,15 +87,15 @@ module.exports = function (grunt) {
                     transform: annotaldBrowserifyTransforms.concat([
                         envifyBrowserCached]),
                     alias: [
-                        'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points'
+                        'src/js/treedrawing/entry-points.ts:treedrawing/entry-points'
                     ],
-                    ignore: ["webapp/js/node-utils.js"]//,
+                    ignore: ["src/js/node-utils.js"]//,
                     //watch: true
                 }
             },
             annotaldNw: {
-                src: ['webapp/js/main.js'],
-                dest: 'webapp/build/web-nw.js',
+                src: ['src/js/main.js'],
+                dest: 'build/nw/web.js',
                 options: {
                     bundleOptions: {
                         debug: true
@@ -104,9 +104,9 @@ module.exports = function (grunt) {
                     transform: annotaldBrowserifyTransforms.concat([
                         envify({ENV: "node-webkit"})]),
                     alias: [
-                        'webapp/js/treedrawing/entry-points.ts:treedrawing/entry-points'
+                        'src/js/treedrawing/entry-points.ts:treedrawing/entry-points'
                     ],
-                    ignore: ["webapp/js/node-utils.js"]
+                    ignore: ["src/js/node-utils.js"]
                 }
             },
             test: {
@@ -116,7 +116,7 @@ module.exports = function (grunt) {
                     transform: annotaldBrowserifyTransforms.concat(
                         [istanbulify, envify({ENV: "test"})]),
                     external: annotaldBrowserifyExternal,
-                    ignore: ["webapp/js/node-utils.js"]
+                    ignore: ["src/js/node-utils.js"]
                 }
             },
             test_debug: {
@@ -129,14 +129,14 @@ module.exports = function (grunt) {
                     bundleOptions: {
                         debug: true
                     },
-                    ignore: ["webapp/js/node-utils.js"]
+                    ignore: ["src/js/node-utils.js"]
                 }
             }
         },
         extract_sourcemap: {
             annotald: {
                 files: {
-                    "webapp/build": ["webapp/build/web.js"]
+                    "build/webapp": ["build/webapp/web.js"]
                 }
             }
         },
@@ -145,18 +145,18 @@ module.exports = function (grunt) {
                 "app_name": "Annotald",
                 // TODO: read from package.json
                 "app_version": "FOO",
-                "build_dir": "webapp/build",
+                "build_dir": "build/nw",
                 win: false,
                 mac: false,
                 linux32: false,
                 linux64: true,
                 "keep_nw": true
             },
-            src: ["webapp/build/package.json",
-                  "webapp/build/web-nw.js",
-                  "webapp/build/ext.js",
-                  "webapp/build/main.html",
-                  "webapp/build/min.css"]
+            src: ["build/nw/package.json",
+                  "build/nw/web.js",
+                  "build/webappext.js",
+                  "build/webapp/main.html",
+                  "build/webapp/min.css"]
         },
         jasmine: {
             test: {
@@ -166,7 +166,7 @@ module.exports = function (grunt) {
                              "node_modules/polymer-weakmap/weakmap.js",
                              "node_modules/mutationobservers/MutationObserver.js",
                              "test/IndexedDBShim.min.js",
-                             "webapp/build/ext.js"],
+                             "build/webapp/ext.js"],
                     specs: "test/build/spec-entry.js",
                     template: require("./test/jasmine-istanbul-template/template"),
                     templateOptions: {
@@ -182,16 +182,16 @@ module.exports = function (grunt) {
                              "node_modules/polymer-weakmap/weakmap.js",
                              "node_modules/mutationobservers/MutationObserver.js",
                              "test/IndexedDBShim.min.js",
-                             "webapp/build/ext.js"],
+                             "build/webapp/ext.js"],
                     specs: "test/build/spec-entry-debug.js",
                     keepRunner: true
                 }
             }
         },
         jshint: {
-            files: ["webapp/js/**/*.js",
-                    "!webapp/js/ext/**",
-                    "!webapp/js/ui/tree-editor-template.js"],
+            files: ["src/js/**/*.js",
+                    "!src/js/ext/**",
+                    "!src/js/ui/tree-editor-template.js"],
             options: {
                 jshintrc: "jshintrc",
                 "reporter": "jshint-reporter.js"
@@ -202,23 +202,23 @@ module.exports = function (grunt) {
                 configuration: grunt.file.readJSON("tslintrc")
             },
             all: {
-                src: "webapp/js/**/*.ts"
+                src: "src/js/**/*.ts"
             }
         },
         uglify: {
             annotald: {
-                src: "webapp/build/web.js",
-                dest: "webapp/build/web.min.js",
+                src: "build/webapp/web.js",
+                dest: "build/webapp/web.min.js",
                 options: {
                     sourceMap: true,
-                    sourceMapIn: "webapp/build/web.js.map",
+                    sourceMapIn: "build/webapp/web.js.map",
                     preserveComments: 'some',
                     sourceMapIncludeSources: true
                 }
             },
             external: {
-                src: "webapp/build/ext.js",
-                dest: "webapp/build/ext.min.js",
+                src: "build/webapp/ext.js",
+                dest: "build/webapp/ext.min.js",
                 options: {
                     preserveComments: 'some'
                 }
@@ -226,56 +226,56 @@ module.exports = function (grunt) {
         },
         cssmin: {
             annotald: {
-                src: ["webapp/css/growl.css", "webapp/css/vex.css",
-                      "webapp/css/vex-theme-default.css",
-                      "webapp/css/main.css", "webapp/css/treedrawing.css"
+                src: ["src/css/growl.css", "src/css/vex.css",
+                      "src/css/vex-theme-default.css",
+                      "src/css/main.css", "src/css/treedrawing.css"
                      ],
-                dest: "webapp/build/min.css"
+                dest: "build/webapp/min.css"
             }
         },
-        watch: {
-            annotald: {
-                files: ['webapp/js/**/*.js', 'webapp/js/**/*.ts'],
-                tasks: ['build-annotald']
-            },
-            css: {
-                files: ['webapp/css/*.css'],
-                tasks: ['build-css']
-            },
-            html: {
-                files: ['webapp/html/*.html'],
-                tasks: ['build-html']
-            },
-            options: {
-                livereload: true
-            }
-        },
+        // watch: {
+        //     annotald: {
+        //         files: ['webapp/js/**/*.js', 'webapp/js/**/*.ts'],
+        //         tasks: ['build-annotald']
+        //     },
+        //     css: {
+        //         files: ['webapp/css/*.css'],
+        //         tasks: ['build-css']
+        //     },
+        //     html: {
+        //         files: ['webapp/html/*.html'],
+        //         tasks: ['build-html']
+        //     },
+        //     options: {
+        //         livereload: true
+        //     }
+        // },
         copy: {
             main: {
-                src: "webapp/html/main.html",
-                dest: "webapp/build/main.html"
+                src: "src/html/index.html",
+                dest: "build/webapp/index.html"
             },
             oauth_receiver: {
-                src: "webapp/html/oauth_receiver.html",
-                dest: "webapp/build/oauth_receiver.html"
+                src: "src/html/oauth_receiver.html",
+                dest: "build/webapp/oauth_receiver.html"
             },
             nw_pkg: {
-                src: "webapp/nw-package.json",
-                dest: "webapp/build/package.json"
+                src: "src/nw-package.json",
+                dest: "build/nw/package.json"
             }
         },
         clean: {
             build: {
-                src: ["webapp/build/ext.js",
-                      "webapp/build/web.js",
-                      "webapp/build/web.js.map"]
+                src: ["build/webapp/ext.js",
+                      "build/webapp/web.js",
+                      "build/webapp/web.js.map"]
             }
         },
         connect: {
             server: {
                 options: {
                     port: 8888,
-                    base: 'webapp/build',
+                    base: 'build/webapp',
                     keepalive: true
                 }
             },
