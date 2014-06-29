@@ -146,8 +146,8 @@ switch to: https://github.com/petkaantonov/bluebird
 for speed
 * DIGS todos
 ** TODO fix ipnodes
-** TODO fix indexing
-** TODO gussy up metadata editor ui
-** TODO metadata key add/del
-** TODO metadata subnode collapse
 ** TODO icelandic and OE demos
+** TODO port forwards fixes from 1.0 branch
+** TODO website up and running
+** TODO test each user-facing fn
+** TODO pretty print xml on save
