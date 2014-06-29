@@ -5,6 +5,7 @@ import _ = require("lodash");
 import startup = require("./startup");
 import globals = require("./global");
 import undo = require("./undo");
+import metadataUi = require("./metadata-ui");
 import $ = require("jquery");
 
 // TODO: doc
@@ -47,6 +48,7 @@ function wrapBinding (fn : (e : KeyboardEvent) => void)
         /* tslint:enable:no-string-literal */
             undo.undoBarrier();
         }
+        metadataUi.updateMetadataEditor();
         return false;
     };
 }
