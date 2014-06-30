@@ -94,12 +94,14 @@
     </ADVP>
   </byLabel>
   <metadataTypes>
-    <case>
-      <metadataType>choice</metadataType>
-      <metadataChoice>nominative</metadataChoice>
-      <metadataChoice>accusative</metadataChoice>
-      <metadataChoice>dative</metadataChoice>
-      <metadataChoice>genitive</metadataChoice>
-    </case>
+    <morpho>
+      <case>
+        <metadataType>choice</metadataType>
+        <metadataChoice>nominative</metadataChoice>
+        <metadataChoice>accusative</metadataChoice>
+        <metadataChoice>dative</metadataChoice>
+        <metadataChoice>genitive</metadataChoice>
+      </case>
+    </morpho>
   </metadataTypes>
 </formatSpec>
