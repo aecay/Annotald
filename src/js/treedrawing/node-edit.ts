@@ -81,8 +81,10 @@ export function editComment () : void {
             }
             newText = newText.replace(/ /g, "_");
             commentType = $("input:radio[name=commentType]:checked").val();
-            utils.setNodeLabel($(selection.get()).children(".wnode"),
-                               "{" + commentType + ":" + newText + "}");
+            // TODO: fix me
+            throw new Error("WIP");
+            // lc.setLabelForNode($(selection.get()).children(".wnode"),
+            //                    "{" + commentType + ":" + newText + "}");
         }
         dialog.hideDialogBox();
     }
@@ -183,7 +185,7 @@ function leafEditorReplacement(type: string,
  */
 export function displayRename () : void {
     var editTarget = selection.get();
-    var label = utils.getLabel($(editTarget));
+    var label = labelConvert.getLabelForNode(editTarget);
     var oldNodeType = editTarget.getAttribute("data-nodetype");
 
     // Inner functions
@@ -437,7 +439,7 @@ editLemma["async"] = true;
  * Perform an appropriate editing operation on the selected node.
  */
 export function editNode () : void {
-    if (utils.getLabel($(selection.get())) === "CODE" &&
+    if (labelConvert.getLabelForNode(selection.get()) === "CODE" &&
         _.contains(conf.commentTypes,
                    // strip leading { and the : and everything after
                    utils.wnodeString(selection.get()).substr(1).split(":")[0])
@@ -476,7 +478,7 @@ export function splitWord () : void {
     if (wordSplit.length === 2) {
         origLemma = "@" + wordSplit[1] + "@";
     }
-    var origLabel = utils.getLabel($(selection.get()));
+    var origLabel = labelConvert.getLabelForNode(selection.get());
     function doSplit () : void {
         var words = $("#splitWordInput").val().split("@");
         if (words.join("") !== origWord) {
@@ -497,11 +499,11 @@ export function splitWord () : void {
         var labelSplit = origLabel.split("+");
         var secondLabel = "X";
         if (labelSplit.length === 2) {
-            utils.setLeafLabel($(selection.get()), labelSplit[0]);
+            labelConvert.setLabelForNode(labelSplit[0], selection.get());
             secondLabel = labelSplit[1];
         }
-        utils.setLeafLabel($(selection.get()),
-                           (startsWithAt ? "@" : "") + words[0] + "@");
+        labelConvert.setLabelForNode((startsWithAt ? "@" : "") + words[0] + "@",
+                           selection.get());
         var hasLemma = utils.getLemma($(selection.get()));
         strucEdit.makeLeaf(false,
                            secondLabel,

@@ -5,6 +5,7 @@ import startup = require("./startup");
 import utils = require("./utils");
 import dialog = require("./dialog");
 import log = require("../ui/log");
+import lc = require("./label-convert");
 
 // TODO: anchor right end of string, so that NP does not match NPR, only NP or
 // NP-X (???)
@@ -316,7 +317,7 @@ function searchPrecNode(e : Event) : void {
  */
 
 function interpretSearchNode(node : JQuery,
-                             target : Node,
+                             target : Element,
                              options : { norecurse? : boolean; } = {}) : Node {
     // TODO: optimize to remove jquery calls, only use regex matching if needed
     // TODO: make case sensitivity an option?
@@ -340,7 +341,7 @@ function interpretSearchNode(node : JQuery,
 
     if (searchtype === "Label") {
         rx = RegExp("^" + $(node).children(".searchtext").val(), "i");
-        hasMatch = $(target).hasClass("snode") && rx.test(utils.getLabel($(target)));
+        hasMatch = $(target).hasClass("snode") && rx.test(lc.getLabelForNode(target));
         if (!hasMatch) {
             return undefined;
         }

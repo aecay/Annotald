@@ -21,10 +21,9 @@
 import $ = require("jquery");
 import _ = require("lodash");
 
-var dummy;
-import conf = require("./config"); dummy = require("./config.ts");
-import undo = require("./undo"); dummy = require("./undo.ts");
-import metadata = require("./metadata"); dummy = require("./metadata.ts");
+import conf = require("./config");
+import metadata = require("./metadata");
+import lc = require("./label-convert");
 
 export function startsWith (a : string, b : string) : boolean {
     return (a.substr(0, b.length) === b);
@@ -94,7 +93,7 @@ export function updateCssClass(node : JQuery, oldlabel? : string) : void {
                           });
     }
     node.removeClass(oldlabel);
-    node.addClass(getLabel(node));
+    node.addClass(lc.getLabelForNode(node.get(0)));
 }
 
 // * Functions on node representation
@@ -233,33 +232,8 @@ export function wnodeString(node : Node) : string {
  * @param {JQuery} root the node to operate on
  */
 export function currentText(root : JQuery) : string {
-    var nodes = root.get(0).getElementsByClassName("wnode");
-    var text = "",
-        nv;
-    for (var i = 0; i < nodes.length; i++) {
-        if (!isEmptyNode(nodes[i])) {
-            nv = nodes[i].childNodes[0].nodeValue;
-            text += nv;
-        }
-    }
-    return text;
+    return root.find(".wnode").not(".autoWnode").text();
 }
-
-/**
- * Get the label of a node.
- *
- * @param {JQuery} node the node to operate on
- */
-// TODO: tie this in to the formatiign functions?  or refactor/eliminate
-export function getLabel(node : JQuery) : string {
-    var n = node.get(0);
-    var l = n.getAttribute("data-category");
-    if (n.getAttribute("data-subcategory")) {
-        l += "-" + n.getAttribute("data-subcategory");
-    }
-    return l;
-}
-exports.getLabel = getLabel;
 
 /**
  * Get the first text node dominated by a node.
@@ -291,9 +265,8 @@ export function getLemma(node : JQuery) : string {
  * @param {String} tag the dash tag to look for, without any dashes
  */
 export function hasDashTag(node : JQuery, tag : string) : boolean {
-    var label = getLabel(node);
-    var tags = label.split("-").slice(1);
-    return (tags.indexOf(tag) > -1);
+    return node.attr("data-subcategory") === tag ||
+        lc.hasExtension(node.get(0), tag);
 }
 
 // ** Index-related functions
@@ -460,56 +433,6 @@ export function setCase(node : Element, theCase : string) : void {
 
 // TODO: toggling the case requires intelligence about where the dash tag
 // should be put, which is only in toggleExtension
-
-// TODO: morpho>case or case?
-
-// function labelSetCase(label) {
-
-// }
-
-// ** Label-related functions
-/**
- * Sets the label of a node
- *
- * Contains none of the heuristics of {@link setLabel}.
- *
- * @param {JQuery} node the target node
- * @param {String} label the new label
- */
-export function setNodeLabel(node : JQuery,
-                             label: string,
-                             noUndo? : boolean) : void {
-    if (noUndo) {
-        undo.undoBeginTransaction();
-    }
-    if (node.hasClass("snode")) {
-        if (label[label.length - 1] !== " ") {
-            // Some other spots in the code depend on the label ending with a
-            // space...
-            label += " ";
-        }
-    } else if (node.hasClass("wnode")) {
-        // Words cannot have a trailing space, or CS barfs on save.
-        label = $.trim(label);
-    } else {
-        // should never happen
-        return;
-    }
-    var oldLabel = getLabel(node);
-    textNode(node).replaceWith(label);
-    updateCssClass(node, oldLabel);
-    if (noUndo) {
-        undo.undoAbortTransaction();
-    }
-}
-
-export function setLeafLabel(node : JQuery, label : string) : void {
-    if (!node.hasClass(".wnode")) {
-        // why do we do this?  We should be less fault-tolerant.
-        node = node.children(".wnode").first();
-    }
-    textNode(node).replaceWith($.trim(label));
-}
 
 // * Stubs
 

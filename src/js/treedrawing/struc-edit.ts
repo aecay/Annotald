@@ -386,13 +386,13 @@ export function makeLeaf(before : boolean,
         var endRoot = utils.getTokenRoot($(selection.get(true)));
         if (startRoot === endRoot) {
             word = "*ICH*";
-            label = utils.getLabel($(selection.get(true)));
+            label = lc.getLabelForNode(selection.get(true));
             if (utils.startsWith(label, "W")) {
                 word = "*T*";
                 label = label.substr(1).replace(/-[0-9]+$/, "");
             } else if (label.split("-").indexOf("CL") > -1) {
                 word = "*CL*";
-                label = utils.getLabel($(selection.get(true))).replace("-CL", "");
+                label = lc.getLabelForNode(selection.get(true)).replace("-CL", "");
                 if (label.substring(0, 3) === "PRO") {
                     label = "NP";
                 }

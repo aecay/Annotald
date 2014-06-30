@@ -109,7 +109,8 @@ function setCaseOnTag(node : JQuery, theCase : string) : () => void {
     function doKids(n : JQuery, override? : boolean) : void {
         if (utils.isCaseNode(n.get(0))) {
             utils.setCase(n.get(0), theCase);
-        } else if (_.contains(conf.caseBarriers, utils.getLabel(n).split("-")[0]) &&
+        } else if (_.contains(conf.caseBarriers,
+                              lc.getLabelForNode(n.get(0)).split("-")[0]) &&
                    !n.parent().is(".CONJP") &&
                    !override) {
             // nothing
@@ -189,7 +190,7 @@ function getSuggestions(node : Element) : string[] {
         indstr = utils.getIndex(node).toString();
         indtype = utils.getIndexType(node);
     }
-    var label = utils.getLabel($(node));
+    var label = lc.getLabelForNode(node);
     theCase = utils.getCase(node);
     if (theCase) {
         theCase = "-" + theCase;
@@ -225,12 +226,12 @@ function loadContextMenu(nodeOrig : HTMLElement) : void {
         nodeIndex = utils.getIndex(nodeOrig),
         indexSep = "",
         indexString = "",
-        nodelabel = utils.getLabel(nO),
+        nodelabel = lc.getLabelForNode(nodeOrig),
         newnode,
         i;
     function loadConMenuMousedown () : void {
         var suggestion = "" + $(this).text();
-        utils.setNodeLabel(nO, suggestion);
+        lc.setLabelForNode(suggestion, nodeOrig);
         hideContextMenu();
     }
 
