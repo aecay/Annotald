@@ -1,4 +1,4 @@
-// Copyright 2012 Aaron Ecay
+.. Copyright 2014 Aaron Ecay
 
 .. This work is licensed under a Creative Commons
    Attribution-NonCommercial-NoDerivs 3.0 Unported License
@@ -11,6 +11,8 @@
 
 .. default-domain:: js
 
+.. highlight:: javascript
+
 =======================
  Annotald User’s Guide
 =======================
@@ -21,11 +23,12 @@ Introduction
 This manual is designed to teach users how to use the Annotald program
 for annotating parsed corpora according to (a version of) the Penn
 treebank standards.  This version of the manual accompanies version
-**TODO** of Annotald.
+|version| of Annotald.
 
 .. TODO: our labgroup docs/updates (incorp. latter into this doc?)
 
 .. TODO(post-1.0): this paragraph isn’t really applicable yet.
+
    In that vein, it consists of both documentation relating to the
    configuration and use of Annotald, as well as instruction on the
    application of the Penn treebank standards to corpus data.  For
@@ -57,7 +60,8 @@ is not guaranteed to work with other browsers.  In order to use
 Annotald, download and install `the latest stable version of chrome
 <https://www.google.com/intl/en/chrome/browser/?hl=en&lr=all>`_.
 
-Then you may navigate to <http://annotald.com/go/> to begin using Annotald.
+Then you may navigate to `<http://annotald.com/go/>`_ to begin using
+Annotald.
 
 Annotald UI and Philosophy
 --------------------------
@@ -157,17 +161,18 @@ nodes will move those nodes, as well as any intervening material, to the
 desired destination.  The two selected nodes must be sisters of each
 other.
 
-.. note: Moving an empty category (for example a trace) behaves
-   interestingly, since it is not treated as part of the file’s text by
-   Annotald.  This allows some interesting and confusing movement
-   possibilities.  Thus, moving empty categories (traces beginning with
-   ``*``, empty nodes which are ``0``, and ``CODE`` nodes) by default is
-   not allowed.  However, moving a non-terminal dominating only such a
-   node(s) is.  So if you need to move an empty node in a pinch, just
-   create an XP dominating it, do your movement operation, and delete
-   the XP.  Do not be upset though if this procedure results in
-   interesting behavior (you can always use undo to get back to a
-   sensible structure).
+.. note::
+
+   Moving an empty category (for example a trace) behaves interestingly,
+   since it is not treated as part of the file’s text by Annotald.  This
+   allows some interesting and confusing movement possibilities.  Thus,
+   moving empty categories (traces beginning with ``*``, empty nodes which
+   are ``0``, and ``CODE`` nodes) by default is not allowed.  However,
+   moving a non-terminal dominating only such a node(s) is.  So if you
+   need to move an empty node in a pinch, just create an XP dominating it,
+   do your movement operation, and delete the XP.  Do not be upset though
+   if this procedure results in interesting behavior (you can always use
+   undo to get back to a sensible structure).
 
 Control-clicking on a node will create and select a new XP dominating
 that node.
@@ -231,6 +236,8 @@ Javascript customization options
 ++++++++++++++++++++++++++++++++
 
 In this section, the options in the settings file will be discussed.
+All the options are accessed by properties of a ``config`` object,
+which is a property of the global ``entryPoints`` object.
 
 ..
    TODO discussion assumes familiarity with penn treebank conventions,
@@ -244,111 +251,122 @@ In this section, the options in the settings file will be discussed.
        This variable should be a Boolean value (``true`` or ``false``).  It
        controls the operation of the <<timelog,time logging function>>.
 
-.. _casevars:
+.. attribute:: config.displayCaseMenu
 
-``displayCaseMenu``
-    Whether or not to display options for changing the case of items in the
-    context menu.  See the discussion of this feature :ref:`below <casemenu>`.
+   Whether or not to display options for changing the case of items in the
+   context menu.  See the discussion of this feature :ref:`below <casemenu>`.
 
-``caseTags``
-    A list of the labels which can receive a tag indicating their case.
-    Generally speaking, these will be leaf nodes.  Although an entire NP
-    (for example) might be said to have case, the only surface reflexes
-    of case are the marking of individual words.  Furthermore, within a
-    single NP it is possible for some constituents to not express the
-    phrase’s features. [#casetags]_
+.. attribute:: config.caseTags
 
-    Therefore, the minimal annotation that captures the linguistic facts
-    places case on the leaf nodes; phrasal case can be calculated based on
-    that information.
-    // TODO(post-1.0): this broader philosophical point needs to be explicated
-    // elsewhere, like in an annotation philosophy section.
-    However, Annotald provides functions to make this less tedious – to
-    allow the annotator to mark a whole NP for case, and have that
-    information updated on all the relevant subconstituents of that NP.
+   A list of the labels which can receive a tag indicating their case.
+   Generally speaking, these will be leaf nodes.  Although an entire NP
+   (for example) might be said to have case, the only surface reflexes
+   of case are the marking of individual words.  Furthermore, within a
+   single NP it is possible for some constituents to not express the
+   phrase’s features. [#casetags]_
 
-``casePhrases``
-    A list of phrasal categories that bear case.  These will provide an
-    option in the context menu to set their case (which actually sets
-    the case of their subconstituents).
+   Therefore, the minimal annotation that captures the linguistic facts
+   places case on the leaf nodes; phrasal case can be calculated based on
+   that information.
 
-``caseMarkers``
-    A list of case markers.  Each of these is a dash tag (given in the
-    Javascript file without surrounding dashes) that may be attachedto a
-    member of ``caseTags`` to indicate its case.
+   ..
+      TODO(post-1.0): this broader philosophical point needs to be explicated
+      elsewhere, like in an annotation philosophy section.
 
-``caseBarriers``
-    A list of phrases which should form barriers to recursive case
-    assignment.  When case is assigned to an NP, Annotald looks
-    (recursively) for all its daughters which are case-marker-bearing,
-    and changes their case.  But, this process should not recurse into
-    e.g. a relative clause, or a genitive possessor.  Thus, any node in
-    this list will block further case-setting traversal.
+   However, Annotald provides functions to make this less tedious – to
+   allow the annotator to mark a whole NP for case, and have that
+   information updated on all the relevant subconstituents of that NP.
 
-    .. note: The variables ``caseTags``, ``casePhrases``, and
-       ``caseBarriers`` cannot contain dashes; they must be genuine
-       top-level category labels.
+.. attribute:: config.casePhrases
+
+   A list of phrasal categories that bear case.  These will provide an
+   option in the context menu to set their case (which actually sets
+   the case of their subconstituents).
+
+.. attribute:: config.caseMarkers
+
+   A list of case markers.  Each of these is a dash tag (given in the
+   Javascript file without surrounding dashes) that may be attachedto a
+   member of ``caseTags`` to indicate its case.
+
+.. attribute:: config.caseBarriers
+
+   A list of phrases which should form barriers to recursive case
+   assignment.  When case is assigned to an NP, Annotald looks
+   (recursively) for all its daughters which are case-marker-bearing,
+   and changes their case.  But, this process should not recurse into
+   e.g. a relative clause, or a genitive possessor.  Thus, any node in
+   this list will block further case-setting traversal.
+
+   .. note::
+
+      The variables ``caseTags``, ``casePhrases``, and ``caseBarriers``
+      cannot contain dashes; they must be genuine top-level category
+      labels.
 
 ..
    TODO
    ``testValidPhraseLabel`` / ``testValidLeafLabel``
-       See the discussion of these options <<tagset-validate,below>>
+      See the discussion of these options <<tagset-validate,below>>
 
-.. _extensions-vars:
+.. attribute:: config.extensions
 
-``extensions``
-    Specify the list and order of dash tags available in the corpus.
-    There are three variants of this variable:
+   Specify the list and order of dash tags available in the corpus.
+   There are three variants of this variable:
 
-    - ``leaf_extensions``: Dash tags applicable to leaf (terminal) nodes
-    - ``clause_extensions``: Dash tags applicable to clausal nodes (of
-      category CP or IP)
-    - ``extensions``: Dash tags applicable to non-clausal non-leaf nodes
+   - ``leaf_extensions``: Dash tags applicable to leaf (terminal) nodes
+   - ``clause_extensions``: Dash tags applicable to clausal nodes (of
+     category CP or IP)
+   - ``extensions``: Dash tags applicable to non-clausal non-leaf nodes
 
-    Not every dash tag needs to appear in this list, only those which
-    need to be toggled on and off in a binary fashion.  Thus, for
-    example, the dash tag ``OB1`` (for direct objects) is never toggled
-    in a binary fashion, but rather as part of a cycle that includes
-    setting the category to ``NP`` and moving through ``NP-SBJ``,
-    ``NP-OB2``, etc.  Thus, it need not appear in this list.  However,
-    the ``SPE`` dash tag (for reported speech) is toggled on and off –
-    changing an ``IP-XXX`` to ``IP-XXX-SPE``, and potentially back to
-    ``IP-XXX``.
+   Not every dash tag needs to appear in this list, only those which
+   need to be toggled on and off in a binary fashion.  Thus, for
+   example, the dash tag ``OB1`` (for direct objects) is never toggled
+   in a binary fashion, but rather as part of a cycle that includes
+   setting the category to ``NP`` and moving through ``NP-SBJ``,
+   ``NP-OB2``, etc.  Thus, it need not appear in this list.  However,
+   the ``SPE`` dash tag (for reported speech) is toggled on and off –
+   changing an ``IP-XXX`` to ``IP-XXX-SPE``, and potentially back to
+   ``IP-XXX``.
 
-    ..
-       TODO(post-1.0): this is a bad explanation.  Maybe require to list
-       all dash tags?  but that gets tedious.
+   ..
+      TODO(post-1.0): this is a bad explanation.  Maybe require to list
+      all dash tags?  but that gets tedious.
 
-``ipnodes``
-    A list of categories which are clauses.  These are highlighted (with
-    a tan shade) to make it clear where the “floor” of a clause is, for
-    the purpose of rearranging nodes in the user interface.
+.. attribute:: config.ipnodes
 
-.. _commenttypes-vars:
+   A list of categories which are clauses.  These are highlighted (with
+   a tan shade) to make it clear where the “floor” of a clause is, for
+   the purpose of rearranging nodes in the user interface.
 
-``commentTypes``
-    Types of comments.  Comments are nodes of the form ``(CODE
-    {XXX:words_words_words})`` For every value of “XXX” is in this list,
-    when editing the contents of the comment with :func:`the editing
-    function <editNode>`, a dialog box will appear allowing the comment
-    to be edited as text, instead of the default editing interface.
+.. attribute:: config.commentTypes
 
-``customCommands``
-    A Javascript function containing code to configure
-    the keybindings.  This should be a series of calls to
-    :func:`addCommand`.
+   Types of comments.  Comments are nodes of the form ``(CODE
+   {XXX:words_words_words})`` For every value of “XXX” is in this list,
+   when editing the contents of the comment with :func:`the editing
+   function <editNode>`, a dialog box will appear allowing the comment
+   to be edited as text, instead of the default editing interface.
 
-``defaultConMenuGroup``
-    The label suggestions to display in the context (right-click) menu,
-    when no suggestion can be deduced from the already-present label.
+.. attribute:: config.customCommands
 
-``customConMenuGroups``
-    A Javascript function to configure the context menu suggestions.
-    This should be a series of calls to :func:`addConMenuGroup`.
+   A Javascript function containing code to configure
+   the keybindings.  This should be a series of calls to
+   :func:`addCommand`.
 
-``customConLeafBefore``
-    A Javascript function to configure the new node options in the context
-    menu.  This should be a series of calls to :func:`addConLeafBefore`.
+.. attribute:: config.defaultConMenuGroup
+
+   The label suggestions to display in the context (right-click) menu,
+   when no suggestion can be deduced from the already-present label.
+
+.. attribute:: config.customConMenuGroups
+
+   A Javascript function to configure the context menu suggestions.
+   This should be a series of calls to :func:`addConMenuGroup`.
+
+.. attribute:: config.customConLeafBefore
+
+   A Javascript function to configure the new node options in the context
+   menu.  This should be a series of calls to :func:`addConLeafBefore`.
 
 Color schemes
 `````````````
@@ -427,7 +445,7 @@ Backquote (`)
     Cycle between tags for non-argument NPs
 
 @ (Shift-2)
-    :func:`split a word <splitWord>`
+    :ref:`split a word <splitWord>`
 
 3
     Unbound
@@ -493,7 +511,7 @@ Shift + L
     The same (included as an example of a keybinding with modifier)
 
 Forward slash (/)
-    :ref:`Search <search>`
+    :ref:`Search <searching>`
 
 
 .. _customkeys:
@@ -648,6 +666,7 @@ follows:
 
    One argument.
 
+.. _splitWord:
 .. function:: splitWord()
 
    Split a word (for example, to break up a contraction).  Annotald will
@@ -664,8 +683,8 @@ follows:
    exists as a dash tag on the node, remove it.  Otherwise, add it.
    The optional second argument gives a list of extensions in the
    order they should appear from the base category out; if not given,
-   it is filled from one of :ref:`the extensions-family variables
-   <extensions-vars>` based on a heuristic as to the type of node
+   it is filled from one of :attr:`the extensions-family variables
+   <config.extensions>` based on a heuristic as to the type of node
    which is selected.  One mandatory and one optional argument.
 
 .. function:: toggleLemmata()
@@ -762,7 +781,7 @@ be supported, the case must:[#case-differences]_
 - at the word level,
 - without any unmarked default categories.
 
-Then, :ref:`some options <casevars>` need to be set in the configuration
+Then, :attr:`some options <config.displayCaseMenu>` need to be set in the configuration
 file.  Once this is done, the context menu will contain options for
 setting case:
 
@@ -771,12 +790,12 @@ setting case:
    :align: center
 
 Invoking the context menu on an individual case-bearing node (one of
-:data:`caseTags`) will allow that node’s case to be changed
+:attr:`config.caseTags`) will allow that node’s case to be changed
 individually.  Invoking it on a case-bearing phrase (one of
-:data:`casePhrases`) will change the case of all that node’s
+:attr:`config.casePhrases`) will change the case of all that node’s
 case-bearing daughters, without recursing too deeply.
 
-.. _search:
+.. _searching:
 
 Searching
 ~~~~~~~~~
@@ -797,7 +816,7 @@ interpreted as a case-insensitive Javascript regular expression.  The
 Javascript regular expression format is very similar to that used by
 many programming languages.  A full description of the format is outside
 the scope of this document, but is available via `this reference manual
-<https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/RegExp>`.
+<https://developer.mozilla.org/en-US/docs/JavaScript/Reference/Global_Objects/RegExp>`_.
 The leaf also has a drop-down box, which indicates whether the search
 string is to match against the node labels, the text of the corpus, or
 the lemmata.  The search string is additionally left-anchored – that is,
@@ -1165,13 +1184,16 @@ What follows is an annotated example of a custom function.  It forms a
   extra layer of structure; a ``CONJP`` is inserted dominating the ``CONJ``
   and the second conjunct
 
+..
+   TODO: test me
+
 ::
 
     function autoConjoin() {
-       if (!startnode) return; // <1>
-       if (!endnode) { // <2>
-           var savestartnode = startnode;
-           var selnode = $(startnode); // <3>
+       if (selection.cardinality() === 0) return; // <1>
+       if (selection.cardinality() === 1) { // <2>
+           var savestartnode = selection.get();
+           var selnode = $(savestartnode); // <3>
            var label = getLabel(selnode);
            if (!label.startsWith("IP") &&
                !label.startsWith("CP")) { // <4>
@@ -1179,18 +1201,18 @@ What follows is an annotated example of a custom function.  It forms a
            }
            var conjnode = selnode.children(".CONJ").first(); // <5>
            if (conjnode) {
-               startnode = selnode.children().first().get(0); // <6>
-               endnode = conjnode.prev().get(0);
+               selection.set(selnode.children().first().get(0)); // <6>
+               selection.set(conjnode.prev().get(0), true);
                makeNode(label);
-               startnode = conjnode.get(0);
-               endnode = selnode.children().last().get(0);
+               selection.set(conjnode.get(0));
+               selection.set(selnode.children().last().get(0), true);
                makeNode("CONJP");
-               var conjpnode = $(startnode);
-               startnode = conjpnode.children().get(1);
-               endnode = conjpnode.children().last().get(0);
+               var conjpnode = $(selection.get());
+               selection.set(conjpnode.children().get(1));
+               selection.set(conjpnode.children().last().get(0));
                makeNode(label);
-               startnode = savestartnode; // <7>
-               endnode = undefined;
+               selection.clear();
+               selection.set(savestartnode); // <7>
                updateSelection();
            }
        } else { // <8>
@@ -1204,27 +1226,21 @@ What follows is an annotated example of a custom function.  It forms a
            }
        }
 
-
-
-..
-   TODO
-
-   <1> Exit the function if nothing is selected.
-   <2> If `endnode` is `null`, there is only one node selected.
-   <3> The `startnode` and `endnode` variables hold “native” nodes.  The
-   `$()` function “wraps” them in the jQuery library, allowing jQuery
+1. Exit the function if nothing is selected.
+2. If there is only one thing selected...
+3. The :func:`selection.get` function returns “native” nodes.  The
+   ``$()`` function “wraps” them in the jQuery library, allowing jQuery
    functions to be used.
-   <4> IP and CP nodes should keep their dash tags when embedded inside
-   conjunction.  Thus we have (e.g. in the PPCEME) =(NP-SBJ (NP ...)
-   (CONJP ...))= but =(IP-INF (IP-INF ...) (CONJP ...))=
-   <5> jQuery syntax is very intuitive; this line gets the first child of
-   the `selnode` (selected node)
-   <6> Appending `.get(0)` to a jQuery object “unwraps” it, transforming it
-   back to a native type appropriate for storing in the `startnode`
-   variable.
-   <7> Restore the user’s selection before exiting the function
-   <8> This is the branch that will be taken if two nodes are selected
-   <9> For word level conjunction, the selection must span over a =CONJ=
+4. IP and CP nodes should keep their dash tags when embedded inside
+   conjunction.  Thus we have (e.g. in the PPCEME) ``(NP-SBJ (NP ...)
+   (CONJP (NP ...)))`` but ``(IP-INF (IP-INF ...) (CONJP (IP-INF ...)))``.
+5. jQuery syntax is very intuitive; this line gets the first child of
+   the ``selnode`` (selected node).
+6. Appending ``.get(0)`` to a jQuery object “unwraps” it, transforming it
+   back to a native type appropriate for passing to :func:`selection.set`.
+7. Restore the user’s selection before exiting the function.
+8. This is the branch that will be taken if two nodes are selected.
+9. For word level conjunction, the selection must span over a ``CONJ``
    node, and each member of the selection must be a leaf node.
 
 ..

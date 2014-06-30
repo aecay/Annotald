@@ -6,18 +6,22 @@
 Welcome to Annotald's documentation!
 ====================================
 
-Contents:
+This website contains the documentation for Annotald version |version|,
+generated on |today|.
+
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
 
    user
+   psdx-format
+   developer
 
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
