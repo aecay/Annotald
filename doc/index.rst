@@ -15,6 +15,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
+   about
    user
    psdx-format
    developer

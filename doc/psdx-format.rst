@@ -102,8 +102,8 @@ The tag also has one optional attribute:
 Categories can fall into one of two classes:
 
 punctuation
-    A punctuation category is one of the chacracters ``.`` or ``,``
-    (i.i. period or comma)
+    A punctuation category is one of the chacracters ``.``, ``,``, or ``"``
+    (i.e. period, comma, or quotation mark)
 nonpunctuation
     A nonpunctuation category must start with an uppercase letter of the
     English alphabet.  Subsequent characters may be uppercase English

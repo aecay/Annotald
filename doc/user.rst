@@ -36,15 +36,7 @@ treebank standards.  This version of the manual accompanies version
    modern English.  The principles illustrated should be applicable to
    annotation in all languages, however.
 
-Annotald was originally written as part of the `Icelandic Parsed
-Historical Corpus
-<http://www.linguist.is/icelandic_treebank/Icelandic_Parsed_Historical_Corpus_%28IcePaHC%29>`_
-(IcePaHC) project.  Development of the program has been funded by:
-
-- The Icelandic Research Fund (RANNÍS)
-- The US’s National Science Foundation
-- The University of Iceland Research Fund
-- Research funds at the University of Pennsylvania
+.. TODO: is a mailing list the right thing?
 
 Annotald is under active development.  If you would like to be on a
 mailing list to receive announcements of new releases, please contact
