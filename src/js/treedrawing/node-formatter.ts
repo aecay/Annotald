@@ -21,7 +21,9 @@ import lc = require("./label-convert");
 
 // TODO: should be private; figure out how to observe metadata
 export function formatSnode (snode : HTMLElement) : void {
-    if (snode.getAttribute("data-freezeWatch")) {
+    if (snode.getAttribute("data-freezeWatch") ||
+        snode.getAttribute("id") === "sn0" ||
+        snode.classList.contains("sentnode")) {
         return;
     }
     var textNode = snode.childNodes[0];
