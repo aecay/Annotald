@@ -1,4 +1,4 @@
 .PHONY: docs
 
 docs:
-	sphinx-build -b html doc build/doc
+	sphinx-build -b html -a doc build/doc

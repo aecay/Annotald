@@ -19,6 +19,11 @@ Contents
    psdx-format
    developer
 
+.. toctree::
+   :maxdepth: 1
+
+   api
+
 
 
 Indices and tables

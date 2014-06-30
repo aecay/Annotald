@@ -9,6 +9,7 @@ import undo = require("./undo");
 import events = require("./events");
 import conf = require("./config");
 import lc = require("./label-convert");
+import log = require("./../ui/log");
 
 // TODO: we should be able to import this...
 var wut = require("./../ext/wut");
@@ -21,9 +22,7 @@ var H = <WutFunctions>HP;
 /**
  * Coindex nodes.
  *
- * Coindex the two selected nodes.  If they are already coindexed, toggle
- * types of coindexation (normal -> gapping -> backwards gapping -> double
- * gapping -> no indices).  If only one node is selected, remove its index.
+
  */
 export function coIndex() : void {
     var sel = selection.get();
@@ -38,7 +37,7 @@ export function coIndex() : void {
         var startRoot = utils.getTokenRoot($(sel));
         var endRoot = utils.getTokenRoot($(sel2));
         if (startRoot !== endRoot) {
-            // TODO: message
+            log.error("Cannot coindex nodes in different sentences");
             return;
         }
 
@@ -75,8 +74,6 @@ export function coIndex() : void {
     }
 }
 
-// * Movement
-
 function randomString(length : number, chars : string) : string {
     var result = "";
     for (var i = length; i > 0; --i) {
@@ -85,18 +82,7 @@ function randomString(length : number, chars : string) : string {
     return result;
 }
 
-/**
- * Move the selected node(s) to a new position.
- *
- * The movement operation must not change the text of the token.
- *
- * Empty categories are not allowed to be moved as a leaf.  However, a
- * non-terminal containing only empty categories can be moved.
- *
- * @param {Node} parent the parent node to move selection under
- *
- * @returns {Boolean} whether the operation was successful
- */
+// TODO: implement the no-movement-of-empty-leaves restriction
 export function moveNode(parent : HTMLElement) : boolean {
     var node = selection.get();
     var parent_ip = $(utils.getTokenRoot($(node)));
@@ -227,14 +213,6 @@ export function moveNode(parent : HTMLElement) : boolean {
     return true;
 }
 
-/**
- * Move several nodes.
- *
- * The two selected nodes must be sisters, and they and all intervening sisters
- * will be moved as a unit.  Calls {@link moveNode} to do the heavy lifting.
- *
- * @param {Node} parent the parent to move the selection under
- */
 export function moveNodes(parent : HTMLElement) : boolean {
     if (selection.cardinality() !== 2) {
         return;
@@ -273,14 +251,6 @@ export function moveNodes(parent : HTMLElement) : boolean {
     selection.clearSelection();
 }
 
-// * Deletion
-
-/**
- * Delete a node.
- *
- * The node can only be deleted if doing so does not affect the text, i.e. it
- * directly dominates no non-empty terminals.
- */
 export function pruneNode() : void {
     if (selection.cardinality() !== 1) {
         return;
@@ -327,22 +297,11 @@ export function pruneNode() : void {
     selection.updateSelection();
 }
 
-// * Creation
-
 // TODO: the hardcoding of defaults in this function is ugly.  We should
 // supply a default heuristic fn to try to guess these, then allow
 // settings.js to override it.
 
 // TODO: maybe put the heuristic into leafbefore/after, and leave this fn clean?
-
-/**
- * Create a leaf node adjacent to the selection, or a given target.
- *
- * @param {Boolean} before whether to create the node before or after selection
- * @param {String} label the label to give the new node
- * @param {String} word the text to give the new node
- * @param {Node} target where to put the new node (default: selected node)
- */
 export function makeLeaf(before : boolean,
                          label : string = "NP-SBJ",
                          word : string = "*con*",
@@ -423,34 +382,14 @@ export function makeLeaf(before : boolean,
     undo.endTransaction();
 }
 
-/**
- * Create a leaf node before the selected node.
- *
- * Uses heuristic to determine whether the new leaf is to be a trace, empty
- * subject, etc.
- */
 export function leafBefore() : void {
     makeLeaf(true);
 }
 
-/**
- * Create a leaf node after the selected node.
- *
- * Uses heuristic to determine whether the new leaf is to be a trace, empty
- * subject, etc.
- */
 export function leafAfter() : void {
     makeLeaf(false);
 };
 
-/**
- * Create a phrasal node.
- *
- * The node will dominate the selected node or (if two sisters are selected)
- * the selection and all intervening sisters.
- *
- * @param {String} [label] the label to give the new node (default: XP)
- */
 export function makeNode(label? : string) : void {
     // check if something is selected
     if (!selection.get()) {
