@@ -77,6 +77,14 @@ export function coIndex() : void {
 
 // * Movement
 
+function randomString(length : number, chars : string) : string {
+    var result = "";
+    for (var i = length; i > 0; --i) {
+        result += chars[Math.round(Math.random() * (chars.length - 1))];
+    }
+    return result;
+}
+
 /**
  * Move the selected node(s) to a new position.
  *
@@ -89,72 +97,91 @@ export function coIndex() : void {
  *
  * @returns {Boolean} whether the operation was successful
  */
-export function moveNode(parent : Element) : boolean {
-    var parent_ip = $(utils.getTokenRoot($(selection.get())));
+export function moveNode(parent : HTMLElement) : boolean {
+    var node = selection.get();
+    var parent_ip = $(utils.getTokenRoot($(node)));
     var other_parent = $(utils.getTokenRoot($(parent)));
-    if (parent === document.getElementById("sn0") ||
-        !parent_ip.is(other_parent)) {
-        parent_ip = $("#sn0");
+    var _bail = () : void => { return; };
+    var tokenMerge = false;
+
+    if (parent.classList.contains("sentnode")) {
+        parent = document.getElementById("sn0");
+    }
+
+    undo.beginTransaction();
+
+    undo.touchTree($(parent));
+    undo.touchTree($(node));
+
+    if ($(node).parent().hasClass("sentnode")) {
+        // Moving a sentence into another
+        undo.registerDeletedRootTree($(node));
+        var oldId = $(node).attr("data-id");
+        $(node).parent().replaceWith(node);
+        _bail = () : void => { $(node).wrap(
+            '<div class="sentnode" data-id="' + oldId + '" />'); };
+        tokenMerge = true;
+    } else if ($(parent).hasClass("sentnode") || !parent_ip.is(other_parent)) {
+        // Moving a node out into its own sentence
+        node = $(selection.get()).wrap(
+            '<div class="sentnode" data-id="' +
+                randomString(8, "abcdefghijklmnopqrstuvwxyz0123456789") +
+                '" />').parent().get(0);
+        undo.registerNewRootTree($(node));
+        _bail = () : void => { $(node).replaceWith($(node).children()); };
     }
     var parent_before;
-    var textbefore = utils.currentText(parent_ip);
+    var $node = $(node);
+
+    function abort () : void {
+        selection.clearSelection();
+        undo.abortTransaction();
+        _bail();
+    }
+
     if (// can't move under a tag node
         !utils.isPossibleTarget(parent) ||
             // can't move an only child
-            $(selection.get()).parent().children().length === 1 ||
+            $(node).parent().children().length === 1 ||
             // can't move under one's own child
             $(parent).parents().is(selection.get()) ||
             // can't move an empty leaf node by itself
             utils.isEmptyNode(selection.get())) {
-        selection.clearSelection();
+        abort();
         return false;
-    } else if ($(selection.get()).parents().is(parent)) {
+    } else if ($node.parents().is(parent)) {
         // move up if moving to a node that is already my parent
-        if ($(selection.get()).parent().children().first().is(selection.get())) {
-            if ($(selection.get()).parentsUntil(parent).slice(0, -1).
+        if ($node.parent().children().filter(
+                function () : boolean {
+                    return !utils.isEmptyNode(this);
+                }).first().is(node)) {
+            if ($node.parentsUntil(parent).slice(0, -1).
                 filter(":not(:first-child)").length > 0) {
-                selection.clearSelection();
+                abort();
                 return false;
             }
-            if (parent === document.getElementById("sn0")) {
-                undo.touchTree($(selection.get()));
-                undo.registerNewRootTree($(selection.get()));
-            } else {
-                undo.touchTree($(selection.get()));
-            }
-            $(selection.get()).insertBefore($(parent).children().filter(
-                                                 $(selection.get()).parents()));
-            if (utils.currentText(parent_ip) !== textbefore) {
-                alert("failed what should have been a strict test");
-            }
-        } else if ($(selection.get()).parent().children().last().
-                   is(selection.get())) {
-            if ($(selection.get()).parentsUntil(parent).slice(0, -1).
+            $node.insertBefore($(parent).children().filter(
+                $node.parents()));
+        } else if ($node.parent().children().filter(
+                       function () : boolean {
+                           return !utils.isEmptyNode(this);
+                       }).last().is(node)) {
+            if ($node.parentsUntil(parent).slice(0, -1).
                 filter(":not(:last-child)").length > 0) {
-                selection.clearSelection();
+                abort();
                 return false;
             }
-            if (parent === document.getElementById("sn0")) {
-                undo.touchTree($(selection.get()));
-                undo.registerNewRootTree($(selection.get()));
-            } else {
-                undo.touchTree($(selection.get()));
-            }
-            $(selection.get()).insertAfter($(parent).children().
-                                     filter($(selection.get()).parents()));
-            if (utils.currentText(parent_ip) !== textbefore) {
-                alert("failed what should have been a strict test");
-            }
+            $node.insertAfter($(parent).children().
+                              filter($node.parents()));
         } else {
             // cannot move from this position
-            selection.clearSelection();
+            abort();
             return false;
         }
     } else {
         // otherwise move under my sister
-        var tokenMerge = utils.isRootNode( $(selection.get()) );
         var maxindex = utils.maxIndex(utils.getTokenRoot($(parent)));
-        var movednode = $(selection.get());
+        var movednode = $node;
 
         // NOTE: currently there are no more stringent checks below; if that
         // changes, we might want to demote this
@@ -168,69 +195,33 @@ export function moveNode(parent : Element) : boolean {
         // TODO: perhaps here and in the immediately following else if it is
         // possible to simplify and remove the compareDocumentPosition call,
         // since the jQuery subsumes it
-        if (parent.compareDocumentPosition(selection.get()) & 0x4) {
-            // check whether the nodes are adjacent.  Ideally, we would like
-            // to say selfAndParentsUntil, but no such jQuery fn exists, thus
-            // necessitating the disjunction.
-            // TODO: too strict
-            // &&
-            // $(selection.get()).prev().is(
-            //     $(parent).parentsUntil(startnode.parentNode).last()) ||
-            // $(selection.get()).prev().is(parent)
 
+        // TODO: this will fail if we're trying to move into an empty node.
+        if ((parent.compareDocumentPosition(node) & 0x4) &&
+            $(parent).parentsUntil($node.parent()).addBack().is(
+                $node.prevAll().filter(function () : boolean {
+                    return !utils.isEmptyNode(this);
+                }).first())) {
             // parent precedes startnode
-            undo.undoBeginTransaction();
             if (tokenMerge) {
-                undo.registerDeletedRootTree($(selection.get()));
-                undo.touchTree($(parent));
                 // TODO: this will bomb if we are merging more than 2 tokens
                 // by multiple selection.
                 utils.addToIndices(movednode, maxindex);
-            } else {
-                undo.touchTree($(selection.get()));
-                undo.touchTree($(parent));
             }
             movednode.appendTo(parent);
-            if (utils.currentText(parent_ip) !== textbefore)  {
-                undo.undoAbortTransaction();
-                parent_ip.replaceWith(parent_before);
-                if (parent_ip.prop("id") === "sn0") {
-                    $("#sn0").mousedown(events.handleNodeClick);
-                }
-                selection.clearSelection();
-                return false;
-            } else {
-                undo.undoEndTransaction();
-            }
-        } else if ((parent.compareDocumentPosition(selection.get()) & 0x2)) {
-            // &&
-            // $(selection.get()).next().is(
-            //     $(parent).parentsUntil(startnode.parentNode).last()) ||
-            // $(selection.get()).next().is(parent)
-
-            // startnode precedes parent
-            undo.undoBeginTransaction();
+        } else if ((parent.compareDocumentPosition(node) & 0x2) &&
+                   $(parent).parentsUntil($node.parent()).addBack().is(
+                       $node.nextAll().filter(function () : boolean {
+                           return !utils.isEmptyNode(this);
+                       }).first())) {
             if (tokenMerge) {
-                undo.registerDeletedRootTree($(selection.get()));
-                undo.touchTree($(parent));
                 utils.addToIndices(movednode, maxindex);
-            } else {
-                undo.touchTree($(selection.get()));
-                undo.touchTree($(parent));
             }
             movednode.insertBefore($(parent).children().first());
-            if (utils.currentText(parent_ip) !== textbefore) {
-                undo.undoAbortTransaction();
-                parent_ip.replaceWith(parent_before);
-                if (parent_ip.attr("id") === "sn0") {
-                    $("#sn0").mousedown(events.handleNodeClick);
-                }
-                selection.clearSelection();
-                return false;
-            } else {
-                undo.undoEndTransaction();
-            }
-        } // TODO: conditional branches not exhaustive
+        } else {
+            abort();
+            return false;
+        }
     }
     selection.clearSelection();
     return true;
