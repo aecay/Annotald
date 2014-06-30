@@ -209,7 +209,16 @@ export function guessLeafNode(node : Node) : boolean {
  * @param {JQuery} node the node to operate on
  */
 export function getTokenRoot(node : JQuery) : Node {
-    return node.parents().addBack().filter(".sentnode>.snode").get(0);
+    return node.parents().addBack().filter("#sn0>.sentnode>.snode").get(0);
+};
+
+/**
+ * Get the root of the tree that a node belongs to.
+ *
+ * @param {JQuery} node the node to operate on
+ */
+export function getTokenSentence(node : JQuery) : Node {
+    return node.parents().addBack().filter("#sn0>.sentnode").get(0);
 };
 
 /**
