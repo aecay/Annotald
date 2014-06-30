@@ -30,3 +30,4 @@ doc/README.asciidoc
 /_SpecRunner.html
 
 flycheck_*
+/s3_website.yml
