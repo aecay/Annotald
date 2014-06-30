@@ -220,7 +220,9 @@ module.exports = function (grunt) {
                 src: "build/webapp/ext.js",
                 dest: "build/webapp/ext.min.js",
                 options: {
-                    preserveComments: 'some'
+                    preserveComments: 'some',
+                    sourceMap: true,
+                    sourceMapIncludeSources: true
                 }
             }
         },
@@ -258,6 +260,10 @@ module.exports = function (grunt) {
             oauth_receiver: {
                 src: "src/html/oauth_receiver.html",
                 dest: "build/webapp/oauth_receiver.html"
+            },
+            dropbox_js: {
+                src: "node_modules/dropbox/lib/dropbox.js",
+                dest: "build/webapp/dropbox.js"
             },
             nw_pkg: {
                 src: "src/nw-package.json",
@@ -310,8 +316,8 @@ module.exports = function (grunt) {
                                           //, 'clean:build'
                                          ]);
     grunt.registerTask('build-annotald', ['browserify:annotald',
-                                          'extract_sourcemap:annotald'
-                                          // 'uglify:annotald'
+                                          'extract_sourcemap:annotald',
+                                          'uglify:annotald'
                                           //, 'clean:build'
                                          ]);
     grunt.registerTask('build-annotald-nw', ['browserify:annotaldNw']);
@@ -319,7 +325,7 @@ module.exports = function (grunt) {
     grunt.registerTask('build-html', ['copy:main','copy:oauth_receiver']);
 
     grunt.registerTask('build', ['build-external','build-annotald',
-                                 'build-css','build-html']);
+                                 'build-css','build-html','copy:dropbox_js']);
     grunt.registerTask('build-nw', ['build-external','build-annotald-nw',
                                     'build-css','build-html','copy:nw_pkg']);
     grunt.registerTask('test', ['browserify:test','jasmine:test']);
