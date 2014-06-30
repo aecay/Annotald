@@ -116,18 +116,18 @@ export function isLeafNode(node : Node) : boolean {
  * @param {Node} node
  * @returns {Boolean}
  */
-export function isEmptyNode(node : Node) : boolean {
-    if (!isLeafNode(node)) {
+export function isEmptyNode(node : HTMLElement) : boolean {
+    if (isLeafNode(node)) {
+        var nt = node.getAttribute("data-nodetype");
+        return nt && ["trace", "ec", "comment"].indexOf(nt) >= 0;
+    } else if (node.classList.contains("snode")) {
+        return _.all($(node).children().filter(":not(.meta)").map(
+            function () : boolean {
+                return isEmptyNode(this);
+            }));
+    } else {
         return false;
     }
-    if (getLabel($(node)) === "CODE") {
-        return true;
-    }
-    var text = wnodeString(node);
-    if (startsWith(text, "*") || text.split("-")[0] === "0") {
-        return true;
-    }
-    return false;
 }
 
 /**
