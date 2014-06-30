@@ -145,7 +145,7 @@ also: https://stuk.github.io/jszip/
 switch to: https://github.com/petkaantonov/bluebird
 for speed
 * DIGS todos
-** TODO fix ipnodes
+** TODO fix ipnodes highlighting
 ** TODO icelandic and OE demos
 ** TODO port forwards fixes from 1.0 branch
 ** TODO website up and running
@@ -158,3 +158,10 @@ for speed
 ** TODO case isn’t showing up as dash tags
 ** TODO get case menu working
 ** TODO create an icepahc file reader
+** TODO implement non-chrome browser warning
+I’m a bad person...
+* Things that make Annotald barf from IcePaHC
+
+=(IP-MAT=1-2= from (ID 1150.FIRSTGRAMMAR.SCI-LIN,.29)
+
+=*pro*-dat=
