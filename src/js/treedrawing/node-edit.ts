@@ -212,7 +212,7 @@ export function displayRename () : void {
     if (selection.cardinality() !== 1) {
         return;
     }
-    undo.undoBeginTransaction();
+    undo.beginTransaction();
     undo.touchTree($(selection.get()));
     bindings.inhibit();
     $("#sn0").unbind("mousedown");
@@ -241,7 +241,7 @@ export function displayRename () : void {
                                                      word, lemma);
                     $("#leafeditor").replaceWith(replNode);
                     postChange(replNode);
-                    undo.undoAbortTransaction();
+                    undo.abortTransaction();
                 }
                 if (event.keyCode === 13) {
                     var newlabel = $("#leafphrasebox").val().toUpperCase();
@@ -278,7 +278,7 @@ export function displayRename () : void {
                                                      newword, newlemma);
                     $("#leafeditor").replaceWith(replNode);
                     postChange(replNode);
-                    undo.undoEndTransaction();
+                    undo.endTransaction();
                     undo.undoBarrier();
                 }
                 if (event.keyCode === 9) {
@@ -327,7 +327,7 @@ export function displayRename () : void {
                 if (event.keyCode === 27) {
                     $("#labelbox").replaceWith(label + " ");
                     postChange(origNode);
-                    undo.undoAbortTransaction();
+                    undo.abortTransaction();
                 }
                 if (event.keyCode === 13) {
                     var newphrase = $("#labelbox").val().toUpperCase();
@@ -344,7 +344,7 @@ export function displayRename () : void {
                     // }
                     $("#labelbox").replaceWith(newphrase + " ");
                     postChange(origNode);
-                    undo.undoEndTransaction();
+                    undo.endTransaction();
                     undo.undoBarrier();
                 }
             }).mouseup(function editNonLeafClick (
@@ -388,7 +388,7 @@ export function editLemma () : void {
     }
     bindings.inhibit();
     $("#sn0").unbind("mousedown");
-    undo.undoBeginTransaction();
+    undo.beginTransaction();
     undo.touchTree($(lemmaEditTarget));
     $("#butundo").prop("disabled", true);
     $("#butredo").prop("disabled", true);
@@ -412,7 +412,7 @@ export function editLemma () : void {
                 $("#leafeditor").replaceWith("<span class='lemma'>-" +
                                              lemma + "</span>");
                 postChange();
-                undo.undoAbortTransaction();
+                undo.abortTransaction();
             }
             if (event.keyCode === 13) {
                 var newlemma = $("#leaflemmabox").val();
@@ -423,7 +423,7 @@ export function editLemma () : void {
                 $("#leafeditor").remove();
                 metadata.setMetadata(lemmaEditTarget, "lemma", newlemma);
                 postChange();
-                undo.undoEndTransaction();
+                undo.endTransaction();
                 undo.undoBarrier();
             }
         }).mouseup(function editLemmaClick (
@@ -461,7 +461,7 @@ export function splitWord () : void {
         utils.isEmptyNode(selection.get())) {
         return;
     }
-    undo.undoBeginTransaction();
+    undo.beginTransaction();
     undo.touchTree($(selection.get()));
     var wordSplit = utils.wnodeString(selection.get()).split("-");
     var origWord = wordSplit[0];
@@ -483,17 +483,17 @@ export function splitWord () : void {
         var words = $("#splitWordInput").val().split("@");
         if (words.join("") !== origWord) {
             log.warning("The two new words don't match the original.  Aborting");
-            undo.undoAbortTransaction();
+            undo.abortTransaction();
             return;
         }
         if (words.length < 0) {
             log.warning("You have not specified where to split the word.");
-            undo.undoAbortTransaction();
+            undo.abortTransaction();
             return;
         }
         if (words.length > 2) {
             log.warning("You can only split in one place at a time.");
-            undo.undoAbortTransaction();
+            undo.abortTransaction();
             return;
         }
         var labelSplit = origLabel.split("+");
@@ -514,7 +514,7 @@ export function splitWord () : void {
             metadata.setMetadata(selection.get(), "lemma", origLemma);
         }
         dialog.hideDialogBox();
-        undo.undoEndTransaction();
+        undo.endTransaction();
         undo.undoBarrier();
     }
     var html = "Enter an at-sign at the place to split the word: \

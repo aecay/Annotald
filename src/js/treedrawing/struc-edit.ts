@@ -244,11 +244,11 @@ export function moveNode(parent : Element) : boolean {
  *
  * @param {Node} parent the parent to move the selection under
  */
-export function moveNodes(parent : Element) : boolean {
+export function moveNodes(parent : HTMLElement) : boolean {
     if (selection.cardinality() !== 2) {
         return;
     }
-    undo.undoBeginTransaction();
+    undo.beginTransaction();
     undo.touchTree($(selection.get()));
     undo.touchTree($(parent));
     if (selection.get().compareDocumentPosition(selection.get(true)) & 0x2) {
@@ -272,9 +272,9 @@ export function moveNodes(parent : Element) : boolean {
     selection.set(toselect.get(0));
     var res = undo.ignoringUndo(function () : void { moveNode(parent); });
     if (res) {
-        undo.undoEndTransaction();
+        undo.endTransaction();
     } else {
-        undo.undoAbortTransaction();
+        undo.abortTransaction();
     }
     selection.set($(".snode[xxx=newnode]").first().get(0));
     selection.clear(true);
@@ -364,7 +364,7 @@ export function makeLeaf(before : boolean,
         target = selection.get();
     }
 
-    undo.undoBeginTransaction();
+    undo.beginTransaction();
     var isRootLevel = false;
     if (utils.isRootNode($(target))) {
         isRootLevel = true;
@@ -399,7 +399,7 @@ export function makeLeaf(before : boolean,
             }
             doCoindex = true;
         } else { // abort if selecting from different tokens
-            undo.undoAbortTransaction();
+            undo.abortTransaction();
             return;
         }
     }
@@ -429,7 +429,7 @@ export function makeLeaf(before : boolean,
     if (isRootLevel) {
         undo.registerNewRootTree(newleafJQ);
     }
-    undo.undoEndTransaction();
+    undo.endTransaction();
 }
 
 /**
@@ -469,7 +469,7 @@ export function makeNode(label? : string) : void {
         label = "XP";
     }
     var rootLevel = utils.isRootNode($(selection.get()));
-    undo.undoBeginTransaction();
+    undo.beginTransaction();
     if (rootLevel) {
         undo.registerDeletedRootTree($(selection.get()));
     } else {
@@ -502,7 +502,7 @@ export function makeNode(label? : string) : void {
             if (utils.currentText(parent_ip) !== oldtext) {
                 // TODO: is this plausible? can we remove the check?
                 parent_ip.replaceWith(parent_before);
-                undo.undoAbortTransaction();
+                undo.abortTransaction();
                 selection.clearSelection();
                 return;
             }
@@ -517,7 +517,7 @@ export function makeNode(label? : string) : void {
         undo.registerNewRootTree(newnode);
     }
 
-    undo.undoEndTransaction();
+    undo.endTransaction();
 
     selection.selectNode(newnode.get(0));
 }

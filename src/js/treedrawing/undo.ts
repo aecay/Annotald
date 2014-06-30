@@ -83,7 +83,7 @@ export function undoBarrier () : void {
  * (which keeps all intermediate steps since the start call) or
  * `undoAbortTransaction` (which discards said steps).
  */
-export function undoBeginTransaction () : void {
+export function beginTransaction () : void {
     undoTransactionStack.push({
         map: undoMap,
         newTr: undoNewTrees,
@@ -94,14 +94,14 @@ export function undoBeginTransaction () : void {
 /**
  * End an undo transaction, keeping its changes
  */
-export function undoEndTransaction() : void {
+export function endTransaction() : void {
     undoTransactionStack.pop();
 }
 
 /**
  * End an undo transaction, discarding its changes
  */
-export function undoAbortTransaction () : void {
+export function abortTransaction () : void {
     var t = undoTransactionStack.pop();
     undoMap = t.map;
     undoNewTrees = t.newTr;
@@ -117,9 +117,9 @@ export function undoAbortTransaction () : void {
  */
 export function ignoringUndo(fn : Function) : void {
     // a bit of a grim hack, but it works
-    undoBeginTransaction();
+    beginTransaction();
     var res = fn();
-    undoAbortTransaction();
+    abortTransaction();
     return res;
 }
 
@@ -129,7 +129,7 @@ export function ignoringUndo(fn : Function) : void {
  * @param {JQuery} node the node in which changes are being made
  */
 export function touchTree(node : JQuery) : void {
-    var root = $(utils.getTokenRoot(node));
+    var root = $(utils.getTokenSentence(node));
     if (!undoMap[root.prop("id")]) {
         undoMap[root.prop("id")] = root.clone();
     }
