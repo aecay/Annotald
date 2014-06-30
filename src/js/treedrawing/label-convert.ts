@@ -4,7 +4,6 @@ import _ = require("lodash");
 
 import globals = require("./global");
 import metadata = require("./metadata");
-import startup = require("./startup");
 
 import compat = require("./../compat");
 var $ = compat.$;
@@ -305,10 +304,6 @@ export function parseFormatSpec (root : Element) : LabelMap {
     });
     return r;
 }
-
-startup.addStartupHook(() : void => {
-    globals.labelMapping = parseFormatSpec(globals.format);
-});
 
 /* tslint:disable:variable-name */
 export var __test__ : any = {};

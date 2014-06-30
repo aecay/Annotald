@@ -38,6 +38,7 @@ import save = require("./save");
 import undo = require("./undo");
 import selection = require("./selection");
 import contextmenu = require("./contextmenu");
+import lc = require("./label-convert");
 
 require("./entry-points");      // TODO: is this necessary?
 
@@ -109,6 +110,7 @@ export function startupTreedrawing (exitFn : Hook,
     assignEvents();
     globals.format = <Element>(
         new DOMParser().parseFromString(format, "text/xml").childNodes[0]);
+    globals.labelMapping = lc.parseFormatSpec(globals.format);
 
     _.each(startupHooks, function (hook : Hook) : void {
         hook();
