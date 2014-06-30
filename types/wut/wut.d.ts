@@ -8,6 +8,9 @@ interface WutFunctions {
     span : TagFunction;
     input: TagFunction;
     textarea: TagFunction;
+    label: TagFunction;
+    select: TagFunction;
+    option: TagFunction;
 }
 
 declare module "wut" {
