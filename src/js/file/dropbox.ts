@@ -8,13 +8,14 @@ import recent = require("./recent");
 import Q = require ("q");
 var DropboxCore = require("../ext/dropbox");
 import notify = require("../ui/log");
-import $ = require("jquery");
+import compat = require("../compat");
+var $ = compat.$;
 
 declare var Dropbox;
 
 var client = new DropboxCore.Client({ key: "rw6m6r2gi34luhp" });
 client.authDriver(new DropboxCore.AuthDriver.Popup(
-    { receiverUrl : "/html/oauth_receiver.html" }));
+    { receiverUrl : "https://s3.amazonaws.com/annotald.com/go/oauth_receiver.html" }));
 
 export class DropboxFile implements file.AnnotaldFile {
     private path : string;
