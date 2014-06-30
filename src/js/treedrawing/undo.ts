@@ -246,7 +246,7 @@ export function redo () : void {
 };
 
 function prepareUndoIds() : void {
-    $("#sn0>.snode").map(function () : void {
+    $("#sn0>.sentnode").map(function () : void {
         $(this).prop("id", "id" + idNumber);
         idNumber++;
     });
