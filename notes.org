@@ -155,3 +155,6 @@ for speed
 ** TODO look for todos in code; fix
 ** TODO don’t put local files in recent list
 ** TODO versioning scheme for stored configs to upgrade them on new annotald versions
+** TODO case isn’t showing up as dash tags
+** TODO get case menu working
+** TODO create an icepahc file reader
