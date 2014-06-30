@@ -42,6 +42,7 @@
 /file/local.js
 /file/dropbox.js
 /file/recent.js
+/file/icepahc.js
 /treedrawing/label-convert.js
 
 flycheck_*
