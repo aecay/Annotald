@@ -6,6 +6,8 @@ import $ = require("jquery");
 
 import bindings = require("./bindings");
 
+import Q = require("q");
+
 var vex = require("vex");
 
 var dialogShowing : boolean = false;
@@ -73,23 +75,37 @@ export function setInputFieldEnter(field : JQuery,
     });
 }
 
-export function prompt (message: string, callback : (s: string) => void) : void {
+export function prompt (message: string, value : string = "")
+: Q.Promise<string> {
+    var deferred = Q.defer<string>();
     bindings.inhibit();
+    dialogShowing = true;
     vex.dialog.prompt(
         { message: message,
+          value: value,
           callback: (s : string) : void => {
               bindings.uninhibit();
-              callback(s);
+              dialogShowing = false;
+              if (s !== "") {
+                  deferred.resolve(s);
+              } else {
+                  // TODO: this is rather ugly, but we don't get a nice
+                  // cancelled callback...
+                  deferred.reject(null);
+              }
           }}
     );
+    return deferred.promise;
 }
 
 export function confirm (message : string, callback : () => void) : void {
     bindings.inhibit();
+    dialogShowing = true;
     vex.dialog.confirm(
         { message: message,
           callback: () : void => {
               bindings.uninhibit();
+              dialogShowing = false;
               callback();
           }}
     );
