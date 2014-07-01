@@ -26,18 +26,20 @@ export function formatSnode (snode : HTMLElement) : void {
         snode.classList.contains("sentnode")) {
         return;
     }
+    if (snode.nodeType !== 1) {
+        throw new Error("Tried to format a non-snode.");
+    }
     var textNode = snode.childNodes[0];
+    var label = lc.getLabelForNode(snode);
     if (!textNode || textNode.nodeType !== 3) {
         var newTN = document.createTextNode("");
         snode.insertBefore(newTN, textNode);
         textNode = newTN;
+    } else {
+        $(snode).removeClass($.trim(textNode.nodeValue));
     }
-    if (snode.nodeType !== 1) {
-        throw "Tried to format a non-snode.";
-    }
-    var label = lc.getLabelForNode(snode);
-    label += " ";
-    textNode.nodeValue = label;
+    textNode.nodeValue = label + " ";
+    $(snode).addClass(label);
 
     // Lemma
     var wnode = $(snode).children(".wnode");
@@ -80,7 +82,8 @@ function snodeChange (records : MutationRecord[],
                       observer : MutationObserver) : void
 {
     _.each(records, function (record : MutationRecord) : void {
-        if (record.type === "attributes") {
+        if (record.type === "attributes" &&
+            record.attributeName.substr(0,5) === "data-") {
             if (record.target.nodeType === 1) {
                 formatSnode(<HTMLElement>record.target);
             }
