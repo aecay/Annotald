@@ -112,7 +112,9 @@ var MetaChoiceContainer = React.createClass({
                      React.DOM.select({ ref: "select",
                                         onChange: this.doUpdate,
                                         defaultValue:
-                                        this.props.backing.textContent
+                                        this.props.backing.textContent,
+                                        id: this.props.parent.getName() + "-" +
+                                        this.props.name
                                       },
                                       options));
     }
@@ -133,7 +135,8 @@ var MetaBoolContainer = React.createClass({
                          ref: "input",
                          defaultChecked:
                          $(this.props.backing).text() === "yes",
-                         onChange: this.doUpdate })
+                         onChange: this.doUpdate,
+                         id: this.props.parent.getName() + "-" + this.props.name})
                     );
     }
 });
@@ -151,7 +154,9 @@ var MetaTextContainer = React.createClass({
                                        ref: "input",
                                        onChange: this.doUpdate,
                                        defaultValue:
-                                       this.props.backing.textContent})
+                                       this.props.backing.textContent,
+                                       id: this.props.parent.getName() + "-" +
+                                       this.props.name })
                     );
     }
 });
@@ -194,10 +199,9 @@ var MetaKeysContainer = React.createClass({
     },
     doAddKey: function () : void {
         // TODO: make it possible to add nested metadata
-        dialog.prompt("Name of key to add", (key : string) : void => {
-            window.setTimeout(() => {
-                dialog.prompt("Value for key " + key,
-                              (val: string) : void => {
+        dialog.prompt("Name of key to add").then((key : string) : void => {
+            window.setTimeout(() : void => {
+                dialog.prompt("Value for key " + key).then((val: string) : void => {
                                   $(this.props.backing).append(
                                       '<div class="meta" data-tag="' + key + '">' +
                                           val + '</div>');
@@ -205,6 +209,13 @@ var MetaKeysContainer = React.createClass({
                               });
             }, 100);
         });
+    },
+    getName: function () : string {
+        if (this.props.parent) {
+            return this.props.parent.getName() + "-" + this.name;
+        } else {
+            return this.props.name;
+        }
     },
     render: function () : void {
         var that = this;
@@ -224,10 +235,12 @@ var MetaKeysContainer = React.createClass({
                         var p : { backing: Element;
                                   name: string;
                                   options?: string[];
-                                  parent: any } = {
+                                  parent: any;
+                                  key: string; } = {
                                       backing: this,
                                       name: name,
-                                      parent: that
+                                      parent: that,
+                                      key: name
                         };
                         if (spec.type === MetadataType.CHOICE) {
                             p.options = spec.choices;
@@ -279,10 +292,15 @@ export function updateMetadataEditor () : void {
         return;
     }
     var mnode = $(selection.get()).children(".meta");
+    if (mnode.length === 0) {
+        mnode = $('<div class="meta" data-tag="meta" />');
+        $(selection.get()).append(mnode);
+    }
     if (mnode.length === 1) {
         React.renderComponent(MetaKeysContainer({ backing: mnode.get(0),
                                                   typeSpec: metadataTypeSpec,
-                                                  vm: visibilityMap }),
+                                                  vm: visibilityMap,
+                                                  name: "meta" }),
                               mdnode);
     } else if (mnode.length > 1) {
         throw new Error("Too many meta nodes: " + selection.get().outerHTML);
