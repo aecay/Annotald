@@ -1,8 +1,9 @@
 /*global require: false, exports: true, process: false, window: false, Blob: false */
 
 var React = require("react"),
-    fileDropbox = require("../file/dropbox.ts"),
-    recent = require("../file/recent.ts"),
+    // fileDropbox = require("../file/dropbox.ts"),
+    // fileIcepahc = require("../file/icepahc.ts").IcepahcFile,
+    // recent = require("../file/recent.ts"),
     file = require("../file/file.ts"),
     _ = require("lodash"),
     Q = require("q");
@@ -158,14 +159,18 @@ exports.FileChooser = React.createClass({
                 {},
                 // TODO: deduce this automatically from registered file types
                 this.fileChoice(fileLocal, "Local file"),
-                this.fileChoice(fileDropbox.DropboxFile, "Dropbox file"),
-                React.DOM.li({},
-                             "Recent files:",
-                             React.DOM.br({}),
-                             RecentFileList({
-                                 filesPromise: recent.getRecentFiles(),
-                                 callback: this.props.callback
-                             })),
+                // this.fileChoice(fileIcepahc, "IcePaHC file"),
+                // TODO: fucking SSL, me cago en su puta madre
+                // this.fileChoice(fileDropbox.DropboxFile, "Dropbox file"),
+                // TODO: useless until we have more interesting file choices
+                // than just local
+                // React.DOM.li({},
+                //              "Recent files:",
+                //              React.DOM.br({}),
+                //              RecentFileList({
+                //                  filesPromise: recent.getRecentFiles(),
+                //                  callback: this.props.callback
+                //              })),
                 // TODO: not under node-webkit
                 React.DOM.li({},
                              "Local files:",
