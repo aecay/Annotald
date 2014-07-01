@@ -184,7 +184,8 @@ export function setLabelForNode (label : string,
 }
 
 export function getLabelForNode (node : Element,
-                                 mapping : LabelMap = globals.labelMapping)
+                                 mapping : LabelMap = globals.labelMapping,
+                                 includeIndex : boolean = true)
 : string {
     // Build the label
     var cat = node.getAttribute("data-category");
@@ -214,11 +215,13 @@ export function getLabelForNode (node : Element,
         });
     }
 
-    // THe index, if any
-    var md : any = metadata.getMetadata(node);
-    if (!_.isUndefined(md.index)) {
-        label += md.idxtype === "gap" ? "=" : "-";
-        label += md.index;
+    if (includeIndex) {
+    // The index, if any
+        var md : any = metadata.getMetadata(node);
+        if (!_.isUndefined(md.index)) {
+            label += md.idxtype === "gap" ? "=" : "-";
+            label += md.index;
+        }
     }
 
     return label;
