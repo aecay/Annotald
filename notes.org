@@ -98,13 +98,8 @@ http://www.lucaongaro.eu/blog/2012/12/02/easy-two-way-data-binding-in-javascript
 http://ericbidelman.tumblr.com/post/23615290220/data-binding-using-data-attributes
 list of resources realted to web components: https://gist.github.com/ebidel/6314025
 resumable uploads: http://resumablejs.com/
-* things needed for deploying to website
-- minify and combine css
-- minify and combine js
-- do above with sourcemaps
 * idea for download fn
 http://www.phpied.com/files/react/src/table2.js
-* intro.js
 * for github file browser
 use jqtree http://mbraak.github.io/jqTree/
 https://stackoverflow.com/questions/14731459/github-api-fetch-all-folders-and-files-in-single-get-request
@@ -127,6 +122,10 @@ https://stackoverflow.com/questions/20795323/editing-a-rich-data-structure-in-re
 
 https://www.npmjs.org/package/react-pushstate-mixin
 https://www.npmjs.org/package/react-bacon
+
+new, better:
+
+https://github.com/rpflorence/react-nested-router
 * grunt tips
 ** Supercharging your Gruntfile
    [[http://www.html5rocks.com/en/tutorials/tooling/supercharging-your-gruntfile/][Supercharging your Gruntfile]]
@@ -134,8 +133,6 @@ https://www.npmjs.org/package/react-bacon
 https://github.com/blixt/js-luaworker
 * forms
 http://newforms.readthedocs.org/en/latest/
-* multiline strings
-https://github.com/sindresorhus/multiline
 * files in browser
 combine https://gildas-lormeau.github.io/zip.js/fs-api.html for uploads
 with https://www.npmjs.org/package/browserify-fs
@@ -148,20 +145,36 @@ for speed
 ** TODO fix ipnodes highlighting
 ** TODO icelandic and OE demos
 ** TODO port forwards fixes from 1.0 branch
-** TODO website up and running
+** DONE website up and running
+   CLOSED: [2014-06-30 Mon 12:44]
 ** TODO test each user-facing fn
-** TODO pretty print xml on save
+** TODO pretty print xml on save                                      :later:
 ** TODO get comments working
 ** TODO look for todos in code; fix
-** TODO don’t put local files in recent list
-** TODO versioning scheme for stored configs to upgrade them on new annotald versions
-** TODO case isn’t showing up as dash tags
+** DONE don’t put local files in recent list
+   CLOSED: [2014-06-30 Mon 12:44]
+** TODO versioning scheme for stored configs to upgrade them on new annotald versions :later:
+** DONE case isn’t showing up as dash tags
+   CLOSED: [2014-06-30 Mon 13:40]
 ** TODO get case menu working
-** TODO create an icepahc file reader
+** DONE create an icepahc file reader
+   CLOSED: [2014-06-30 Mon 12:45]
 ** TODO implement non-chrome browser warning
 I’m a bad person...
+** TODO document the corpus format description
+** TODO step-by-step intro
+intro.js
+** TODO integrate metadata editor with undo
+** TODO on return key in metadata editor text field -> unfocus
+also esc for cancel?
+** TODO known incomplete
+- comment display, editing
 * Things that make Annotald barf from IcePaHC
 
 =(IP-MAT=1-2= from (ID 1150.FIRSTGRAMMAR.SCI-LIN,.29)
 
 =*pro*-dat=
+* dead chrome tabs
+sbo-sphinx
+napoleon (sphinx plugin)
+react typescript things
