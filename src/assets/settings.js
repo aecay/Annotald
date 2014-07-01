@@ -128,7 +128,6 @@ b.keyBindings = {
     l: cmds.editNode,
     "space": cmds.clearSelection,
     "`": cmds.toggleLemmata,
-    "mod+l": cmds.displayRename,
     "/": cmds.search,
     "@": cmds.splitWord
 };

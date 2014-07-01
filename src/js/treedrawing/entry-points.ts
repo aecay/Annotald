@@ -28,7 +28,6 @@ var exp = {
         redo: xUndo.redo,
         editNode: n.editNode,
         clearSelection: selection.clearSelection,
-        displayRename: n.displayRename,
         search: xSearch.search,
         toggleLemmata: view.toggleLemmata,
         toggleCollapsed: view.toggleCollapsed
