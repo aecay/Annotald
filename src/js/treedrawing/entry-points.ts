@@ -27,6 +27,7 @@ var exp = {
         undo: xUndo.undo,
         redo: xUndo.redo,
         editNode: n.editNode,
+        editLemma: n.editLemma,
         clearSelection: selection.clearSelection,
         search: xSearch.search,
         toggleLemmata: view.toggleLemmata,
