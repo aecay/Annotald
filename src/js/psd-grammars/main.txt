@@ -12,7 +12,7 @@ idwithtree = tree:nonterminal id:id? {
 id = ws "(ID " id:[A-Za-z0-9.,-]+ ")" ws { return id.join(""); }
 leafastree = leaf:leaf { return { tree: leaf }; }
 
-nonterminal = ws "(" label:ntlabel index:index? obligws desc:(leaf / nonterminal)+ ")" ws {
+nonterminal = ws "(" label:ntlabel index:index? obligws desc:(nonterminal / leaf)+ ")" ws {
     var ret = label;
     if (index) ret.index = index;
     ret.desc = desc;
@@ -25,7 +25,7 @@ var ret = {
     return ret;
 }
 
-ntlabelpiece = [A-Z][A-Z0-9]+ { return text(); }
+ntlabelpiece = [A-Z][A-Z0-9]* { return text(); }
 
 leaf = ws leaf:( comment / noncommentleaf ) ws {
     return leaf;
@@ -35,15 +35,16 @@ noncommentleaf = "(" label:leaflabel index:index? " " rhs:leafrhs ")" {
     if (index) rhs.index = index;
     return rhs;
 }
-leafrhs = trace / ec / comment / text
-trace = "*" tracetype:[A-Z]+ "*" index:index { return {
+leafrhs = comment / trace / ec / text
+trace = "*" tracetype:([A-Z]+) "*" index:index { return {
     type: "trace",
     index: index,
     tracetype: tracetype.join("")
 }; }
-ec = ec:(fullec / zeroec) { ec.type = "ec"; return ec; }
-fullec = "*" ectype:[a-z]+ "*" { return { ectype: ectype.join("") }; }
+ec = ec:(fullec / zeroec / starec) { ec.type = "ec"; return ec; }
+fullec = "*" ectype:([a-z]+) "*" { return { ectype: ectype.join("") }; }
 zeroec = "0" { return { ectype: "zero" }; }
+starec = "*" { return { ectype: "star" }; }
 
 comment = "(CODE " com:(structuredcomment / freecomment) ")" {
     com.type = "comment"; com.label = "CODE"; return com;
@@ -51,7 +52,7 @@ comment = "(CODE " com:(structuredcomment / freecomment) ")" {
 structuredcomment = "{" comtype:[A-Z]+ ":" text:[^)}]+ "}" {
     return { comtype: comtype.join(""), text: text.join("") };
 }
-freecomment = text:[^)]+ { return { text: text.join("") }; }
+freecomment = text:([^)]+) { return { text: text.join("") }; }
 
 index = idxtype:idxtype index:[0-9]+ { return { idxtype: idxtype, index: index.join("") }; }
 idxtype = [-=] { return text === "=" ? "gap" : "regular" ; }
