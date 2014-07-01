@@ -2,13 +2,19 @@
 
 /* tslint:disable */
 
-import $ = require("jquery");
+import compat = require("../compat");
+var $ = compat.$;
+import _ = require("lodash")
 import startup = require("./startup");
+import config = require("./config");
 
 var globalStyle = $('<style type="text/css"></style>');
 
 startup.addStartupHook(function () : void {
     globalStyle.appendTo("head");
+    _.each(config.ipnodes, (s : string) : void => {
+        styleIpNode(s);
+    });
 });
 
 startup.addShutdownHook(function () : void {
