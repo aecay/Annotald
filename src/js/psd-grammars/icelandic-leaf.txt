@@ -1,4 +1,35 @@
 leaflabel = leaflabelpiece (leaflabelpiece2)* { return text(); }
-leaflabelpiece = [A-Z][A-Z0-9$]* / [.,]
-leaflabelpiece2 = ("-" caselabelpiece) / ([-+] [A-Z][A-Z0-9$]*)
-caselabelpiece = [NDAG]
+leaflabelpiece = [A-Z][A-Z0-9$]* / [.,";:]
+leaflabelpiece2 = ([-+] [A-Z] [A-Z0-9$]*)
+
+ec = ec:(fullec / zeroec / starec) case? { ec.type = "ec"; return ec; }
+
+case = "-" [NDAG]
+
+// TODO: icepahc should probably correct these
+idwithtree = "(CODE *XXX*)"? ws tree:nonterminal id:id? {
+    var ret = { tree: tree };
+    if (id) ret.id = id;
+    return ret;
+}
+
+// TODO: star ecs having an index may be relatively common, should be
+// handled by base case.
+starec = "*" index:index? {
+    var ret = { ectype: "star" }
+    if (index) ret.index = index;
+    return ret;
+}
+
+leaf = ws leaf:( garbage / comment / noncommentleaf ) ws {
+    return leaf;
+}
+
+// TODO: almost all of these are bogus
+
+garbage = "(, -)" / "(- -)" / "(, ---)" / "(, -----)" / "(. ---)" / "(. -)" / "(" label:leaflabel index:index? " " [^()-]+ "-" [^()-]+ "-" [^()]+ ")"
+
+index = unkindex / (idxtype:idxtype index:[0-9]+ { return { idxtype: idxtype, index: index.join("") }; })
+
+// TODO: should icepahc fix?  or another notation?
+unkindex = "=XXX" { return; }
