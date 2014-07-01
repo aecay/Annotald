@@ -126,6 +126,7 @@ b.keyBindings = {
     d: cmds.pruneNode,
     z: cmds.undo,
     l: cmds.editNode,
+    "shift+l": cmds.editLemma,
     "space": cmds.clearSelection,
     "`": cmds.toggleLemmata,
     "/": cmds.search,
